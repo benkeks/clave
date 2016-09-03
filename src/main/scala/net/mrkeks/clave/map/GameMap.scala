@@ -12,20 +12,12 @@ import org.denigma.threejs.Vector3
 import org.denigma.threejs.MeshFaceMaterial
 import org.denigma.threejs.MeshLambertMaterial
 
-object GameMap {
-  
-  object Tile extends Enumeration {
-    val Empty, Wall, SolidWall, Something3, Something4,
-        Something5, Something6, Something7, EmptyMonster, EmptyPlayer = Value
-  }
-  type Tile = Tile.Value
-}
 
-class GameMap(val width: Int, val height: Int) extends GameObject {
+
+class GameMap(val width: Int, val height: Int)
+  extends GameObject with MapData {
   
-  import GameMap._
-  
-  private val data = Array.ofDim[Tile](width, height)
+  import MapData._
   
   private object Materials {
     val wall = new MeshLambertMaterial()
@@ -41,19 +33,6 @@ class GameMap(val width: Int, val height: Int) extends GameObject {
   box.faces.foreach { f => f.materialIndex = 0 }
   
   private val mesh = new Mesh(new Geometry(), materials)
-  
-  def loadFromString(strData: String) {
-    val rawArray = strData
-      .split("\n")
-      .map(_.split(","))
-      .map(_.map(_.trim.toInt))
-      
-    for (z <- 0 until height) {
-      for (x <- 0 until width) {
-        data(x)(z) = Tile(rawArray(z)(x))
-      }
-    }
-  }
   
   def init(context: DrawingContext) {
     context.scene.add(mesh)

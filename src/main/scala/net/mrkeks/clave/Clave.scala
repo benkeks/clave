@@ -13,6 +13,7 @@ import net.mrkeks.clave.map.Maps
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.game.PlayerControl
 import net.mrkeks.clave.game.Input
+import net.mrkeks.clave.map.MapData
 
 @JSExport
 object Clave {
@@ -31,14 +32,14 @@ object Clave {
   var deltaTime = 0.0
   
   val map = new GameMap(16,16)
-  map.loadFromString(Maps.level0)
   add(map)
-  map.updateView()
   
-  val player = new Player()
+  val player = new Player(map)
   add(player)
   
   val playerControl = new PlayerControl(player, input)
+  
+  loadLevel(Maps.level0)
   
   def run() = {
 
@@ -79,5 +80,21 @@ object Clave {
     
     deltaTime = js.Date.now - lastFrameTime
     lastFrameTime = js.Date.now
+  }
+  
+  def loadLevel(mapData: String) {
+    val positions = map.loadFromString(mapData)
+    map.updateView()
+    
+    (for {
+      playerPositions <- positions.get(MapData.Tile.Player)
+      player1Pos <- playerPositions.headOption
+    } yield player1Pos)
+    match {
+      case Some((x,z)) =>
+        player.position.set(x, 0, z)
+      case _ =>
+        throw new Exception("Invalid map: no player position in map")
+    }
   }
 }
