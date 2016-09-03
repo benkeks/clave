@@ -6,7 +6,7 @@ import org.denigma.threejs.MeshBasicMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Geometry
 import org.denigma.threejs.Mesh
-import net.mrkeks.clave.map.game.GameObject
+import net.mrkeks.clave.game.GameObject
 import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Vector3
 import org.denigma.threejs.MeshFaceMaterial
@@ -48,9 +48,9 @@ class GameMap(val width: Int, val height: Int) extends GameObject {
       .map(_.split(","))
       .map(_.map(_.trim.toInt))
       
-    for (y <- 0 until height) {
+    for (z <- 0 until height) {
       for (x <- 0 until width) {
-        data(x)(y) = Tile(rawArray(y)(x))
+        data(x)(z) = Tile(rawArray(z)(x))
       }
     }
   }
@@ -59,19 +59,23 @@ class GameMap(val width: Int, val height: Int) extends GameObject {
     context.scene.add(mesh)
   }
   
+  def update(deltaTime: Double) {
+    
+  }
+  
   def updateView() {
     val beginUpdate = js.Date.now
     
     val newGeometry = new Geometry()
     val drawingMatrix = new Matrix4()
     for (x <- 0 until width) {
-      for (y <- 0 until height) {
-        data(x)(y) match {
+      for (z <- 0 until height) {
+        data(x)(z) match {
           case Tile.Wall =>
-            drawingMatrix.makeTranslation(x, 0, y)
+            drawingMatrix.makeTranslation(x, 0, z)
             newGeometry.merge(box, drawingMatrix.multiply(new Matrix4().makeRotationY(Math.random() * .1 - .05)), 0)
           case Tile.SolidWall =>
-            drawingMatrix.makeTranslation(x, 0, y)
+            drawingMatrix.makeTranslation(x, 0, z)
             newGeometry.merge(box, drawingMatrix, 1)
           case _ =>
         }

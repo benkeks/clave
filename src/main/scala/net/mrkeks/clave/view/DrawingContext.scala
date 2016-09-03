@@ -29,7 +29,7 @@ class DrawingContext() {
   
   renderer.setClearColor(new Color(0x20a010));
   
-  val camera = new OrthographicCamera(0,16,2,-14,-100,100)
+  val camera = new OrthographicCamera(-.5,15.5,2,-14,-100,100)
   
   val scene = new Scene();
   
@@ -47,7 +47,6 @@ class DrawingContext() {
 	val light = new PointLight(0xffffff, 1.0)
   light.position.set(5,10.0,5)
   scene.add(light)
-  
   
   def render() = renderer.render(scene, camera)
 }
