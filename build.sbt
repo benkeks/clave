@@ -12,8 +12,11 @@ version := "0.0.1"
 
 scalaVersion := "2.11.8"
 
+resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases") //for three js fascade
+
 libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "0.8.0"
+  "org.scala-js" %%% "scalajs-dom" % "0.9.1",
+  "org.denigma" %%% "threejs-facade" % "0.0.74-0.1.7"
 )
 
 scalacOptions ++= Seq("-Xmax-classfile-name", "140")

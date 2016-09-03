@@ -2,8 +2,10 @@ package net.mrkeks.clave
 
 import org.scalajs.dom
 import org.scalajs.dom.html
-
 import scala.scalajs.js.annotation.JSExport
+import net.mrkeks.clave.map.GameMap
+import net.mrkeks.clave.map.Maps
+import net.mrkeks.clave.view.DrawingContext
 
 case class Point(x: Double, y: Double){
   def +(p: Point) = Point(x + p.x, y + p.y)
@@ -19,22 +21,25 @@ object Clave {
     dom.document
        .getElementById("canvas")
        .asInstanceOf[html.Canvas]
-
-  val ctx =
-    canvas.getContext("2d")
-          .asInstanceOf[dom.CanvasRenderingContext2D]
-
-  canvas.height = dom.innerHeight
-  canvas.width = dom.innerWidth
+  
+  canvas.height = dom.window.innerHeight.toInt
+  canvas.width = dom.window.innerWidth.toInt
+  
+  val context = new DrawingContext(canvas)
+  val ctx = context.renderingContext
 
   var count = 0
-  var player = Point(dom.innerWidth / 2, dom.innerHeight / 2)
+  var player = Point(dom.window.innerWidth / 2.0,
+                     dom.window.innerHeight / 2.0)
   val corners = Seq(Point(255, 255), Point(0, 255), Point(128, 0))
 
   var bullets = Seq.empty[Point]
   var enemies = Seq.empty[Point]
 
   var wave = 1
+  
+  val map = new GameMap(16,16)
+  map.loadFromString(Maps.level0)
   
   def run = {
     count += 1
@@ -76,6 +81,8 @@ object Clave {
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+    map.draw(context)
+    
     ctx.fillStyle = "white"
     ctx.fillRect(player.x - 5, player.y - 5, 10, 10)
 
@@ -94,15 +101,15 @@ object Clave {
   def main(): Unit = {
 
     dom.console.log("main")
-    dom.onkeypress = {(e: dom.KeyboardEvent) =>
+    dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
       if (e.keyCode.toInt == 32) bullets = player +: bullets
     }
-    dom.onkeydown = {(e: dom.KeyboardEvent) =>
+    dom.window.onkeydown = {(e: dom.KeyboardEvent) =>
       keysDown.add(e.keyCode.toInt)
     }
-    dom.onkeyup = {(e: dom.KeyboardEvent) =>
+    dom.window.onkeyup = {(e: dom.KeyboardEvent) =>
       keysDown.remove(e.keyCode.toInt)
     }
-    dom.setInterval(() => {run; draw}, 20)
+    dom.window.setInterval(() => {run; draw}, 20)
   }
 }
