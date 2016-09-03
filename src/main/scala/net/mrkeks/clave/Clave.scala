@@ -17,16 +17,8 @@ case class Point(x: Double, y: Double){
 
 @JSExport
 object Clave {
-  val canvas =
-    dom.document
-       .getElementById("canvas")
-       .asInstanceOf[html.Canvas]
   
-  canvas.height = dom.window.innerHeight.toInt
-  canvas.width = dom.window.innerWidth.toInt
-  
-  val context = new DrawingContext(canvas)
-  val ctx = context.renderingContext
+  val context = new DrawingContext()
 
   var count = 0
   var player = Point(dom.window.innerWidth / 2.0,
@@ -40,22 +32,24 @@ object Clave {
   
   val map = new GameMap(16,16)
   map.loadFromString(Maps.level0)
+  map.init(context)
+  map.updateView()
   
-  def run = {
+  def run() = {
     count += 1
     bullets = bullets.map(
       p => Point(p.x, p.y - 5)
     )
 
-    if (enemies.isEmpty){
-      enemies = for{
-        x <- (0 until canvas.width.toInt by 50)
-        y <- 0 until wave
-      } yield {
-        Point(x, 50 + y * 50)
-      }
-      wave += 1
-    }
+//    if (enemies.isEmpty){
+//      enemies = for{
+//        x <- (0 until canvas.width.toInt by 50)
+//        y <- 0 until wave
+//      } yield {
+//        Point(x, 50 + y * 50)
+//      }
+//      wave += 1
+//    }
 
     enemies = enemies.filter( e =>
       !bullets.exists(b =>
@@ -77,23 +71,23 @@ object Clave {
     if (keysDown(40)) player += Point(0, 2)
   }
 
-  def draw = {
-    ctx.fillStyle = "black"
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    map.draw(context)
-    
-    ctx.fillStyle = "white"
-    ctx.fillRect(player.x - 5, player.y - 5, 10, 10)
-
-    ctx.fillStyle = "yellow"
-    for (enemy <- enemies){
-      ctx.fillRect(enemy.x - 5, enemy.y - 5, 10, 10)
-    }
-    ctx.fillStyle = "red"
-    for (bullet <- bullets){
-      ctx.fillRect(bullet.x - 2, bullet.y - 2, 4, 4)
-    }
+  def draw() = {
+//    ctx.fillStyle = "black"
+//    ctx.fillRect(0, 0, canvas.width, canvas.height)
+//
+//    map.draw(context)
+//    
+//    ctx.fillStyle = "white"
+//    ctx.fillRect(player.x - 5, player.y - 5, 10, 10)
+//
+//    ctx.fillStyle = "yellow"
+//    for (enemy <- enemies){
+//      ctx.fillRect(enemy.x - 5, enemy.y - 5, 10, 10)
+//    }
+//    ctx.fillStyle = "red"
+//    for (bullet <- bullets){
+//      ctx.fillRect(bullet.x - 2, bullet.y - 2, 4, 4)
+//    }
   }
 
   val keysDown = collection.mutable.Set.empty[Int]
@@ -110,6 +104,6 @@ object Clave {
     dom.window.onkeyup = {(e: dom.KeyboardEvent) =>
       keysDown.remove(e.keyCode.toInt)
     }
-    dom.window.setInterval(() => {run; draw}, 20)
+    dom.window.setInterval(() => {run(); context.render()}, 20)
   }
 }
