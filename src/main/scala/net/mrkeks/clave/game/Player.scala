@@ -34,7 +34,7 @@ class Player(protected val map: GameMap)
   def update(deltaTime: Double) {
     sprite.position.copy(position)
     
-    move(direction.multiplyScalar(.01 * deltaTime)) // WARNING: destroys direction!
+    move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
   }
   
   def move(dir: Vector2) {

@@ -22,6 +22,8 @@ class DrawingContext() {
   val width = dom.window.innerWidth
   val height = dom.window.innerHeight
   
+  val aspect = width / height
+  
   val renderer = new WebGLRenderer()
   
   renderer.setSize(width, height)
@@ -29,7 +31,7 @@ class DrawingContext() {
   
   renderer.setClearColor(new Color(0x20a010));
   
-  val camera = new OrthographicCamera(-.5,15.5,2,-14,-100,100)
+  val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   
   val scene = new Scene();
   
@@ -38,7 +40,7 @@ class DrawingContext() {
   // |___\.
   camera.position.z = 15
 	camera.position.y = 20
-	camera.position.x = 0
+	camera.position.x = 1
 	camera.lookAt(new Vector3())
 	
   val ambient = new AmbientLight(0x303236)

@@ -37,9 +37,13 @@ object PlayerData {
   }
   type Direction = Direction.Value
   
-  abstract sealed class State
+  abstract sealed class State {
+    val speed = .01
+  }
   case class Idle() extends State
-  case class Carrying(crate: CrateData) extends State
+  case class Carrying(crate: CrateData) extends State {
+    override val speed = .005
+  }
 }
 
 trait PlayerData extends GameObjectData with PositionedObjectData {
