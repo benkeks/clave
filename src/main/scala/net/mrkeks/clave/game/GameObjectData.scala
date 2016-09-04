@@ -6,5 +6,8 @@ trait GameObjectData {
   /** The id will be assigned once the game object is added to the game. */
   var id: Int = -1
   
-  val position = new Vector3()
+  override def equals(o: Object) = o match {
+    case that: GameObjectData => this.id == that.id
+    case _ => false
+  }
 }

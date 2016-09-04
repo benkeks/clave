@@ -1,6 +1,7 @@
 package net.mrkeks.clave.map
 
 import org.denigma.threejs.Vector2
+import org.denigma.threejs.Vector3
 
 object MapData {
   object Tile extends Enumeration {
@@ -64,8 +65,17 @@ trait MapData {
     newSrc.clamp(topLeft, bottomRight)
   }
   
+  def vecToMapPos(v: Vector2) = {
+    (v.x.round.toInt, v.y.round.toInt)
+  }
+  
+  def vecToMapPos(v: Vector3) = {
+    (v.x.round.toInt, v.z.round.toInt)
+  }
+  
   def intersectsLevel(v: Vector2) = {
-    data(v.x.round.toInt)(v.y.round.toInt) match {
+    val (x, z) = vecToMapPos(v)
+    data(x)(z) match {
       case Tile.Wall | Tile.SolidWall =>
         true
       case _ =>

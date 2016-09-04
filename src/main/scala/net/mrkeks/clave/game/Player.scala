@@ -15,8 +15,12 @@ object Player {
   }
 }
 
-class Player(map: GameMap)
-  extends GameObject with PlayerData {  
+class Player(protected val map: GameMap)
+  extends GameObject with PlayerData with PositionedObject {  
+  
+  import PlayerData.Direction
+  
+  var nextField = (0,0)
   
   val sprite = new Sprite(Player.material)
   
@@ -34,7 +38,12 @@ class Player(map: GameMap)
   }
   
   def move(dir: Vector2) {
-    val newPos2d = map.localSlideCast(new Vector2(position.x, position.z), dir)
-    position.set(newPos2d.x, position.y, newPos2d.y)
+    if (dir.x != 0 || dir.y != 0) {
+      viewDirection = Direction.fromVec(dir)
+      val newPos2d = map.localSlideCast(new Vector2(position.x, position.z), dir)
+      position.set(newPos2d.x, position.y, newPos2d.y)
+      updatePositionOnMap()
+      nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos2d)
+    }
   }
 }

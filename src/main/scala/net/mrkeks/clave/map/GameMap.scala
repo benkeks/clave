@@ -11,13 +11,21 @@ import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Vector3
 import org.denigma.threejs.MeshFaceMaterial
 import org.denigma.threejs.MeshLambertMaterial
-
+import net.mrkeks.clave.game.PositionedObject
+import scala.collection.mutable.MultiMap
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.Map
+import scala.collection.mutable.Set
 
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
   
   import MapData._
+  
+  val positionedObjects: MultiMap[(Int, Int), PositionedObject] =
+      new HashMap[(Int, Int), Set[PositionedObject]] 
+        with MultiMap[(Int, Int), PositionedObject]
   
   private object Materials {
     val wall = new MeshLambertMaterial()
@@ -68,5 +76,11 @@ class GameMap(val width: Int, val height: Int)
   
   def clear() {
     mesh.geometry.dispose()
+  }
+  
+  def updateObjectPosition(o: PositionedObject) = {
+    val newPosition = vecToMapPos(o.position)
+    positionedObjects.addBinding(newPosition, o)
+    o.positionOnMap = newPosition
   }
 }
