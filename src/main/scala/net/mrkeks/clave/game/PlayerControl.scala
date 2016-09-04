@@ -1,6 +1,7 @@
 package net.mrkeks.clave.game
 
 import org.denigma.threejs.Vector2
+import net.mrkeks.clave.view.Input
 
 class PlayerControl(val player: Player, val input: Input) {
   

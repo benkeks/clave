@@ -1,8 +1,9 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.view
 
 import org.scalajs.dom
 import scala.collection.mutable.MultiMap
 import scala.collection.mutable.HashMap
+import scala.scalajs.js.Any.fromFunction1
 
 /** centrally manages the key board input */
 class Input {

@@ -17,9 +17,11 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.Map
 import scala.collection.mutable.Set
 import net.mrkeks.clave.game.Crate
+import net.mrkeks.clave.game.Monster
+import net.mrkeks.clave.game.Game
 
 
-class GameMap(val width: Int, val height: Int)
+class GameMap(game: Game, val width: Int, val height: Int)
   extends GameObject with MapData {
   
   import MapData._
@@ -43,12 +45,18 @@ class GameMap(val width: Int, val height: Int)
   
   private val mesh = new Mesh(new Geometry(), materials)
   
+  private var victoryCheckNeeded = false
+  protected val victoryCheck = Array.ofDim[Boolean](width, height)
+  
   def init(context: DrawingContext) {
     context.scene.add(mesh)
   }
   
   def update(deltaTime: Double) {
-    
+    if (victoryCheckNeeded) {
+      checkVictory()
+      victoryCheckNeeded = false
+    }
   }
   
   def updateView() {
@@ -88,13 +96,61 @@ class GameMap(val width: Int, val height: Int)
     if (o.isInstanceOf[Crate]) {
       setData(o.positionOnMap, Tile.Empty)
       setData(newPosition, Tile.Wall)
+      victoryCheckNeeded = true
+    } else if (o.isInstanceOf[Monster]) {
+      setData(o.positionOnMap, Tile.Empty)
+      setData(newPosition, Tile.Monster)
     }
     
     o.positionOnMap = newPosition
   }
   
-  def getObjectsAt(xz:(Int, Int)) = {
+  def getObjectsAt(xz: (Int, Int)) = {
     positionedObjects.getOrElse(xz, Set())
   }
   
+  def getAdjacentPositions(x: Int, z: Int): List[(Int, Int)] = {
+    List((x-1, z), (x+1, z), (x, z-1), (x, z+1)).filter {
+      case (x, z) => x >= 0 && x < width && z >= 0 && z < height
+    }
+  }
+  
+  def checkVictory() {
+    val score = computeVictory(game.getPlayerPositions)
+    
+    if (score >= 0) {
+      game.notifyVictory(score)
+    }
+  }
+  
+  /** computes whether there are no monsters reachable from a position
+   *  if true returns how big the monster free region is. */
+  def computeVictory(playerPositions: List[(Int, Int)]): Int = {
+    val checkMemory = victoryCheck.map(_.clone())
+    val discovered = collection.mutable.Stack().pushAll(playerPositions)
+    var score = 0
+    playerPositions.foreach {
+      case (x, z) => checkMemory(x)(z) = true
+    }
+    
+    while(discovered.nonEmpty) {
+      val (x, z) = discovered.pop()
+      data(x)(z) match {
+        case Tile.Monster =>
+          return -1
+        case Tile.Wall | Tile.SolidWall =>
+          // nothing
+        case _ =>
+          score += 1
+          getAdjacentPositions(x, z).foreach {
+            case xz @ (x, z) =>
+              if (!checkMemory(x)(z)) {
+                checkMemory(x)(z) = true
+                discovered.push(xz)
+              }
+          }
+      }
+    }
+    return score
+  }
 }

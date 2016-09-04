@@ -35,9 +35,6 @@ class DrawingContext() {
   
   val scene = new Scene();
   
-  // |   
-  // |  --.
-  // |___\.
   camera.position.z = 15
 	camera.position.y = 20
 	camera.position.x = 1
