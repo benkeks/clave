@@ -37,8 +37,9 @@ trait MapData {
         val tile = Tile(rawArray(z)(x))
         data(x)(z) = tile
         tile match {
-          case Tile.Player =>
+          case Tile.Wall | Tile.Player =>
             specialTiles = (tile, (x,z)) :: specialTiles
+            data(x)(z) = Tile.Empty
           case _ =>
         }
       }
@@ -73,13 +74,29 @@ trait MapData {
     (v.x.round.toInt, v.z.round.toInt)
   }
   
-  def intersectsLevel(v: Vector2) = {
+  def intersectsLevel(v: Vector2): Boolean = {
     val (x, z) = vecToMapPos(v)
-    data(x)(z) match {
-      case Tile.Wall | Tile.SolidWall =>
-        true
-      case _ =>
-        false
+    intersectsLevel(x, z)
+  }
+  
+  def intersectsLevel(x: Int, z: Int): Boolean = {
+    if (x < 0 || x >= width || z < 0 || z >= height) {
+      // being outside the level considered a 'collision'
+      true
+    } else {
+      data(x)(z) match {
+        case Tile.Wall | Tile.SolidWall =>
+          true
+        case _ =>
+          false
+      }
     }
+  }
+  
+  def setData(xz: (Int, Int), newTile: Tile) = xz match {
+    case (x,z) =>
+      if (x >= 0 && x < width && z >= 0 && z < height) {
+        data(x)(z) = newTile
+      }
   }
 }

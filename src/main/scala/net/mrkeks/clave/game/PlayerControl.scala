@@ -4,6 +4,8 @@ import org.denigma.threejs.Vector2
 
 class PlayerControl(val player: Player, val input: Input) {
   
+  input.keyPressListener.addBinding(32, actionKey)
+  
   def update(deltaTime: Double) {
     player.direction.set(0,0)
     
@@ -12,6 +14,10 @@ class PlayerControl(val player: Player, val input: Input) {
     if (input.keysDown(38)) player.direction.y -= 1
     if (input.keysDown(40)) player.direction.y += 1
     
+  }
+  
+  def actionKey() {
+    player.doAction()
   }
   
 }

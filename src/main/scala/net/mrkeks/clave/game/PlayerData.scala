@@ -1,6 +1,7 @@
 package net.mrkeks.clave.game
 
 import org.denigma.threejs.Vector2
+import org.denigma.threejs.Vector3
 
 object PlayerData {
   object Direction extends Enumeration {
@@ -26,15 +27,28 @@ object PlayerData {
       case Left  => new Vector2(-1, 0)
       case Right => new Vector2( 1, 0)
     }
+    
+    def toVec3(d: Direction.Value) = d match {
+      case Up    => new Vector3( 0, 0,-1)
+      case Down  => new Vector3( 0, 0, 1)
+      case Left  => new Vector3(-1, 0, 0)
+      case Right => new Vector3( 1, 0, 0)
+    }
   }
   type Direction = Direction.Value
+  
+  abstract sealed class State
+  case class Idle() extends State
+  case class Carrying(crate: CrateData) extends State
 }
 
-trait PlayerData extends GameObjectData {
+trait PlayerData extends GameObjectData with PositionedObjectData {
   
   import PlayerData._
   
   val direction = new Vector2()
   
   var viewDirection = Direction.Down
+  
+  var state: State = Idle()
 }

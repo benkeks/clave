@@ -18,7 +18,7 @@ object Player {
 class Player(protected val map: GameMap)
   extends GameObject with PlayerData with PositionedObject {  
   
-  import PlayerData.Direction
+  import PlayerData._
   
   var nextField = (0,0)
   
@@ -32,7 +32,7 @@ class Player(protected val map: GameMap)
   }
   
   def update(deltaTime: Double) {
-    sprite.position.set(position.x, position.y, position.z)
+    sprite.position.copy(position)
     
     move(direction.multiplyScalar(.01 * deltaTime)) // WARNING: destroys direction!
   }
@@ -44,6 +44,50 @@ class Player(protected val map: GameMap)
       position.set(newPos2d.x, position.y, newPos2d.y)
       updatePositionOnMap()
       nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos2d)
+      updateTouch()
+    }
+  }
+  
+  def updateTouch() {
+    val neighboringObjects = map.getObjectsAt(nextField)
+    
+    touching match {
+      case Some(o) if !neighboringObjects.contains(o) =>
+        // lost touch!
+        mutualUntouch()
+      case _ =>
+    }
+    
+    if (touching.isEmpty) {
+      val newTouchObj = neighboringObjects.collectFirst({case c: Crate => c})
+      
+      newTouchObj.foreach(touch)
+    }
+  }
+  
+  def doAction() {
+    state match {
+      case Idle() =>
+        touching match {
+          case Some(c: Crate) =>
+            pickup(c)
+          case _ =>
+            // nothing to grab
+        }
+      case Carrying(c: Crate) =>
+        place(c)
+      case _ =>
+    }
+  }
+  
+  def pickup(crate: Crate) {
+    state = Carrying(crate)
+    crate.pickup(this)
+  }
+  
+  def place(crate: Crate) {
+    if ((crate.place _).tupled(nextField)) {
+      state = Idle()
     }
   }
 }

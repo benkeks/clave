@@ -16,6 +16,7 @@ import scala.collection.mutable.MultiMap
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.Map
 import scala.collection.mutable.Set
+import net.mrkeks.clave.game.Crate
 
 
 class GameMap(val width: Int, val height: Int)
@@ -23,7 +24,7 @@ class GameMap(val width: Int, val height: Int)
   
   import MapData._
   
-  val positionedObjects: MultiMap[(Int, Int), PositionedObject] =
+  private val positionedObjects: MultiMap[(Int, Int), PositionedObject] =
       new HashMap[(Int, Int), Set[PositionedObject]] 
         with MultiMap[(Int, Int), PositionedObject]
   
@@ -59,8 +60,8 @@ class GameMap(val width: Int, val height: Int)
       for (z <- 0 until height) {
         data(x)(z) match {
           case Tile.Wall =>
-            drawingMatrix.makeTranslation(x, 0, z)
-            newGeometry.merge(box, drawingMatrix.multiply(new Matrix4().makeRotationY(Math.random() * .1 - .05)), 0)
+//            drawingMatrix.makeTranslation(x, 0, z)
+//            newGeometry.merge(box, drawingMatrix.multiply(new Matrix4().makeRotationY(Math.random() * .1 - .05)), 0)
           case Tile.SolidWall =>
             drawingMatrix.makeTranslation(x, 0, z)
             newGeometry.merge(box, drawingMatrix, 1)
@@ -80,7 +81,20 @@ class GameMap(val width: Int, val height: Int)
   
   def updateObjectPosition(o: PositionedObject) = {
     val newPosition = vecToMapPos(o.position)
+    
+    positionedObjects.removeBinding(o.positionOnMap, o)
     positionedObjects.addBinding(newPosition, o)
+    
+    if (o.isInstanceOf[Crate]) {
+      setData(o.positionOnMap, Tile.Empty)
+      setData(newPosition, Tile.Wall)
+    }
+    
     o.positionOnMap = newPosition
   }
+  
+  def getObjectsAt(xz:(Int, Int)) = {
+    positionedObjects.getOrElse(xz, Set())
+  }
+  
 }

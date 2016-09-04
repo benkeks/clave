@@ -3,14 +3,31 @@ package net.mrkeks.clave.game
 import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.Vector3
 
-trait PositionedObject extends GameObjectData {
+trait PositionedObject extends PositionedObjectData {
   protected val map: GameMap
-  
-  var positionOnMap = (0,0)
-  
-  val position = new Vector3()
   
   def updatePositionOnMap() {
     map.updateObjectPosition(this)
+  }
+  
+  var touching: Option[PositionedObject] = None
+  
+  def touch(o: PositionedObject) {
+    this touchedBy o
+    o touchedBy this
+  }
+  
+  def mutualUntouch() {
+    touching.foreach(_.untouch())
+    untouch()
+  }
+  
+  private def untouch() {
+    touching = None
+  }
+  
+  def touchedBy(o: PositionedObject) {
+    touching.foreach(_.untouch())
+    touching = Some(o)
   }
 }

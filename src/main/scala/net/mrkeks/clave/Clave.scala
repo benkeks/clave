@@ -14,6 +14,7 @@ import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.game.PlayerControl
 import net.mrkeks.clave.game.Input
 import net.mrkeks.clave.map.MapData
+import net.mrkeks.clave.game.Crate
 
 @JSExport
 object Clave {
@@ -47,11 +48,6 @@ object Clave {
 
   @JSExport
   def main(): Unit = {
-
-    dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
-//      if (e.keyCode.toInt == 32) bullets = player +: bullets
-    }
-    
     dom.window.setInterval(() => update(), 20)
   }
   
@@ -86,15 +82,22 @@ object Clave {
     val positions = map.loadFromString(mapData)
     map.updateView()
     
-    (for {
+    val playerPos = for {
       playerPositions <- positions.get(MapData.Tile.Player)
       player1Pos <- playerPositions.headOption
-    } yield player1Pos)
-    match {
+    } yield player1Pos
+    playerPos match {
       case Some((x,z)) =>
         player.position.set(x, 0, z)
       case _ =>
         throw new Exception("Invalid map: no player position in map")
+    }
+    
+    val cratePositions = positions.getOrElse(MapData.Tile.Wall, List())
+    cratePositions.foreach { case (x,z) =>
+      val crate = new Crate(map)
+      add(crate)
+      crate.place(x, z)
     }
   }
 }
