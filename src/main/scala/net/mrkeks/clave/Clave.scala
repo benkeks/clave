@@ -8,6 +8,7 @@ import org.scalajs.dom
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.map.Maps
 import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.view.Input
 
 @JSExport
@@ -15,9 +16,11 @@ object Clave {
   
   val context = new DrawingContext()
   
+  val gui = new GUI()
+  
   val input = new Input()
   
-  val game = new Game(context, input)
+  val game = new Game(context, input, gui)
   
   @JSExport
   def main(): Unit = {

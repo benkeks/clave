@@ -93,10 +93,7 @@ trait MapData {
     }
   }
   
-  def setData(xz: (Int, Int), newTile: Tile) = xz match {
-    case (x,z) =>
-      if (x >= 0 && x < width && z >= 0 && z < height) {
-        data(x)(z) = newTile
-      }
+  def setData(x: Int, z: Int, newTile: Tile) = {
+    data(x)(z) = newTile
   }
 }

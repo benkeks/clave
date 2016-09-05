@@ -1,24 +1,29 @@
 package net.mrkeks.clave.map
 
-import scalajs.js
-import net.mrkeks.clave.view.DrawingContext
-import org.denigma.threejs.MeshBasicMaterial
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.MultiMap
+import scala.collection.mutable.Set
+import scala.scalajs.js
+import scala.scalajs.js.Any.jsArrayOps
+import scala.scalajs.js.typedarray.Uint8Array
+
 import org.denigma.threejs.BoxGeometry
+import org.denigma.threejs.DataTexture
 import org.denigma.threejs.Geometry
-import org.denigma.threejs.Mesh
-import net.mrkeks.clave.game.GameObject
 import org.denigma.threejs.Matrix4
-import org.denigma.threejs.Vector3
+import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshFaceMaterial
 import org.denigma.threejs.MeshLambertMaterial
-import net.mrkeks.clave.game.PositionedObject
-import scala.collection.mutable.MultiMap
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.Map
-import scala.collection.mutable.Set
+import org.denigma.threejs.PixelFormat
+import org.denigma.threejs.TextureDataType
+import org.denigma.threejs.TextureFilter
+
 import net.mrkeks.clave.game.Crate
-import net.mrkeks.clave.game.Monster
 import net.mrkeks.clave.game.Game
+import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.Monster
+import net.mrkeks.clave.game.PositionedObject
+import net.mrkeks.clave.view.DrawingContext
 
 
 class GameMap(game: Game, val width: Int, val height: Int)
@@ -48,8 +53,39 @@ class GameMap(game: Game, val width: Int, val height: Int)
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Boolean](width, height)
   
+  val groundShadow = new Uint8Array(width * height)
+  (0 until width * height).foreach ( groundShadow.update(_, 255) )
+  
+  val groundShadowTexture = new DataTexture()
+  // placed the magical values by hand due to some problems with THREE.js / the fascade
+  groundShadowTexture.format = 1022.asInstanceOf[PixelFormat] // Luminance
+  groundShadowTexture.`type` = 1009.asInstanceOf[TextureDataType] //UnsignedByteType
+  groundShadowTexture.magFilter = 1006.asInstanceOf[TextureFilter] // Linear Filter
+  groundShadowTexture.image = {
+    val w = width
+    val h = height
+    new js.Object {
+      var width = w
+      var height = h
+      var data = groundShadow
+    }
+  }
+  groundShadowTexture.needsUpdate = true
+  
+  val groundMaterial = new MeshLambertMaterial()
+  groundMaterial.color.setHex(0x33dd22)
+  groundMaterial.map = groundShadowTexture
+  
+  val underground = new Mesh(box, groundMaterial)
+  underground.scale.set(width, 10, height)
+  underground.position.set(.5 * width - .5, -5.5, .5 * height - .5)
+  
+//  private val shadows = ImageUtils.generateDataTexture(width, height, new Color(0x909090))
+//  shadows.image.asInstanceOf[HTMLImageElement].
+  
   def init(context: DrawingContext) {
     context.scene.add(mesh)
+    context.scene.add(underground)
   }
   
   def update(deltaTime: Double) {
@@ -94,12 +130,12 @@ class GameMap(game: Game, val width: Int, val height: Int)
     positionedObjects.addBinding(newPosition, o)
     
     if (o.isInstanceOf[Crate]) {
-      setData(o.positionOnMap, Tile.Empty)
-      setData(newPosition, Tile.Wall)
+      updateTile(o.positionOnMap, Tile.Empty)
+      updateTile(newPosition, Tile.Wall)
       victoryCheckNeeded = true
     } else if (o.isInstanceOf[Monster]) {
-      setData(o.positionOnMap, Tile.Empty)
-      setData(newPosition, Tile.Monster)
+      updateTile(o.positionOnMap, Tile.Empty)
+      updateTile(newPosition, Tile.Monster)
     }
     
     o.positionOnMap = newPosition
@@ -152,5 +188,30 @@ class GameMap(game: Game, val width: Int, val height: Int)
       }
     }
     return score
+  }
+  
+  def updateTile(xz: (Int, Int), newTile: Tile) = xz match {
+    case (x,z) =>
+      if (x >= 0 && x < width && z >= 0 && z < height) {
+        setData(x, z, newTile)
+        updateLighting(x, z)
+        if (x < width - 1) updateLighting(x+1, z)
+//        if (z < height - 1) updateLighting(x, z+1)
+//        if (x < width - 1 && z < height - 1) updateLighting(x+1, z+1)
+      }
+  }
+  
+  def updateLighting(x: Int, z: Int) = {
+    groundShadow.update ( (x)+(height-z-1)*width,
+      if (data(x)(z) == Tile.Wall)
+        0x22
+      else if (x > 0 && data(x-1)(z) == Tile.Wall)
+//          || (z > 0 && data(x)(z-1) == Tile.Wall)
+//          || (z > 0 && x > 0 && data(x-1)(z-1) == Tile.Wall)
+        0xbb
+      else
+        0xFF
+    )
+    groundShadowTexture.needsUpdate = true
   }
 }

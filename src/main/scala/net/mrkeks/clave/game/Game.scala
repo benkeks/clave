@@ -5,8 +5,9 @@ import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.map.MapData
+import net.mrkeks.clave.view.GUI
 
-class Game(context: DrawingContext, input: Input) {
+class Game(context: DrawingContext, input: Input, gui: GUI) {
   
   abstract sealed class State
   case class Running() extends State
@@ -14,6 +15,8 @@ class Game(context: DrawingContext, input: Input) {
   case class Won() extends State
   
   var state: State = Running()
+  
+  var score = 0
   
   /** List of individual objects in the game (movable stuff, enemies, the player..)  */
   var gameObjects = List[GameObject]()
@@ -60,7 +63,7 @@ class Game(context: DrawingContext, input: Input) {
       case Paused() =>
         //
       case Won() =>
-        //
+        
     }
     
     context.render()
@@ -100,7 +103,19 @@ class Game(context: DrawingContext, input: Input) {
     }
   }
   
-  def notifyVictory(score: Int) {
-    println("victory! "+score)
+  def setState(newState: State) {
+    newState match {
+      case Running() =>
+      case Paused() =>
+      case Won() =>
+        
+    }
+    state = newState
+  }
+  
+  def notifyVictory(levelScore: Int) {
+    println("victory! "+levelScore)
+    score += levelScore
+    gui.setScore(score)
   }
 }

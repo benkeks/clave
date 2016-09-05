@@ -29,7 +29,7 @@ class DrawingContext() {
   renderer.setSize(width, height)
   dom.document.body.appendChild( renderer.domElement )
   
-  renderer.setClearColor(new Color(0x20a010));
+  renderer.setClearColor(new Color(0x30b020));
   
   val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   
