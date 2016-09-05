@@ -8,6 +8,13 @@ import net.mrkeks.clave.map.MapData
 
 class Game(context: DrawingContext, input: Input) {
   
+  abstract sealed class State
+  case class Running() extends State
+  case class Paused() extends State
+  case class Won() extends State
+  
+  var state: State = Running()
+  
   /** List of individual objects in the game (movable stuff, enemies, the player..)  */
   var gameObjects = List[GameObject]()
   var gameObjectIdCount = 0
@@ -46,9 +53,15 @@ class Game(context: DrawingContext, input: Input) {
   }
   
   def update() {
-    playerControl.update(deltaTime)
-    
-    gameObjects.foreach(_.update(deltaTime))
+    state match {
+      case Running() =>
+        playerControl.update(deltaTime)
+        gameObjects.foreach(_.update(deltaTime))
+      case Paused() =>
+        //
+      case Won() =>
+        //
+    }
     
     context.render()
     
