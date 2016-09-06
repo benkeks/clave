@@ -21,4 +21,8 @@ class PlayerControl(val player: Player, val input: Input) {
     player.doAction()
   }
   
+  def clear() {
+    input.keyPressListener.removeBinding(32, actionKey)
+  }
+  
 }

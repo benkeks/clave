@@ -28,7 +28,8 @@ class Player(protected val map: GameMap)
     context.scene.add(sprite)
   }
   
-  def clear() {
+  def clear(context: DrawingContext) {
+    context.scene.remove(sprite)
   }
   
   def update(deltaTime: Double) {

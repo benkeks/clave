@@ -10,7 +10,7 @@ object Crate {
   private val material = new MeshLambertMaterial()
   material.color.setHex(0xdddd99)
   
-  private val box = new BoxGeometry(1, 1, 1)
+  private val box = new BoxGeometry(.95, .95, .95)
   
   def clear() {
     material.dispose()
@@ -26,10 +26,12 @@ class Crate(protected val map: GameMap)
   val mesh = new Mesh(Crate.box, Crate.material)
   
   def init(context: DrawingContext) {
+    mesh.rotateY(.1 - .2 * Math.random())
     context.scene.add(mesh)
   }
   
-  def clear() {
+  def clear(context: DrawingContext) {
+    context.scene.remove(mesh)
   }
   
   def update(deltaTime: Double) {

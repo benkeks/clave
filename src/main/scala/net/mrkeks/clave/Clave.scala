@@ -6,7 +6,7 @@ import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 
 import net.mrkeks.clave.game.Game
-import net.mrkeks.clave.map.Maps
+import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.view.Input
@@ -24,7 +24,7 @@ object Clave {
   
   @JSExport
   def main(): Unit = {
-    game.loadLevel(Maps.level1)
+    game.loadLevel(0)
     
     dom.window.setInterval(() => game.update(), 20)
   }

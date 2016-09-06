@@ -6,7 +6,7 @@ trait GameObject extends GameObjectData {
   
   def init(context: DrawingContext)
   
-  def clear()
+  def clear(context: DrawingContext)
   
   def update(deltaTime: Double)
   

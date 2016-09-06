@@ -6,17 +6,19 @@ import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
+import net.mrkeks.clave.map.Level
 
 class Game(context: DrawingContext, input: Input, gui: GUI) {
   
   abstract sealed class State
   case class Running() extends State
   case class Paused() extends State
-  case class Won() extends State
+  case class Won(levelScore: Int) extends State
   
   var state: State = Running()
   
   var score = 0
+  var levelId = 0
   
   /** List of individual objects in the game (movable stuff, enemies, the player..)  */
   var gameObjects = List[GameObject]()
@@ -27,13 +29,11 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   /** Time that passed since the last frame. (in ms) */
   var deltaTime = 0.0
   
-  private val map = new GameMap(this, 16,16)
-  add(map)
+  private var map: GameMap = null
   
-  private val player = new Player(map)
-  add(player)
+  private var player: Player = null
   
-  private val playerControl = new PlayerControl(player, input)
+  private var playerControl: PlayerControl = null
   
   def getPlayerPositions = {
     List(player.positionOnMap)
@@ -48,11 +48,12 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   
   def remove(o: GameObject) {
     gameObjects = gameObjects.filterNot(_.id == o.id)
-    o.clear()
+    o.clear(context)
   }
   
   def clear() {
-    gameObjects.foreach(_.clear())
+    playerControl.clear()
+    gameObjects.foreach(remove)
   }
   
   def update() {
@@ -62,7 +63,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
         gameObjects.foreach(_.update(deltaTime))
       case Paused() =>
         //
-      case Won() =>
+      case Won(score) =>
         
     }
     
@@ -72,9 +73,25 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     lastFrameTime = js.Date.now
   }
   
-  def loadLevel(mapData: String) {
-    val positions = map.loadFromString(mapData)
+  def unloadLevel() {
+    clear()
+  }
+  
+  def loadLevel(id: Int) {
+    levelId = id
+    loadLevel(Level.levels(levelId))
+  }
+  
+  def loadLevel(level: Level) {
+    map = new GameMap(this, level.width, level.height)
+    
+    val positions = map.loadFromString(level.mapCsv)
     map.updateView()
+    add(map)
+    
+    player = new Player(map)
+    add(player)
+    playerControl = new PlayerControl(player, input)
     
     val playerPos = for {
       playerPositions <- positions.get(MapData.Tile.Player)
@@ -107,15 +124,25 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     newState match {
       case Running() =>
       case Paused() =>
-      case Won() =>
-        
+      case Won(levelScore) =>
+        score += levelScore
+        gui.setScore(score)
+        input.keyPressListener.addBinding(32, continueLevel)
     }
     state = newState
   }
   
   def notifyVictory(levelScore: Int) {
     println("victory! "+levelScore)
-    score += levelScore
-    gui.setScore(score)
+    setState(Won(levelScore))
+  }
+  
+  def continueLevel(): Unit = {
+    if (state.isInstanceOf[Won]) {
+      input.keyPressListener.removeBinding(32, continueLevel)
+      unloadLevel()
+      loadLevel(levelId + 1)
+      setState(Running())
+    }
   }
 }

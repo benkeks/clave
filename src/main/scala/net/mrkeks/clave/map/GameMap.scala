@@ -119,8 +119,12 @@ class GameMap(game: Game, val width: Int, val height: Int)
     println("Map geometry update: " + (js.Date.now - beginUpdate) + "ms.")
   }
   
-  def clear() {
+  def clear(context: DrawingContext) {
     mesh.geometry.dispose()
+    groundShadowTexture.dispose()
+    groundMaterial.dispose()
+    context.scene.remove(mesh)
+    context.scene.remove(underground)
   }
   
   def updateObjectPosition(o: PositionedObject) = {
