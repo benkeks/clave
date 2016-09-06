@@ -58,10 +58,9 @@ class GameMap(game: Game, val width: Int, val height: Int)
   (0 until width * height).foreach ( groundShadow.update(_, 255) )
   
   val groundShadowTexture = new DataTexture()
-  // placed the magical values by hand due to some problems with THREE.js / the fascade
-  groundShadowTexture.format = threejs.THREE.LuminanceFormat // 1022.asInstanceOf[PixelFormat] // Luminance
-  groundShadowTexture.`type` = threejs.THREE.UnsignedByteType // 1009.asInstanceOf[TextureDataType] //UnsignedByteType
-  groundShadowTexture.magFilter = threejs.THREE.LinearFilter // 1006.asInstanceOf[TextureFilter] // Linear Filter
+  groundShadowTexture.format = threejs.THREE.LuminanceFormat
+  groundShadowTexture.`type` = threejs.THREE.UnsignedByteType
+  groundShadowTexture.magFilter = threejs.THREE.LinearFilter
   groundShadowTexture.image = {
     val w = width
     val h = height
