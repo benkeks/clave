@@ -15,9 +15,11 @@ scalaVersion := "2.11.8"
 resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases") //for three js fascade
 
 libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-  "org.denigma" %%% "threejs-facade" % "0.0.74-0.1.7"
+  "org.scala-js" %%% "scalajs-dom" % "0.9.1"
+  //"org.denigma" %%% "threejs-facade" % "0.0.74-0.1.7" // manually compiled /lib/
 )
+
+jsDependencies += "org.webjars" % "three.js" % "r77" / "three.min.js"
 
 scalacOptions ++= Seq("-Xmax-classfile-name", "140")
 

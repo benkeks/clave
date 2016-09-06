@@ -14,6 +14,7 @@ import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshFaceMaterial
 import org.denigma.threejs.MeshLambertMaterial
+import org.denigma.threejs
 import org.denigma.threejs.PixelFormat
 import org.denigma.threejs.TextureDataType
 import org.denigma.threejs.TextureFilter
@@ -58,9 +59,9 @@ class GameMap(game: Game, val width: Int, val height: Int)
   
   val groundShadowTexture = new DataTexture()
   // placed the magical values by hand due to some problems with THREE.js / the fascade
-  groundShadowTexture.format = 1022.asInstanceOf[PixelFormat] // Luminance
-  groundShadowTexture.`type` = 1009.asInstanceOf[TextureDataType] //UnsignedByteType
-  groundShadowTexture.magFilter = 1006.asInstanceOf[TextureFilter] // Linear Filter
+  groundShadowTexture.format = threejs.THREE.LuminanceFormat // 1022.asInstanceOf[PixelFormat] // Luminance
+  groundShadowTexture.`type` = threejs.THREE.UnsignedByteType // 1009.asInstanceOf[TextureDataType] //UnsignedByteType
+  groundShadowTexture.magFilter = threejs.THREE.LinearFilter // 1006.asInstanceOf[TextureFilter] // Linear Filter
   groundShadowTexture.image = {
     val w = width
     val h = height
