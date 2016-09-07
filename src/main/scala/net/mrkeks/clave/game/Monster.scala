@@ -18,7 +18,7 @@ object Monster {
 }
 
 class Monster(protected val map: GameMap)
-  extends GameObject with PositionedObject with MonsterData {
+  extends GameObject with PositionedObject with MonsterData with ObjectShadow {
   
   import MonsterData._
   import PositionedObjectData._
@@ -27,10 +27,12 @@ class Monster(protected val map: GameMap)
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
+    initShadow(context)
   }
   
   def clear(context: DrawingContext) {
     context.scene.remove(sprite)
+    clearShadow(context)
   }
   
   def update(deltaTime: Double) {
@@ -97,6 +99,7 @@ class Monster(protected val map: GameMap)
         }
     }
     sprite.position.copy(position)
+    updateShadow()
   }
   
   def approach(src: Double, tar: Double, speed: Double) =

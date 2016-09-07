@@ -16,7 +16,7 @@ object Player {
 }
 
 class Player(protected val map: GameMap)
-  extends GameObject with PlayerData with PositionedObject {  
+  extends GameObject with PlayerData with PositionedObject with ObjectShadow {  
   
   import PlayerData._
   import PositionedObjectData._
@@ -27,10 +27,12 @@ class Player(protected val map: GameMap)
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
+    initShadow(context)
   }
   
   def clear(context: DrawingContext) {
     context.scene.remove(sprite)
+    clearShadow(context)
   }
   
   def update(deltaTime: Double) {
@@ -45,6 +47,7 @@ class Player(protected val map: GameMap)
       case _ =>
     }
     sprite.position.copy(position)
+    updateShadow()
   }
   
   def move(dir: Vector2) {
