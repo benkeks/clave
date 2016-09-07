@@ -8,6 +8,8 @@ import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.game.objects.Crate
+import net.mrkeks.clave.game.objects.Gate
+import net.mrkeks.clave.game.objects.Trigger
 
 class Game(context: DrawingContext, input: Input, gui: GUI) {
   
@@ -117,11 +119,25 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
       crate.place(x, z)
     }
     
-    val monsterPositions = positions.getOrElse(MapData.Tile.Monster, List())
-    monsterPositions.foreach { case (x,z) =>
-      val monster = new Monster(map)
-      add(monster)
-      monster.setPosition(x, 0, z)
+    def factoryConstruct(tileType: MapData.Tile) = tileType match { 
+      case MapData.Tile.Monster =>
+        Some(new Monster(map))
+      case MapData.Tile.GateOpen =>
+        println("create gate")
+        Some(new Gate(map))
+      case MapData.Tile.Trigger =>
+        Some(new Trigger(map))
+      case _ =>
+        None
+    }
+    
+    positions.foreach { case (tileType: MapData.Tile, pos: List[(Int,Int)]) =>
+      pos.foreach { case (x,z) =>
+        factoryConstruct(tileType).foreach { obj =>
+          obj.setPosition(x, 0, z)
+          add(obj)
+        }
+      }
     }
   }
   

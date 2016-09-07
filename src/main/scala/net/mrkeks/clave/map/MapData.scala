@@ -38,7 +38,7 @@ trait MapData {
       for (x <- 0 until width) {
         val tile = Tile(rawArray(z)(x))
         tile match {
-          case Tile.Wall | Tile.Player | Tile.Monster =>
+          case Tile.Wall | Tile.Player | Tile.Monster | Tile.GateOpen | Tile.Trigger =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty
           case _ =>

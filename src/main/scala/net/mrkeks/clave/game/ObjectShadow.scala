@@ -45,7 +45,7 @@ trait ObjectShadow {
   }
     
   def updateShadow() {
-    towel.position.set(position.x + position.y*.4 + 0.3, -0.499, position.z)
+    towel.position.set(position.x + position.y*.4 + 0.3, -0.46, position.z)
   }
   
   def clearShadow(context: DrawingContext) {
