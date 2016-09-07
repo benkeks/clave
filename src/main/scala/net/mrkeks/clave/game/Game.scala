@@ -15,6 +15,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   case class Running() extends State
   case class Paused() extends State
   case class Won(levelScore: Int) extends State
+  case class Lost() extends State
   
   var state: State = StartUp()
   
@@ -63,9 +64,14 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
       case Running() =>
         playerControl.update(deltaTime)
         gameObjects.foreach(_.update(deltaTime))
+        if (player.state.isInstanceOf[PlayerData.Dead]) {
+          setState(Lost())
+        }
       case Paused() =>
         //
       case Won(score) =>
+        
+      case Lost() =>
         
     }
     
@@ -131,6 +137,10 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
         score += levelScore
         gui.setScore(score)
         input.keyPressListener.addBinding(32, continueLevel)
+      case Lost() => 
+        score -= 50
+        gui.setScore(score)
+        input.keyPressListener.addBinding(32, continueLevel)
     }
     state = newState
   }
@@ -143,10 +153,10 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   }
   
   def continueLevel(): Unit = {
-    if (state.isInstanceOf[Won]) {
+    if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
       input.keyPressListener.removeBinding(32, continueLevel)
       unloadLevel()
-      loadLevel(levelId + 1)
+      loadLevel(levelId + (if (state.isInstanceOf[Won]) 1 else 0))
       setState(Running())
     }
   }

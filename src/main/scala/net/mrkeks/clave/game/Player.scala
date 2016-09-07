@@ -34,9 +34,17 @@ class Player(protected val map: GameMap)
   }
   
   def update(deltaTime: Double) {
+    state match {
+      case Idle() | Carrying(_) =>
+        move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
+        if (map.isMonsterOn(positionOnMap._1, positionOnMap._2)) {
+          setState(Dead())
+        }
+      case Dead() =>
+        
+      case _ =>
+    }
     sprite.position.copy(position)
-    
-    move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
   }
   
   def move(dir: Vector2) {
@@ -77,18 +85,24 @@ class Player(protected val map: GameMap)
         }
       case Carrying(c: Crate) =>
         place(c)
+      case Dead() =>
+        
       case _ =>
     }
   }
   
   def pickup(crate: Crate) {
-    state = Carrying(crate)
+    setState(Carrying(crate))
     crate.pickup(this)
   }
   
   def place(crate: Crate) {
     if ((crate.place _).tupled(nextField)) {
-      state = Idle()
+      setState(Idle())
     }
+  }
+  
+  def setState(newState: State) {
+    state = newState
   }
 }
