@@ -35,12 +35,12 @@ trait MapData {
     for (z <- 0 until height) {
       for (x <- 0 until width) {
         val tile = Tile(rawArray(z)(x))
-        data(x)(z) = tile
         tile match {
           case Tile.Wall | Tile.Player | Tile.Monster =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty
           case _ =>
+            data(x)(z) = tile
         }
       }
     }
@@ -74,6 +74,11 @@ trait MapData {
     (v.x.round.toInt, v.z.round.toInt)
   }
   
+  def isOnMap(x: Int, z: Int) =
+    x >= 0 && x < width && z >= 0 && z < height
+    
+  def isOnMapTupled = (isOnMap _).tupled
+  
   def intersectsLevel(v: Vector2): Boolean = {
     val (x, z) = vecToMapPos(v)
     intersectsLevel(x, z)
@@ -84,16 +89,21 @@ trait MapData {
       // being outside the level considered a 'collision'
       true
     } else {
-      data(x)(z) match {
-        case Tile.Wall | Tile.SolidWall =>
-          true
-        case _ =>
-          false
-      }
+      isTileBlocked(x, z)
     }
   }
   
   def setData(x: Int, z: Int, newTile: Tile) = {
     data(x)(z) = newTile
+  }
+  
+  /** assumes that x,z is a valid field */
+  protected def isTileBlocked(x: Int, z: Int) = {
+    data(x)(z) match {
+      case Tile.Wall | Tile.SolidWall =>
+        true
+      case _ =>
+        false
+    }
   }
 }

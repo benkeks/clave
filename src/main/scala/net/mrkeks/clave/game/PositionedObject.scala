@@ -6,8 +6,18 @@ import org.denigma.threejs.Vector3
 trait PositionedObject extends PositionedObjectData {
   protected val map: GameMap
   
+  def setPosition(newPosition: Vector3) {
+    position.copy(newPosition)
+    updatePositionOnMap()
+  }
+  
+  def setPosition(x: Double, y: Double, z: Double) {
+    position.set(x, y, z)
+    updatePositionOnMap()
+  }
+  
   def updatePositionOnMap() {
-    map.updateObjectPosition(this)
+    positionOnMap = map.updateObjectPosition(this, position)
   }
   
   var touching: Option[PositionedObject] = None

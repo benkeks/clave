@@ -11,11 +11,12 @@ import net.mrkeks.clave.map.Level
 class Game(context: DrawingContext, input: Input, gui: GUI) {
   
   abstract sealed class State
+  case class StartUp() extends State
   case class Running() extends State
   case class Paused() extends State
   case class Won(levelScore: Int) extends State
   
-  var state: State = Running()
+  var state: State = StartUp()
   
   var score = 0
   var levelId = 0
@@ -36,7 +37,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   private var playerControl: PlayerControl = null
   
   def getPlayerPositions = {
-    List(player.positionOnMap)
+    player.getPositionOnMap.toList
   }
   
   def add(o: GameObject) {
@@ -58,6 +59,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   
   def update() {
     state match {
+      case StartUp() =>
       case Running() =>
         playerControl.update(deltaTime)
         gameObjects.foreach(_.update(deltaTime))
@@ -99,7 +101,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     } yield player1Pos
     playerPos match {
       case Some((x,z)) =>
-        player.position.set(x, 0, z)
+        player.setPosition(x, 0, z)
       case _ =>
         throw new Exception("Invalid map: no player position in map")
     }
@@ -116,12 +118,13 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     monsterPositions.foreach { case (x,z) =>
       val monster = new Monster(map)
       add(monster)
-      monster.position.set(x, 0, z)
+      monster.setPosition(x, 0, z)
     }
   }
   
   def setState(newState: State) {
     newState match {
+      case StartUp() =>
       case Running() =>
       case Paused() =>
       case Won(levelScore) =>
@@ -133,8 +136,10 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   }
   
   def notifyVictory(levelScore: Int) {
-    println("victory! "+levelScore)
-    setState(Won(levelScore))
+    if (state.isInstanceOf[Running]) {
+      println("victory! "+levelScore)
+      setState(Won(levelScore))
+    }
   }
   
   def continueLevel(): Unit = {

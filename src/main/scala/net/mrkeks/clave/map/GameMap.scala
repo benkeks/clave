@@ -6,7 +6,6 @@ import scala.collection.mutable.Set
 import scala.scalajs.js
 import scala.scalajs.js.Any.jsArrayOps
 import scala.scalajs.js.typedarray.Uint8Array
-
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.DataTexture
 import org.denigma.threejs.Geometry
@@ -18,13 +17,13 @@ import org.denigma.threejs
 import org.denigma.threejs.PixelFormat
 import org.denigma.threejs.TextureDataType
 import org.denigma.threejs.TextureFilter
-
 import net.mrkeks.clave.game.Crate
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.Monster
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.view.DrawingContext
+import org.denigma.threejs.Vector3
 
 
 class GameMap(game: Game, val width: Int, val height: Int)
@@ -84,6 +83,12 @@ class GameMap(game: Game, val width: Int, val height: Int)
 //  shadows.image.asInstanceOf[HTMLImageElement].
   
   def init(context: DrawingContext) {
+    for (x <- 0 until width) {
+      for (z <- 0 until height) {
+        updateLighting(x, z)
+      }
+    }
+    
     context.scene.add(mesh)
     context.scene.add(underground)
   }
@@ -127,22 +132,23 @@ class GameMap(game: Game, val width: Int, val height: Int)
     context.scene.remove(underground)
   }
   
-  def updateObjectPosition(o: PositionedObject) = {
-    val newPosition = vecToMapPos(o.position)
+  def updateObjectPosition(o: PositionedObject, position: Vector3): (Int, Int) = {
+    val newPosition = vecToMapPos(position)
+    val oldPositionOnMap = o.getPositionOnMap
     
-    positionedObjects.removeBinding(o.positionOnMap, o)
+    oldPositionOnMap.foreach(positionedObjects.removeBinding(_ , o))
     positionedObjects.addBinding(newPosition, o)
     
     if (o.isInstanceOf[Crate]) {
-      updateTile(o.positionOnMap, Tile.Empty)
+      oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
       updateTile(newPosition, Tile.Wall)
       victoryCheckNeeded = true
     } else if (o.isInstanceOf[Monster]) {
-      updateTile(o.positionOnMap, Tile.Empty)
+      oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
       updateTile(newPosition, Tile.Monster)
     }
     
-    o.positionOnMap = newPosition
+    newPosition
   }
   
   def getObjectsAt(xz: (Int, Int)) = {
@@ -167,10 +173,10 @@ class GameMap(game: Game, val width: Int, val height: Int)
    *  if true returns how big the monster free region is. */
   def computeVictory(playerPositions: List[(Int, Int)]): Int = {
     val checkMemory = victoryCheck.map(_.clone())
-    val discovered = collection.mutable.Stack().pushAll(playerPositions)
+    val discovered = collection.mutable.Stack().pushAll(playerPositions.filter(isOnMapTupled))
     var score = 0
     playerPositions.foreach {
-      case (x, z) => checkMemory(x)(z) = true
+      case (x, z) => if (isOnMap(x, z)) checkMemory(x)(z) = true
     }
     
     while(discovered.nonEmpty) {
@@ -196,7 +202,7 @@ class GameMap(game: Game, val width: Int, val height: Int)
   
   def updateTile(xz: (Int, Int), newTile: Tile) = xz match {
     case (x,z) =>
-      if (x >= 0 && x < width && z >= 0 && z < height) {
+      if (isOnMap(x, z)) {
         setData(x, z, newTile)
         updateLighting(x, z)
         if (x < width - 1) updateLighting(x+1, z)
@@ -207,9 +213,9 @@ class GameMap(game: Game, val width: Int, val height: Int)
   
   def updateLighting(x: Int, z: Int) = {
     groundShadow.update ( (x)+(height-z-1)*width,
-      if (data(x)(z) == Tile.Wall)
+      if (isTileBlocked(x, z))
         0x22
-      else if (x > 0 && data(x-1)(z) == Tile.Wall)
+      else if (x > 0 && isTileBlocked(x-1, z))
 //          || (z > 0 && data(x)(z-1) == Tile.Wall)
 //          || (z > 0 && x > 0 && data(x-1)(z-1) == Tile.Wall)
         0xbb

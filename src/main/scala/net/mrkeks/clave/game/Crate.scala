@@ -42,7 +42,7 @@ class Crate(protected val map: GameMap)
         val dir = PlayerData.Direction.toVec3(player.viewDirection)
           .multiplyScalar(.2)
           .setY(.5)
-        position.copy(dir add player.position)
+        position.copy(dir add player.getPosition)
     }
     mesh.position.copy(position)
     //mesh.position.lerp(position, .5)
