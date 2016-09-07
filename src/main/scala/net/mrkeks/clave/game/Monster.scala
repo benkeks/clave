@@ -4,6 +4,9 @@ import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.SpriteMaterial
 import net.mrkeks.clave.view.DrawingContext
 import org.denigma.threejs.Sprite
+import net.mrkeks.clave.util.markovIf
+import org.denigma.threejs.Vector3
+import net.mrkeks.clave.util.Mathf
 
 object Monster {
   val material = new SpriteMaterial()
@@ -32,15 +35,27 @@ class Monster(protected val map: GameMap)
   
   def update(deltaTime: Double) {
     state match {
-      case Idle() =>
-        val rnd = Math.random()
-        if (rnd < .05) {
+      case s @ Idle(strollCoolDown) =>
+        val neighboringPlayers = for {
+          pos <- map.getAdjacentPositions(positionOnMap)
+          player <- map.getObjectsAt(pos).collect {case p: Player => p }
+        } yield (pos, player)
+        
+        if (neighboringPlayers.nonEmpty) {
+          // player approaches
+          neighboringPlayers.headOption.foreach { case (pos, p) =>
+            setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
+          }
+        } else markovIf (0.05 / (strollCoolDown + 1)) {
+          // move into an arbitrary direction
           val tar = Direction.toVec3(
-              Direction.fromRnd(rnd / .05)
+              Direction.randomDirection()
             ).add(position)
           if (!map.intersectsLevel(tar)) {
             setState(MoveTo(tar))
           }
+        } markovElse {
+          s.strollCoolDown = Math.max(s.strollCoolDown - deltaTime, 0.0)
         }
       case MoveTo(tar) =>
         if (map.intersectsLevel(tar)) {
@@ -49,23 +64,47 @@ class Monster(protected val map: GameMap)
         } else {
           val speed = .001 * deltaTime
           val newX = approach(position.x, tar.x, speed)
+          val newY = approach(position.y, 0, speed)
           val newZ = approach(position.z, tar.z, speed)
-          setPosition(newX, position.y, newZ)
+          setPosition(newX, newY , newZ)
           if (newX == tar.x && newZ == tar.z) {
             setState(Idle())
           }
         }
+      case s @ ChargeJumpTo(tar, progress) =>
+        if (progress >= 1.0) {
+          position.setY(0.0)
+          setState(JumpTo(tar, tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
+        } else {
+          s.progress += .001 * deltaTime
+          position.setY(.3 * Mathf.pingpong(progress * 3.0))
+        }
+      case s @ JumpTo(tar, ySpeed) =>
+        if (map.intersectsLevel(tar)) {
+          // if tile became blocked while moving there, turn around.
+          setState(MoveTo(position.clone().round()))
+        } else {
+          val speed = .0025 * deltaTime
+          val newX = approach(position.x, tar.x, speed)
+          val newZ = approach(position.z, tar.z, speed)
+          s.ySpeed -= .00004 * deltaTime
+          // in flight don't update the map placement!
+          position.set(newX, position.y + ySpeed * deltaTime, newZ)
+          if (newX == tar.x && newZ == tar.z) {
+            setState(Idle())
+            setPosition(newX, 0, newZ)
+          }
+        }
     }
-    
     sprite.position.copy(position)
-    
-    updatePositionOnMap()
   }
   
   def approach(src: Double, tar: Double, speed: Double) =
     if (Math.abs(tar - src) <= speed) tar else src + speed * Math.signum(tar - src)
   
   def setState(newState: State) {
-    state = newState
+    state = newState match {
+      case s => s
+    }
   }
 }

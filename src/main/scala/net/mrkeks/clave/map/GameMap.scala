@@ -155,6 +155,9 @@ class GameMap(game: Game, val width: Int, val height: Int)
     positionedObjects.getOrElse(xz, Set())
   }
   
+  def getAdjacentPositions(xz: (Int, Int)): List[(Int, Int)] = 
+    getAdjacentPositions(xz._1, xz._2)
+  
   def getAdjacentPositions(x: Int, z: Int): List[(Int, Int)] = {
     List((x-1, z), (x+1, z), (x, z-1), (x, z+1)).filter {
       case (x, z) => x >= 0 && x < width && z >= 0 && z < height

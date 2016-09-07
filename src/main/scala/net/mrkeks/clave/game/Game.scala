@@ -101,17 +101,13 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     add(player)
     playerControl = new PlayerControl(player, input)
     
-    val playerPos = for {
+    for {
       playerPositions <- positions.get(MapData.Tile.Player)
-      player1Pos <- playerPositions.headOption
-    } yield player1Pos
-    playerPos match {
-      case Some((x,z)) =>
-        player.setPosition(x, 0, z)
-      case _ =>
-        throw new Exception("Invalid map: no player position in map")
+      (x, z) <- playerPositions.headOption
+    } {
+      player.setPosition(x, 0, z)
     }
-    
+        
     val cratePositions = positions.getOrElse(MapData.Tile.Wall, List())
     cratePositions.foreach { case (x,z) =>
       val crate = new Crate(map)

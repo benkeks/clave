@@ -3,6 +3,8 @@ package net.mrkeks.clave.game
 import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.Vector3
 import org.denigma.threejs.Vector2
+import net.mrkeks.clave.util.markovIf
+import net.mrkeks.clave.map.MapData
 
 object PositionedObjectData {
   object Direction extends Enumeration {
@@ -35,21 +37,30 @@ object PositionedObjectData {
       case Left  => new Vector3(-1, 0, 0)
       case Right => new Vector3( 1, 0, 0)
     }
-    
-    def fromRnd(rnd: Double) = {
-      if (rnd < .25) {
-        Up
-      } else if (rnd < .5) {
-        Down
-      } else if (rnd < .75) {
-        Left
-      } else {
-        Right
-      }
-    }
+//    
+//    def fromRnd(rnd: Double) = {
+//      if (rnd < .25) {
+//        Up
+//      } else if (rnd < .5) {
+//        Down
+//      } else if (rnd < .75) {
+//        Left
+//      } else {
+//        Right
+//      }
+//    }
     
     def randomDirection() = {
-      fromRnd(Math.random())
+      //fromRnd(Math.random())
+      markovIf (.25) {
+        Up
+      }.markovElseIf (.25) {
+        Down
+      }.markovElseIf (.25) {
+        Left
+      } markovElse {
+        Right
+      }
     }
   }
   type Direction = Direction.Value
@@ -57,7 +68,7 @@ object PositionedObjectData {
 
 trait PositionedObjectData  {
   
-  protected var positionOnMap = (-1,-1)
+  protected var positionOnMap = MapData.notOnMap
   
   protected val position = new Vector3()
   

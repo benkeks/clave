@@ -9,6 +9,8 @@ object MapData {
         Something5, Something6, Something7, Monster, Player = Value
   }
   type Tile = Tile.Value
+  
+  val notOnMap = (-1, -1)
 }
 
 trait MapData {
@@ -71,7 +73,10 @@ trait MapData {
   }
   
   def vecToMapPos(v: Vector3) = {
-    (v.x.round.toInt, v.z.round.toInt)
+    if (v.y.abs < .02)
+      (v.x.round.toInt, v.z.round.toInt)
+    else
+      notOnMap
   }
   
   def isOnMap(x: Int, z: Int) =

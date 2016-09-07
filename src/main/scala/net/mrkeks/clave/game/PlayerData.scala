@@ -6,7 +6,7 @@ import org.denigma.threejs.Vector3
 object PlayerData extends PositionedObjectData {
   abstract sealed class State {
     /** player speed of movement in a certain state */
-    val speed = .01
+    val speed = .008
   }
   case class Idle() extends State
   case class Carrying(crate: CrateData) extends State {
