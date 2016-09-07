@@ -17,7 +17,7 @@ import org.denigma.threejs
 import org.denigma.threejs.PixelFormat
 import org.denigma.threejs.TextureDataType
 import org.denigma.threejs.TextureFilter
-import net.mrkeks.clave.game.Crate
+import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.Monster

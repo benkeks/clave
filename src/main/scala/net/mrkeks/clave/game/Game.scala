@@ -7,6 +7,7 @@ import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.map.Level
+import net.mrkeks.clave.game.objects.Crate
 
 class Game(context: DrawingContext, input: Input, gui: GUI) {
   

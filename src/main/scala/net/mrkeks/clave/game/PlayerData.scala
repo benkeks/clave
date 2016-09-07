@@ -2,6 +2,7 @@ package net.mrkeks.clave.game
 
 import org.denigma.threejs.Vector2
 import org.denigma.threejs.Vector3
+import net.mrkeks.clave.game.objects.CrateData
 
 object PlayerData extends PositionedObjectData {
   abstract sealed class State {

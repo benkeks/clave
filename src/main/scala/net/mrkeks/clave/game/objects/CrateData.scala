@@ -1,4 +1,7 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.game.objects
+
+import net.mrkeks.clave.game.PlayerData
+import net.mrkeks.clave.game.PositionedObjectData
 
 object CrateData {
   

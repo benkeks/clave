@@ -1,10 +1,16 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.game.objects
 
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
+import CrateData.Carried
+import CrateData.Standing
+import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.Player
+import net.mrkeks.clave.game.PositionedObject
+import net.mrkeks.clave.game.PositionedObjectData
 
 object Crate {
   private val material = new MeshLambertMaterial()

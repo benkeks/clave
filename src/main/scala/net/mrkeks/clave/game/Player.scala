@@ -5,6 +5,7 @@ import org.denigma.threejs.SpriteMaterial
 import org.denigma.threejs.Sprite
 import org.denigma.threejs.Vector2
 import net.mrkeks.clave.map.GameMap
+import net.mrkeks.clave.game.objects.Crate
 
 object Player {
   val material = new SpriteMaterial()
