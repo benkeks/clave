@@ -33,7 +33,7 @@ class DrawingContext() {
   
   val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   
-  val scene = new Scene();
+  val scene = new Scene()
   
   camera.position.z = 13
 	camera.position.y = 20

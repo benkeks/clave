@@ -5,8 +5,8 @@ import org.denigma.threejs.Vector3
 
 object MapData {
   object Tile extends Enumeration {
-    val Empty, Wall, SolidWall, Something3, Something4,
-        Something5, Something6, Something7, Monster, Player = Value
+    val Empty, Wall, SolidWall, Something3, GateOpen,
+        Something5, Trigger, Something7, Monster, Player = Value
   }
   type Tile = Tile.Value
   

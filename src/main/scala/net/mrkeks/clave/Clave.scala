@@ -24,7 +24,7 @@ object Clave {
   
   @JSExport
   def main(): Unit = {
-    game.loadLevel(0)
+    game.loadLevel(2)
     game.setState(game.Running())
     
     dom.window.setInterval(() => game.update(), 20)
