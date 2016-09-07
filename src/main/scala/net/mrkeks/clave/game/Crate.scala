@@ -39,7 +39,7 @@ class Crate(protected val map: GameMap)
       case Standing() =>
         position.setY(if (touching.isEmpty) 0 else .1)
       case Carried(player) =>
-        val dir = PlayerData.Direction.toVec3(player.viewDirection)
+        val dir = PositionedObjectData.Direction.toVec3(player.viewDirection)
           .multiplyScalar(.2)
           .setY(.5)
         position.copy(dir add player.getPosition)
@@ -57,10 +57,9 @@ class Crate(protected val map: GameMap)
   }
   
   def place(x: Int, z: Int) = {
-    if (!map.intersectsLevel(x, z)) {
-      position.set(x, 0, z)
+    if (!map.intersectsLevel(x, z) && !map.isMonsterOn(x, z)) {
+      setPosition(x, 0, z)
       state = Standing()
-      updatePositionOnMap()
       true
     } else {
       false

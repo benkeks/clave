@@ -83,6 +83,11 @@ trait MapData {
     val (x, z) = vecToMapPos(v)
     intersectsLevel(x, z)
   }
+    
+  def intersectsLevel(v: Vector3): Boolean = {
+    val (x, z) = vecToMapPos(v)
+    intersectsLevel(x, z)
+  }
   
   def intersectsLevel(x: Int, z: Int): Boolean = {
     if (x < 0 || x >= width || z < 0 || z >= height) {
@@ -90,6 +95,19 @@ trait MapData {
       true
     } else {
       isTileBlocked(x, z)
+    }
+  }
+  
+  def isMonsterOn(x: Int, z: Int): Boolean = {
+    if (isOnMap(x, z)) {
+      data(x)(z) match {
+        case Tile.Monster =>
+          true
+        case _ =>
+          false
+      }
+    } else {
+      false
     }
   }
   
