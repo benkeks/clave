@@ -10,6 +10,7 @@ import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.Trigger
+import net.mrkeks.clave.game.objects.TriggerGroup
 
 class Game(context: DrawingContext, input: Input, gui: GUI) {
   
@@ -110,31 +111,39 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     } {
       player.setPosition(x, 0, z)
     }
-        
-    val cratePositions = positions.getOrElse(MapData.Tile.Wall, List())
-    cratePositions.foreach { case (x,z) =>
-      val crate = new Crate(map)
-  
-      add(crate)
-      crate.place(x, z)
-    }
     
-    def factoryConstruct(tileType: MapData.Tile) = tileType match { 
+    // for now add all triggers and gates to one big group for the whole level.
+    val triggerGroup = new TriggerGroup
+    add(triggerGroup)
+    
+    // add level elements
+    def factoryConstruct(tileType: MapData.Tile) = tileType match {
+      case MapData.Tile.Wall =>
+        List(new Crate(map))
       case MapData.Tile.Monster =>
-        Some(new Monster(map))
-      case MapData.Tile.GateOpen =>
-        println("create gate")
-        Some(new Gate(map))
+        List(new Monster(map))
+      case MapData.Tile.GateOpen | MapData.Tile.GateClosed =>
+        val gate = new Gate(map)
+        triggerGroup.addGate(gate)
+        List(gate)
       case MapData.Tile.Trigger =>
-        Some(new Trigger(map))
+        val trigger = new Trigger(map)
+        triggerGroup.addTrigger(trigger)
+        List(trigger)
+      case MapData.Tile.TriggerWithCrate =>
+        val trigger = new Trigger(map)
+        triggerGroup.addTrigger(trigger)
+        val crate = new Crate(map)
+        List(trigger, crate)
       case _ =>
-        None
+        List()
     }
     
     positions.foreach { case (tileType: MapData.Tile, pos: List[(Int,Int)]) =>
       pos.foreach { case (x,z) =>
         factoryConstruct(tileType).foreach { obj =>
           obj.setPosition(x, 0, z)
+          obj match {case c: Crate => c.place(x, z) case _ => }
           add(obj)
         }
       }

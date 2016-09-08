@@ -15,4 +15,7 @@ trait TriggerData
   import TriggerData._
   
   var state: State = Idle()
+  
+  //val group = defaultTriggerGroup
+  //defaultTriggerGroup.addTrigger(this)
 }

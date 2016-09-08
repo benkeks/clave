@@ -24,6 +24,8 @@ import net.mrkeks.clave.game.Monster
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.view.DrawingContext
 import org.denigma.threejs.Vector3
+import net.mrkeks.clave.game.objects.Gate
+import net.mrkeks.clave.game.objects.GateData
 
 
 class GameMap(game: Game, val width: Int, val height: Int)
@@ -78,9 +80,6 @@ class GameMap(game: Game, val width: Int, val height: Int)
   val underground = new Mesh(box, groundMaterial)
   underground.scale.set(width, 10, height)
   underground.position.set(.5 * width - .5, -5.5, .5 * height - .5)
-  
-//  private val shadows = ImageUtils.generateDataTexture(width, height, new Color(0x909090))
-//  shadows.image.asInstanceOf[HTMLImageElement].
   
   def init(context: DrawingContext) {
     for (x <- 0 until width) {
@@ -139,13 +138,23 @@ class GameMap(game: Game, val width: Int, val height: Int)
     oldPositionOnMap.foreach(positionedObjects.removeBinding(_ , o))
     positionedObjects.addBinding(newPosition, o)
     
-    if (o.isInstanceOf[Crate]) {
-      oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-      updateTile(newPosition, Tile.Wall)
-      victoryCheckNeeded = true
-    } else if (o.isInstanceOf[Monster]) {
-      oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-      updateTile(newPosition, Tile.Monster)
+    o match {
+      case _: Crate =>
+        oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
+        updateTile(newPosition, Tile.Wall)
+        victoryCheckNeeded = true
+      case _: Monster =>
+        oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
+        updateTile(newPosition, Tile.Monster)
+      case g: Gate =>
+        val tile = g.state match {
+          case _: GateData.Open => Tile.GateOpen
+          case _: GateData.Closed => Tile.GateClosed
+        }
+        updateTile(newPosition, tile)
+        victoryCheckNeeded = true
+      case _ =>
+        
     }
     
     newPosition
@@ -187,7 +196,7 @@ class GameMap(game: Game, val width: Int, val height: Int)
       data(x)(z) match {
         case Tile.Monster =>
           return -1
-        case Tile.Wall | Tile.SolidWall =>
+        case Tile.Wall | Tile.SolidWall | Tile.GateClosed =>
           // nothing
         case _ =>
           score += 1

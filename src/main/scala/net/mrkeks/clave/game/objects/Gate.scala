@@ -13,7 +13,7 @@ object Gate {
   private val material = new MeshLambertMaterial()
   material.color.setHex(0x8899aa)
   
-  private val box = new BoxGeometry(.95, .1, .95)
+  private val box = new BoxGeometry(.99, 1.0, .99)
   
   def clear() {
     material.dispose()
@@ -38,7 +38,30 @@ class Gate(protected val map: GameMap)
   }
   
   def update(deltaTime: Double) {
-    position.setY(-.5)
+    state match {
+      case Open() =>
+        position.setY(Math.max(position.y - .01 * deltaTime, -.99))
+      case Closed() =>
+        if (position.y < 0.0) {
+          position.setY(Math.min(0.0,
+              position.y + (.013 + Math.sin(position.x*.5)*.01) * deltaTime))
+        }
+    }
+    
     mesh.position.copy(position)
+  }
+  
+  def open() {
+    setState(Open())
+    updatePositionOnMap()
+  }
+  
+  def close() {
+    setState(Closed())
+    updatePositionOnMap()
+  }
+  
+  def setState(newState: State) {
+    state = newState
   }
 }

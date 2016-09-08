@@ -93,7 +93,8 @@ class Monster(protected val map: GameMap)
           // in flight don't update the map placement!
           position.set(newX, position.y + ySpeed * deltaTime, newZ)
           if (newX == tar.x && newZ == tar.z) {
-            setState(Idle())
+            // give some exte cooldown after jumping
+            setState(Idle(strollCoolDown = 3000))
             setPosition(newX, 0, newZ)
           }
         }
