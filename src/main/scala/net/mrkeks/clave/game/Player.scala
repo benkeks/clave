@@ -40,7 +40,7 @@ class Player(protected val map: GameMap)
     state match {
       case Idle() | Carrying(_) =>
         move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
-        if (map.isMonsterOn(positionOnMap._1, positionOnMap._2)) {
+        if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
       case Dead() =>

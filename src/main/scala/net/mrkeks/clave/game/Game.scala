@@ -118,7 +118,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     
     // add level elements
     def factoryConstruct(tileType: MapData.Tile) = tileType match {
-      case MapData.Tile.Wall =>
+      case MapData.Tile.Crate =>
         List(new Crate(map))
       case MapData.Tile.Monster =>
         List(new Monster(map))

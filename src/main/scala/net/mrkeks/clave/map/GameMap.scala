@@ -107,7 +107,7 @@ class GameMap(game: Game, val width: Int, val height: Int)
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         data(x)(z) match {
-          case Tile.Wall =>
+          case Tile.Crate =>
 //            drawingMatrix.makeTranslation(x, 0, z)
 //            newGeometry.merge(box, drawingMatrix.multiply(new Matrix4().makeRotationY(Math.random() * .1 - .05)), 0)
           case Tile.SolidWall =>
@@ -141,14 +141,14 @@ class GameMap(game: Game, val width: Int, val height: Int)
     o match {
       case _: Crate =>
         oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-        updateTile(newPosition, Tile.Wall)
+        updateTile(newPosition, Tile.Crate)
         victoryCheckNeeded = true
       case _: Monster =>
-        oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-        updateTile(newPosition, Tile.Monster)
+        //oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
+        //updateTile(newPosition, Tile.Monster)
       case g: Gate =>
         val tile = g.state match {
-          case _: GateData.Open => Tile.GateOpen
+          case _: GateData.Open => Tile.Empty
           case _: GateData.Closed => Tile.GateClosed
         }
         updateTile(newPosition, tile)
@@ -159,6 +159,9 @@ class GameMap(game: Game, val width: Int, val height: Int)
     
     newPosition
   }
+  
+  def isMonsterOn(xz: (Int, Int)): Boolean =
+    getObjectsAt(xz).exists(_.isInstanceOf[Monster])
   
   def getObjectsAt(xz: (Int, Int)) = {
     positionedObjects.getOrElse(xz, Set())
@@ -192,12 +195,13 @@ class GameMap(game: Game, val width: Int, val height: Int)
     }
     
     while(discovered.nonEmpty) {
-      val (x, z) = discovered.pop()
+      val xz @ (x, z) = discovered.pop()
       data(x)(z) match {
-        case Tile.Monster =>
+        case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
+          // stop recursion
+        case _ if isMonsterOn(xz) =>
+          // stop victory check
           return -1
-        case Tile.Wall | Tile.SolidWall | Tile.GateClosed =>
-          // nothing
         case _ =>
           score += 1
           getAdjacentPositions(x, z).foreach {

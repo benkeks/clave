@@ -5,7 +5,7 @@ import org.denigma.threejs.Vector3
 
 object MapData {
   object Tile extends Enumeration {
-    val Empty, Wall, SolidWall, Something3, GateOpen,
+    val Empty, Crate, SolidWall, Something3, GateOpen,
         GateClosed, Trigger, TriggerWithCrate, Monster, Player = Value
   }
   type Tile = Tile.Value
@@ -38,7 +38,7 @@ trait MapData {
       for (x <- 0 until width) {
         val tile = Tile(rawArray(z)(x))
         tile match {
-          case Tile.Wall | Tile.Player | Tile.Monster 
+          case Tile.Crate | Tile.Player | Tile.Monster 
              | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.TriggerWithCrate =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty
@@ -104,14 +104,9 @@ trait MapData {
     }
   }
   
-  def isMonsterOn(x: Int, z: Int): Boolean = {
+  def isTile(x: Int, z: Int, tiles: Set[Tile]): Boolean = {
     if (isOnMap(x, z)) {
-      data(x)(z) match {
-        case Tile.Monster =>
-          true
-        case _ =>
-          false
-      }
+      tiles.contains(data(x)(z)) 
     } else {
       false
     }
@@ -124,7 +119,7 @@ trait MapData {
   /** assumes that x,z is a valid field */
   protected def isTileBlocked(x: Int, z: Int) = {
     data(x)(z) match {
-      case Tile.Wall | Tile.SolidWall | Tile.GateClosed =>
+      case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
         true
       case _ =>
         false
