@@ -24,6 +24,7 @@ class Monster(protected val map: GameMap)
   import PositionedObjectData._
   
   val sprite = new Sprite(Monster.material)
+  sprite.scale.set(.9, .9, 1)
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
