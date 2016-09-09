@@ -143,12 +143,10 @@ class GameMap(game: Game, val width: Int, val height: Int)
         oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
         updateTile(newPosition, Tile.Crate)
         victoryCheckNeeded = true
-      case _: Monster =>
-        //oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-        //updateTile(newPosition, Tile.Monster)
       case g: Gate =>
         val tile = g.state match {
           case _: GateData.Open => Tile.Empty
+          case _: GateData.Closing => Tile.GateClosing
           case _: GateData.Closed => Tile.GateClosed
         }
         updateTile(newPosition, tile)

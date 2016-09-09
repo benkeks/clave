@@ -2,10 +2,11 @@ package net.mrkeks.clave.map
 
 import org.denigma.threejs.Vector2
 import org.denigma.threejs.Vector3
+import scala.util.Random
 
 object MapData {
   object Tile extends Enumeration {
-    val Empty, Crate, SolidWall, Something3, GateOpen,
+    val Empty, Crate, SolidWall, GateClosing, GateOpen,
         GateClosed, Trigger, TriggerWithCrate, Monster, Player = Value
   }
   type Tile = Tile.Value
@@ -74,10 +75,11 @@ trait MapData {
   }
   
   def vecToMapPos(v: Vector3) = {
-    if (v.y.abs < .02)
-      (v.x.round.toInt, v.z.round.toInt)
-    else
-      notOnMap
+   (v.x.round.toInt, v.z.round.toInt)
+  }
+  
+  def mapPosToVec(xz: (Int, Int))= {
+    new Vector3(xz._1, 0, xz._2)
   }
   
   def isOnMap(x: Int, z: Int) =
@@ -92,6 +94,11 @@ trait MapData {
     
   def intersectsLevel(v: Vector3): Boolean = {
     val (x, z) = vecToMapPos(v)
+    intersectsLevel(x, z)
+  }
+  
+  def intersectsLevel(xz: (Int, Int)): Boolean = {
+    val (x, z) = xz
     intersectsLevel(x, z)
   }
   
@@ -116,10 +123,38 @@ trait MapData {
     data(x)(z) = newTile
   }
   
+  /** searches squares around a position for a free field
+   *  (if there are some in the same "distance", choose one randomly)
+   *  (if everything fails, returns the input value) */
+  def findNextFreeField(xz: (Int, Int)): (Int, Int) = {
+    val (x, z) = xz
+    var searchRadius = 1
+    while(searchRadius < width) {
+      val frontier = 
+        // top
+        (x - searchRadius + 1 until x + searchRadius).map((_, z - searchRadius)) ++
+        // bottom
+        (x - searchRadius + 1 until x + searchRadius).map((_, z + searchRadius)) ++
+        // left
+        (z - searchRadius + 1 until z + searchRadius).map((x - searchRadius, _)) ++
+        // right
+        (z - searchRadius + 1 until z + searchRadius).map((x + searchRadius, _))
+      println(frontier)
+      val freeFrontier = frontier.filterNot(intersectsLevel)
+      if (freeFrontier.nonEmpty) {
+        println("solution at "+searchRadius)
+        return freeFrontier(Random.nextInt(freeFrontier.size))
+      }
+      searchRadius += 1
+    }
+    println("no solution")
+    xz
+  }
+  
   /** assumes that x,z is a valid field */
   protected def isTileBlocked(x: Int, z: Int) = {
     data(x)(z) match {
-      case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
+      case Tile.Crate | Tile.SolidWall | Tile.GateClosed | Tile.GateClosing =>
         true
       case _ =>
         false

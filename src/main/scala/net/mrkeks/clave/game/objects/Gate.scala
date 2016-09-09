@@ -3,11 +3,11 @@ package net.mrkeks.clave.game.objects
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshLambertMaterial
-
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.game.Monster
 
 object Gate {
   private val material = new MeshLambertMaterial()
@@ -28,8 +28,9 @@ class Gate(protected val map: GameMap)
   
   val mesh = new Mesh(Gate.box, Gate.material)
   
+  var animY = 0.0
+  
   def init(context: DrawingContext) {
-    position.setY(-.5)
     context.scene.add(mesh)
   }
   
@@ -40,15 +41,20 @@ class Gate(protected val map: GameMap)
   def update(deltaTime: Double) {
     state match {
       case Open() =>
-        position.setY(Math.max(position.y - .01 * deltaTime, -.99))
-      case Closed() =>
-        if (position.y < 0.0) {
-          position.setY(Math.min(0.0,
-              position.y + (.013 + Math.sin(position.x*.5)*.01) * deltaTime))
+        animY = Math.max(animY - .01 * deltaTime, -.99)
+      case Closing() =>
+        if (animY < 0.0) {
+          animY = animY + (.013 + Math.sin(position.x*.5)*.01) * deltaTime
+        } else {
+          setState(Closed())
+          updatePositionOnMap()
         }
+      case Closed() =>
+        animY = 0.0
+        
     }
     
-    mesh.position.copy(position)
+    mesh.position.set(position.x, animY, position.z)
   }
   
   def open() {
@@ -57,8 +63,10 @@ class Gate(protected val map: GameMap)
   }
   
   def close() {
-    setState(Closed())
-    updatePositionOnMap()
+    if (state.isInstanceOf[Open]) {
+      setState(Closing())
+      updatePositionOnMap()
+    }
   }
   
   def setState(newState: State) {

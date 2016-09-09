@@ -41,7 +41,6 @@ trait ObjectShadow {
   
   def initShadow(context: DrawingContext) {
     context.scene.add(towel)
-    println("hewllo")
   }
     
   def updateShadow() {

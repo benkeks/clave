@@ -7,6 +7,7 @@ object GateData {
   abstract sealed class State
   case class Open() extends State
   case class Closed() extends State
+  case class Closing() extends State
 
 }
 
