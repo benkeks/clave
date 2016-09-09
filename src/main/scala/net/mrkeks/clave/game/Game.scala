@@ -18,7 +18,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   case class StartUp() extends State
   case class Running() extends State
   case class Paused() extends State
-  case class Won(levelScore: Int) extends State
+  case class Won(levelScore: Int, var victoryDrawX: Int, var victoryDrawZ: Int) extends State
   case class Lost() extends State
   
   var state: State = StartUp()
@@ -73,8 +73,22 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
         }
       case Paused() =>
         //
-      case Won(score) =>
-        
+      case s @ Won(score, victoryDrawX, victoryDrawZ) =>
+        val (x, z) = player.getPositionOnMap.getOrElse((0,0))
+        for (i <- (0 to (deltaTime / 4).toInt)) {
+          map.victoryLighting(x+s.victoryDrawX, z+s.victoryDrawZ)
+          map.victoryLighting(x+s.victoryDrawX, z-s.victoryDrawZ)
+          map.victoryLighting(x-s.victoryDrawX, z+s.victoryDrawZ)
+          map.victoryLighting(x-s.victoryDrawX, z-s.victoryDrawZ)
+          val radius = s.victoryDrawX + s.victoryDrawZ
+          if (s.victoryDrawX == radius && s.victoryDrawZ == 0) {
+            s.victoryDrawX = 0
+            s.victoryDrawZ = radius + 1
+          } else {
+            s.victoryDrawX += 1
+            s.victoryDrawZ -= 1
+          }
+        }
       case Lost() =>
         
     }
@@ -155,7 +169,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
       case StartUp() =>
       case Running() =>
       case Paused() =>
-      case Won(levelScore) =>
+      case Won(levelScore, _, _) =>
         score += levelScore
         gui.setScore(score)
         input.keyPressListener.addBinding(32, continueLevel)
@@ -170,7 +184,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   def notifyVictory(levelScore: Int) {
     if (state.isInstanceOf[Running]) {
       println("victory! "+levelScore)
-      setState(Won(levelScore))
+      setState(Won(levelScore, 0, 0))
     }
   }
   

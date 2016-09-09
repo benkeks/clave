@@ -26,6 +26,9 @@ import net.mrkeks.clave.view.DrawingContext
 import org.denigma.threejs.Vector3
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.GateData
+import scala.scalajs.js.typedarray.Uint32Array
+import scala.scalajs.js.typedarray.Uint16Array
+import org.denigma.threejs.PixelType
 
 
 class GameMap(game: Game, val width: Int, val height: Int)
@@ -55,12 +58,12 @@ class GameMap(game: Game, val width: Int, val height: Int)
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Boolean](width, height)
   
-  val groundShadow = new Uint8Array(width * height)
+  val groundShadow = new Uint16Array(width * height)
   (0 until width * height).foreach ( groundShadow.update(_, 255) )
   
   val groundShadowTexture = new DataTexture()
-  groundShadowTexture.format = threejs.THREE.LuminanceFormat
-  groundShadowTexture.`type` = threejs.THREE.UnsignedByteType
+  groundShadowTexture.format = threejs.THREE.RGBAFormat
+  groundShadowTexture.`type` = threejs.THREE.UnsignedShort4444Type.asInstanceOf[TextureDataType]
   groundShadowTexture.magFilter = threejs.THREE.LinearFilter
   groundShadowTexture.image = {
     val w = width
@@ -74,7 +77,7 @@ class GameMap(game: Game, val width: Int, val height: Int)
   groundShadowTexture.needsUpdate = true
   
   val groundMaterial = new MeshLambertMaterial()
-  groundMaterial.color.setHex(0x33dd22)
+  //groundMaterial.color.setHex(0x33dd22)
   groundMaterial.map = groundShadowTexture
   
   val underground = new Mesh(box, groundMaterial)
@@ -185,11 +188,15 @@ class GameMap(game: Game, val width: Int, val height: Int)
   /** computes whether there are no monsters reachable from a position
    *  if true returns how big the monster free region is. */
   def computeVictory(playerPositions: List[(Int, Int)]): Int = {
-    val checkMemory = victoryCheck.map(_.clone())
+    victoryCheck.foreach { row =>
+      for (i <- 0 until width) {
+        row(i) = false
+      }
+    }
     val discovered = collection.mutable.Stack().pushAll(playerPositions.filter(isOnMapTupled))
     var score = 0
     playerPositions.foreach {
-      case (x, z) => if (isOnMap(x, z)) checkMemory(x)(z) = true
+      case (x, z) => if (isOnMap(x, z)) victoryCheck(x)(z) = true
     }
     
     while(discovered.nonEmpty) {
@@ -204,8 +211,8 @@ class GameMap(game: Game, val width: Int, val height: Int)
           score += 1
           getAdjacentPositions(x, z).foreach {
             case xz @ (x, z) =>
-              if (!checkMemory(x)(z)) {
-                checkMemory(x)(z) = true
+              if (!victoryCheck(x)(z)) {
+                victoryCheck(x)(z) = true
                 discovered.push(xz)
               }
           }
@@ -220,22 +227,32 @@ class GameMap(game: Game, val width: Int, val height: Int)
         setData(x, z, newTile)
         updateLighting(x, z)
         if (x < width - 1) updateLighting(x+1, z)
-//        if (z < height - 1) updateLighting(x, z+1)
-//        if (x < width - 1 && z < height - 1) updateLighting(x+1, z+1)
       }
   }
   
-  def updateLighting(x: Int, z: Int) = {
+  def updateLighting(x: Int, z: Int, overlay: Int = 0) {
     groundShadow.update ( (x)+(height-z-1)*width,
       if (isTileBlocked(x, z))
-        0x22
+        0x021f | overlay
       else if (x > 0 && isTileBlocked(x-1, z))
-//          || (z > 0 && data(x)(z-1) == Tile.Wall)
-//          || (z > 0 && x > 0 && data(x-1)(z-1) == Tile.Wall)
-        0xbb
+        0x191f | overlay 
       else
-        0xFF
+        0x1d2f | overlay
     )
     groundShadowTexture.needsUpdate = true
+  }
+  
+  def updateAllLighting() {
+    for (x <- 0 until width) {
+      for (z <- 0 until height) {
+        updateLighting(x, z)
+      }
+    }
+  }
+  
+  def victoryLighting(x: Int, z: Int) {
+    if (isOnMap(x, z)) {
+      updateLighting(x, z, if (victoryCheck(x)(z)) 0xee3f else 0x0000)
+    }
   }
 }
