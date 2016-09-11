@@ -6,13 +6,24 @@ import org.denigma.threejs.Sprite
 import org.denigma.threejs.Vector2
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
+import org.denigma.threejs.MeshLambertMaterial
+import org.denigma.threejs.BoxGeometry
+import org.denigma.threejs.Mesh
 
 object Player {
   val material = new SpriteMaterial()
   material.color.setHex(0xee0000)
   
+  private val dropPreviewMaterial = new MeshLambertMaterial()
+  dropPreviewMaterial.transparent = true
+  dropPreviewMaterial.opacity = .5
+  dropPreviewMaterial.color.setHex(0xaa2299)
+  
+  private val dropPreviewGeometry = new BoxGeometry(1.1, .1, 1.1)
+  
   def clear() {
     material.dispose()
+    dropPreviewMaterial.dispose()
   }
 }
 
@@ -26,19 +37,36 @@ class Player(protected val map: GameMap)
   
   val sprite = new Sprite(Player.material)
   
+  val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
+  
   def init(context: DrawingContext) {
     context.scene.add(sprite)
+    context.scene.add(dropPreview)
     initShadow(context)
   }
   
   def clear(context: DrawingContext) {
     context.scene.remove(sprite)
+    context.scene.remove(dropPreview)
     clearShadow(context)
   }
   
   def update(deltaTime: Double) {
+    // drop preview visibility defaults to false
+    dropPreview.visible = false
+    
     state match {
-      case Idle() | Carrying(_) =>
+      case Idle()  =>
+        move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
+        if (map.isMonsterOn(positionOnMap)) {
+          setState(Dead())
+        }
+      case Carrying(crate: Crate) =>
+        if (crate.canBePlaced(nextField._1, nextField._2)) {
+          dropPreview.visible = true
+          dropPreview.position.copy(map.mapPosToVec(nextField))
+          dropPreview.position.setY(-.5)
+        }
         move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())

@@ -63,11 +63,7 @@ class Crate(protected val map: GameMap)
   }
   
   def place(x: Int, z: Int) = {
-    if (!map.intersectsLevel(x, z) 
-        && !map.getObjectsAt((x,z)).exists {
-             case _: Monster | _: Gate => true
-             case _ => false
-           }) {
+    if (canBePlaced(x, z)) {
       setPosition(x, 0, z)
       state = Standing()
       true
@@ -75,4 +71,11 @@ class Crate(protected val map: GameMap)
       false
     }
   }
+  
+  def canBePlaced(x: Int, z: Int) = (
+    !map.intersectsLevel(x, z) 
+      && !map.getObjectsAt((x,z)).exists {
+             case _: Monster | _: Gate => true
+             case _ => false
+    })
 }
