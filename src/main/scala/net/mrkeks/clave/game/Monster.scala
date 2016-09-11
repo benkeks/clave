@@ -7,10 +7,16 @@ import org.denigma.threejs.Sprite
 import net.mrkeks.clave.util.markovIf
 import org.denigma.threejs.Vector3
 import net.mrkeks.clave.util.Mathf
+import org.denigma.threejs.TextureLoader
+import org.denigma.threejs.Texture
 
 object Monster {
   val material = new SpriteMaterial()
-  material.color.setHex(0x117711)
+  //material.color.setHex(0x117711)
+  
+  val texture = new TextureLoader().load("gfx/monster.png", { tex: Texture =>
+    material.map = tex
+  })
   
   def clear() {
     material.dispose()
@@ -24,7 +30,7 @@ class Monster(protected val map: GameMap)
   import PositionedObjectData._
   
   val sprite = new Sprite(Monster.material)
-  sprite.scale.set(.9, .9, 1)
+  sprite.scale.set(1.1, 1.1, 1)
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
