@@ -30,7 +30,11 @@ class Monster(protected val map: GameMap)
   import PositionedObjectData._
   
   val sprite = new Sprite(Monster.material)
-  sprite.scale.set(1.1, 1.1, 1)
+  sprite.scale.set(1.4, 1.4, 1)
+  
+  var anim = 0.0
+  anim = 10.0 * Math.random()
+  var yScale = 0.0
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
@@ -52,12 +56,16 @@ class Monster(protected val map: GameMap)
       setState(PushedTo(tar, tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
     }
     
+    anim += .1 * deltaTime
+    
     state match {
       case s @ Idle(strollCoolDown) =>
         val neighboringPlayers = for {
           pos <- map.getAdjacentPositions(positionOnMap)
           player <- map.getObjectsAt(pos).collect {case p: Player => p }
         } yield (pos, player)
+        
+        yScale = approach(yScale, Math.sin(anim * .02) * .1, .003 * deltaTime)
         
         if (neighboringPlayers.nonEmpty) {
           // player approaches
@@ -80,6 +88,9 @@ class Monster(protected val map: GameMap)
           // if tile became blocked while moving there, turn around.
           setState(MoveTo(position.clone().round()))
         } else {
+          // breathing anim
+          yScale = approach(yScale, Math.sin(anim * .025) * .2, .003 * deltaTime)
+        
           val speed = .001 * deltaTime
           val newX = approach(position.x, tar.x, speed)
           val newY = approach(position.y, 0, speed)
@@ -97,7 +108,9 @@ class Monster(protected val map: GameMap)
               ySpeed = tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
         } else {
           s.progress += .001 * deltaTime
-          position.setY(.3 * Mathf.pingpong(progress * 3.0))
+          val newY = .3 * Mathf.pingpong(progress * 3.0)
+          yScale = approach(yScale, Math.abs(newY-.2)*1.0, .003 * deltaTime)
+          position.setY(newY)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
         if (map.intersectsLevel(tar)) {
@@ -108,11 +121,12 @@ class Monster(protected val map: GameMap)
           val newX = approach(position.x, tar.x, speed)
           val newZ = approach(position.z, tar.z, speed)
           s.ySpeed -= .00004 * deltaTime
+          yScale = approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
           // in flight don't update the map placement!
           position.set(newX, position.y + ySpeed * deltaTime, newZ)
           if (newX == tar.x && newZ == tar.z) {
             // give some extra cooldown after jumping
-            setState(Idle(strollCoolDown = 3000))
+            setState(Idle(strollCoolDown = 4000))
             setPosition(newX, 0, newZ)
           }
         }
@@ -121,14 +135,16 @@ class Monster(protected val map: GameMap)
         val newX = approach(position.x, tar.x, speed)
         val newZ = approach(position.z, tar.z, speed)
         s.ySpeed -= .00004 * deltaTime
+        yScale = approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
         setPosition(newX, position.y + ySpeed * deltaTime, newZ)
         if (newX == tar.x && newZ == tar.z) {
           // give fewer cooldown after being pushed
-          setState(Idle(strollCoolDown = 1000))
+          setState(Idle(strollCoolDown = 2000))
           setPosition(newX, 0, newZ)
         }
     }
     sprite.position.copy(position)
+    sprite.scale.set(1.4 - yScale * .5, 1.4 + yScale, 1)
     updateShadow()
   }
   
