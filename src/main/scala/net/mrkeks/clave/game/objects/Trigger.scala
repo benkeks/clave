@@ -26,7 +26,8 @@ class Trigger(protected val map: GameMap)
   
   import TriggerData._
   
-  val mesh = new Mesh(Trigger.box, Trigger.material)
+  val material = Trigger.material.clone()
+  val mesh = new Mesh(Trigger.box, material)
   
   def init(context: DrawingContext) {
     setState(Idle())
@@ -35,6 +36,7 @@ class Trigger(protected val map: GameMap)
   
   def clear(context: DrawingContext) {
     context.scene.remove(mesh)
+    material.dispose()
   }
   
   def update(deltaTime: Double) {
@@ -59,9 +61,11 @@ class Trigger(protected val map: GameMap)
     state = newState match {
       case Idle() =>
         position.setY(-.45)
+        material.color.setHex(0x3355aa)
         newState
       case Pushed(by) =>
         position.setY(-.52)
+        material.color.setHex(0x4477ee)
         newState
     }
   }

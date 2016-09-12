@@ -40,7 +40,7 @@ class DrawingContext() {
 	camera.position.x = 0
 	camera.lookAt(new Vector3())
 	
-  val ambient = new AmbientLight(0x303236)
+  val ambient = new AmbientLight(0x404246)
 	scene.add(ambient)
 	
 	val light = new PointLight(0xffffff, 1.0)

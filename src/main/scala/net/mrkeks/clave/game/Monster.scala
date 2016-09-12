@@ -14,8 +14,15 @@ object Monster {
   val material = new SpriteMaterial()
   //material.color.setHex(0x117711)
   
-  val texture = new TextureLoader().load("gfx/monster.png", { tex: Texture =>
-    material.map = tex
+  var texture: Texture = null
+  var textureBlink: Texture = null
+  
+  new TextureLoader().load("gfx/monster.png", { tex: Texture =>
+    texture = tex
+  })
+  
+  new TextureLoader().load("gfx/monster_blink.png", { tex: Texture =>
+    textureBlink = tex
   })
   
   def clear() {
@@ -29,16 +36,20 @@ class Monster(protected val map: GameMap)
   import MonsterData._
   import PositionedObjectData._
   
-  val sprite = new Sprite(Monster.material)
+  val material = Monster.material.clone()
+  
+  val sprite = new Sprite(material)
   sprite.scale.set(1.4, 1.4, 1)
   
   var anim = 0.0
-  anim = 10.0 * Math.random()
   var yScale = 0.0
+  var rotate = 0.0
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
     initShadow(context)
+    anim = 200.0 * Math.random()
+    setState(Idle(2000 + 2000 * Math.random()))
   }
   
   def clear(context: DrawingContext) {
@@ -47,7 +58,6 @@ class Monster(protected val map: GameMap)
   }
   
   def update(deltaTime: Double) {
-    
     // check whether something might push the monster away
     if (!state.isInstanceOf[PushedTo] 
         && map.intersectsLevel(positionOnMap)) {
@@ -58,6 +68,12 @@ class Monster(protected val map: GameMap)
     
     anim += .1 * deltaTime
     
+    if (anim % 200 < 20.0) {
+      material.map = Monster.textureBlink
+    } else {
+      material.map = Monster.texture
+    }
+    
     state match {
       case s @ Idle(strollCoolDown) =>
         val neighboringPlayers = for {
@@ -65,7 +81,8 @@ class Monster(protected val map: GameMap)
           player <- map.getObjectsAt(pos).collect {case p: Player => p }
         } yield (pos, player)
         
-        yScale = approach(yScale, Math.sin(anim * .02) * .1, .003 * deltaTime)
+        yScale = approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
+        rotate = approach(rotate, 0, .0001 * deltaTime)
         
         if (neighboringPlayers.nonEmpty) {
           // player approaches
@@ -89,8 +106,9 @@ class Monster(protected val map: GameMap)
           setState(MoveTo(position.clone().round()))
         } else {
           // breathing anim
-          yScale = approach(yScale, Math.sin(anim * .025) * .2, .003 * deltaTime)
-        
+          yScale = approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
+          rotate = approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
+          
           val speed = .001 * deltaTime
           val newX = approach(position.x, tar.x, speed)
           val newY = approach(position.y, 0, speed)
@@ -110,6 +128,7 @@ class Monster(protected val map: GameMap)
           s.progress += .001 * deltaTime
           val newY = .3 * Mathf.pingpong(progress * 3.0)
           yScale = approach(yScale, Math.abs(newY-.2)*1.0, .003 * deltaTime)
+          rotate = approach(rotate, 0, .0001 * deltaTime)
           position.setY(newY)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
@@ -122,6 +141,7 @@ class Monster(protected val map: GameMap)
           val newZ = approach(position.z, tar.z, speed)
           s.ySpeed -= .00004 * deltaTime
           yScale = approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
+          rotate = approach(rotate, 0, .0001 * deltaTime)
           // in flight don't update the map placement!
           position.set(newX, position.y + ySpeed * deltaTime, newZ)
           if (newX == tar.x && newZ == tar.z) {
@@ -137,6 +157,7 @@ class Monster(protected val map: GameMap)
         s.ySpeed -= .00004 * deltaTime
         yScale = approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
         setPosition(newX, position.y + ySpeed * deltaTime, newZ)
+        rotate = approach(rotate, 0, .0001 * deltaTime)
         if (newX == tar.x && newZ == tar.z) {
           // give fewer cooldown after being pushed
           setState(Idle(strollCoolDown = 2000))
@@ -145,6 +166,7 @@ class Monster(protected val map: GameMap)
     }
     sprite.position.copy(position)
     sprite.scale.set(1.4 - yScale * .5, 1.4 + yScale, 1)
+    sprite.material.rotation = rotate
     updateShadow()
   }
   

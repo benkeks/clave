@@ -7,12 +7,16 @@ import org.denigma.threejs.Vector2
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
 import org.denigma.threejs.MeshLambertMaterial
+import org.denigma.threejs.MeshPhongMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
+import org.denigma.threejs.SphereGeometry
 
 object Player {
-  val material = new SpriteMaterial()
-  material.color.setHex(0xee0000)
+  val geometry = new SphereGeometry(.4, widthSegments = 12)
+  
+  val material = new MeshPhongMaterial()
+  material.color.setHex(0xf01111)
   
   private val dropPreviewMaterial = new MeshLambertMaterial()
   dropPreviewMaterial.transparent = true
@@ -35,7 +39,7 @@ class Player(protected val map: GameMap)
   
   var nextField = (0,0)
   
-  val sprite = new Sprite(Player.material)
+  val sprite = new Mesh(Player.geometry, Player.material)
   
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
