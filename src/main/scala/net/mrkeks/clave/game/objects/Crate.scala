@@ -11,6 +11,7 @@ import net.mrkeks.clave.game.PositionedObjectData
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.game.Monster
+import org.denigma.threejs.BoxHelper
 
 object Crate {
   private val material = new MeshLambertMaterial()

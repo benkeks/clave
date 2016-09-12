@@ -7,16 +7,18 @@ import org.denigma.threejs.Vector2
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
 import org.denigma.threejs.MeshLambertMaterial
-import org.denigma.threejs.MeshPhongMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
-import org.denigma.threejs.SphereGeometry
+import org.denigma.threejs.TextureLoader
+import org.denigma.threejs.Texture
 
 object Player {
-  val geometry = new SphereGeometry(.4, widthSegments = 12)
+  val material = new SpriteMaterial()
+  //material.color.setHex(0xee0000)
   
-  val material = new MeshPhongMaterial()
-  material.color.setHex(0xf01111)
+  new TextureLoader().load("gfx/player_monster.png", { tex: Texture =>
+    material.map = tex
+  })
   
   private val dropPreviewMaterial = new MeshLambertMaterial()
   dropPreviewMaterial.transparent = true
@@ -39,7 +41,9 @@ class Player(protected val map: GameMap)
   
   var nextField = (0,0)
   
-  val sprite = new Mesh(Player.geometry, Player.material)
+  var anim = 0.0
+  
+  val sprite = new Sprite(Player.material)
   
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
@@ -61,11 +65,13 @@ class Player(protected val map: GameMap)
     
     state match {
       case Idle()  =>
+        anim += (state.speed * direction.length() + .001) * deltaTime
         move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
       case Carrying(crate: Crate) =>
+        anim += state.speed * deltaTime
         if (crate.canBePlaced(nextField._1, nextField._2)) {
           dropPreview.visible = true
           dropPreview.position.copy(map.mapPosToVec(nextField))
@@ -80,6 +86,8 @@ class Player(protected val map: GameMap)
       case _ =>
     }
     sprite.position.copy(position)
+    sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
+    sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
     updateShadow()
   }
   
