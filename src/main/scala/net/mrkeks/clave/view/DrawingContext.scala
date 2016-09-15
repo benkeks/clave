@@ -16,6 +16,11 @@ import org.denigma.threejs.Color
 import org.denigma.threejs.Vector3
 import org.denigma.threejs.PointLight
 import org.denigma.threejs.AmbientLight
+import org.denigma.threejs.TextureLoader
+
+object DrawingContext {
+  val textureLoader = new TextureLoader()
+}
 
 class DrawingContext() {
   
@@ -35,7 +40,7 @@ class DrawingContext() {
   
   val scene = new Scene()
   
-  camera.position.z = 13
+  camera.position.z = 14
 	camera.position.y = 20
 	camera.position.x = 0
 	camera.lookAt(new Vector3())

@@ -44,7 +44,7 @@ class Crate(protected val map: GameMap)
   def update(deltaTime: Double) {
     state match {
       case Standing() =>
-        position.setY(if (touching.isEmpty) 0 else .1)
+        position.setY(if (touching.isEmpty) -.025 else .1)
       case Carried(player) =>
         val dir = PositionedObjectData.Direction.toVec3(player.viewDirection)
           .multiplyScalar(.2)

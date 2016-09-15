@@ -19,6 +19,8 @@ object ObjectShadow {
   material.transparent = true
   material.depthWrite = false
   material.opacity = .5
+  material.polygonOffset = true
+  material.polygonOffsetUnits = -10.0
 
   val texture = new TextureLoader().load("gfx/shadow.gif", { tex: Texture =>
     material.map = tex
@@ -36,15 +38,18 @@ object ObjectShadow {
 trait ObjectShadow {
   self: PositionedObject =>
   
+  val shadowSize: Double
+  
   private val towel = new Mesh(ObjectShadow.geometry, ObjectShadow.material)
-  towel.rotateX(-Math.PI * .5)
   
   def initShadow(context: DrawingContext) {
+    towel.rotateX(-Math.PI * .5)
+    towel.scale.set(shadowSize, shadowSize, shadowSize)
     context.scene.add(towel)
   }
     
   def updateShadow() {
-    towel.position.set(position.x + position.y*.4 + 0.3, -0.46, position.z)
+    towel.position.set(position.x + position.y*.4 + 0.3, -0.5, position.z)
   }
   
   def clearShadow(context: DrawingContext) {

@@ -28,8 +28,12 @@ import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.GateData
 import scala.scalajs.js.typedarray.Uint32Array
 import scala.scalajs.js.typedarray.Uint16Array
+import scala.scalajs.js.JSConverters.JSRichGenTraversableOnce
 import org.denigma.threejs.PixelType
-
+import org.denigma.threejs.Texture
+import org.denigma.threejs.THREE
+import org.denigma.threejs.PlaneGeometry
+import org.denigma.threejs.MeshBasicMaterial
 
 class GameMap(game: Game, val width: Int, val height: Int)
   extends GameObject with MapData {
@@ -46,17 +50,35 @@ class GameMap(game: Game, val width: Int, val height: Int)
     
     val solidWall = new MeshLambertMaterial()
     solidWall.color.setHex(0x888899)
+    
+    val flower = new MeshBasicMaterial()
+    flower.transparent = true
+    flower.depthWrite = false
+    flower.polygonOffset = true
+    flower.polygonOffsetUnits = -1
+    DrawingContext.textureLoader.load("gfx/flowers.png", { tex: Texture =>
+      flower.map = tex
+    })
   }
   
-  private val materials = new MeshFaceMaterial(js.Array(Materials.wall, Materials.solidWall))
+  private val materials = new MeshFaceMaterial(js.Array(
+      Materials.wall,
+      Materials.solidWall,
+      Materials.flower))
   
   private val box = new BoxGeometry(1, 1, 1)
   box.faces.foreach { f => f.materialIndex = 0 }
+  
+  // duplicate uv coords in order for groundMaterial.lightMap to work
+  box.faceVertexUvs = Seq(box.faceVertexUvs(0),
+      box.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0)))).toJSArray
   
   private val mesh = new Mesh(new Geometry(), materials)
   
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Boolean](width, height)
+  
+  // underground presentation
   
   val groundShadow = new Uint16Array(width * height)
   (0 until width * height).foreach ( groundShadow.update(_, 255) )
@@ -77,8 +99,15 @@ class GameMap(game: Game, val width: Int, val height: Int)
   groundShadowTexture.needsUpdate = true
   
   val groundMaterial = new MeshLambertMaterial()
-  //groundMaterial.color.setHex(0x33dd22)
+  groundMaterial.color.setHex(0x808080)
   groundMaterial.map = groundShadowTexture
+  
+  DrawingContext.textureLoader.load("gfx/grass.png", { tex: Texture =>
+    tex.repeat.set(4.0, 4.0)
+    tex.wrapS = THREE.RepeatWrapping
+    tex.wrapT = THREE.RepeatWrapping
+    groundMaterial.lightMap = tex
+  })
   
   val underground = new Mesh(box, groundMaterial)
   underground.scale.set(width, 10, height)
@@ -105,17 +134,27 @@ class GameMap(game: Game, val width: Int, val height: Int)
   def updateView() {
     val beginUpdate = js.Date.now
     
+    val rotateUp = new Matrix4().makeRotationX(-Math.PI * .5)
+    
     val newGeometry = new Geometry()
     val drawingMatrix = new Matrix4()
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         data(x)(z) match {
-          case Tile.Crate =>
-//            drawingMatrix.makeTranslation(x, 0, z)
-//            newGeometry.merge(box, drawingMatrix.multiply(new Matrix4().makeRotationY(Math.random() * .1 - .05)), 0)
           case Tile.SolidWall =>
             drawingMatrix.makeTranslation(x, 0, z)
             newGeometry.merge(box, drawingMatrix, 1)
+          case Tile.Empty =>
+            if (Math.random() > .95) {
+              // add occasional flowers
+              drawingMatrix.makeTranslation(
+                    x - .25 + .5 * Math.random(),
+                    -.5, 
+                    z - .25 + .5 * Math.random())
+                    .multiply(rotateUp)
+              val size = .5 + Math.random() * .7
+              newGeometry.merge(new PlaneGeometry(size, size), drawingMatrix, 2)
+            }
           case _ =>
         }
       }

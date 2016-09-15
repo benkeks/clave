@@ -12,18 +12,12 @@ import org.denigma.threejs.Texture
 
 object Monster {
   val material = new SpriteMaterial()
-  //material.color.setHex(0x117711)
   
   var texture: Texture = null
   var textureBlink: Texture = null
-  
-  new TextureLoader().load("gfx/monster.png", { tex: Texture =>
-    texture = tex
-  })
-  
-  new TextureLoader().load("gfx/monster_blink.png", { tex: Texture =>
-    textureBlink = tex
-  })
+
+  DrawingContext.textureLoader.load("gfx/monster.png", texture = _: Texture)
+  DrawingContext.textureLoader.load("gfx/monster_blink.png", textureBlink = _: Texture)
   
   def clear() {
     material.dispose()
@@ -44,6 +38,8 @@ class Monster(protected val map: GameMap)
   var anim = 0.0
   var yScale = 0.0
   var rotate = 0.0
+  
+  val shadowSize = 1.0
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
@@ -164,7 +160,7 @@ class Monster(protected val map: GameMap)
           setPosition(newX, 0, newZ)
         }
     }
-    sprite.position.copy(position)
+    sprite.position.set(position.x, position.y + .2, position.z + .3)
     sprite.scale.set(1.4 - yScale * .5, 1.4 + yScale, 1)
     sprite.material.rotation = rotate
     updateShadow()

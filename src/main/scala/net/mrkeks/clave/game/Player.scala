@@ -14,11 +14,9 @@ import org.denigma.threejs.Texture
 
 object Player {
   val material = new SpriteMaterial()
-  //material.color.setHex(0xee0000)
   
-  new TextureLoader().load("gfx/player_monster.png", { tex: Texture =>
-    material.map = tex
-  })
+  DrawingContext.textureLoader.load(
+      "gfx/player_monster.png", material.map = _: Texture)
   
   private val dropPreviewMaterial = new MeshLambertMaterial()
   dropPreviewMaterial.transparent = true
@@ -46,6 +44,8 @@ class Player(protected val map: GameMap)
   val sprite = new Sprite(Player.material)
   
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
+  
+  val shadowSize = 0.7
   
   def init(context: DrawingContext) {
     context.scene.add(sprite)
@@ -85,7 +85,7 @@ class Player(protected val map: GameMap)
         
       case _ =>
     }
-    sprite.position.copy(position)
+    sprite.position.set(position.x, position.y + .15, position.z + .2)
     sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
     sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
     updateShadow()
