@@ -35,7 +35,7 @@ import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
 
-class GameMap(game: Game, val width: Int, val height: Int)
+class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
   
   import MapData._
@@ -55,7 +55,7 @@ class GameMap(game: Game, val width: Int, val height: Int)
     flower.transparent = true
     flower.depthWrite = false
     flower.polygonOffset = true
-    flower.polygonOffsetUnits = -1
+    flower.polygonOffsetUnits = -3
     DrawingContext.textureLoader.load("gfx/flowers.png", { tex: Texture =>
       flower.map = tex
     })
@@ -125,10 +125,7 @@ class GameMap(game: Game, val width: Int, val height: Int)
   }
   
   def update(deltaTime: Double) {
-    if (victoryCheckNeeded) {
-      checkVictory()
-      victoryCheckNeeded = false
-    }
+    
   }
   
   def updateView() {
@@ -216,17 +213,18 @@ class GameMap(game: Game, val width: Int, val height: Int)
     }
   }
   
-  def checkVictory() {
-    val score = computeVictory(game.getPlayerPositions)
-    
-    if (score >= 0) {
-      game.notifyVictory(score)
+  def checkVictory(playerPositions: List[(Int, Int)]): Int = {
+    if (victoryCheckNeeded) {
+      victoryCheckNeeded = false
+      computeVictory(playerPositions)
+    } else {
+      -1
     }
   }
   
   /** computes whether there are no monsters reachable from a position
    *  if true returns how big the monster free region is. */
-  def computeVictory(playerPositions: List[(Int, Int)]): Int = {
+  private def computeVictory(playerPositions: List[(Int, Int)]): Int = {
     victoryCheck.foreach { row =>
       for (i <- 0 until width) {
         row(i) = false

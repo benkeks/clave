@@ -12,7 +12,8 @@ import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.Trigger
 import net.mrkeks.clave.game.objects.TriggerGroup
 
-class Game(context: DrawingContext, input: Input, gui: GUI) {
+class Game(val context: DrawingContext, val input: Input, val gui: GUI)
+  extends GameObjectManagement with GameLevelLoader {
   
   abstract sealed class State
   case class StartUp() extends State
@@ -26,40 +27,19 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
   var score = 0
   var levelId = 0
   
-  /** List of individual objects in the game (movable stuff, enemies, the player..)  */
-  var gameObjects = List[GameObject]()
-  var gameObjectIdCount = 0
-  
   var lastFrameTime = js.Date.now
   
   /** Time that passed since the last frame. (in ms) */
   var deltaTime = 0.0
   
-  private var map: GameMap = null
+  var map: GameMap = null
   
-  private var player: Player = null
+  var player: Player = null
   
-  private var playerControl: PlayerControl = null
+  var playerControl: PlayerControl = null
   
   def getPlayerPositions = {
     player.getPositionOnMap.toList
-  }
-  
-  def add(o: GameObject) {
-    gameObjects = o :: gameObjects
-    gameObjectIdCount += 1
-    o.id = gameObjectIdCount
-    o.init(context)
-  }
-  
-  def remove(o: GameObject) {
-    gameObjects = gameObjects.filterNot(_.id == o.id)
-    o.clear(context)
-  }
-  
-  def clear() {
-    playerControl.clear()
-    gameObjects.foreach(remove)
   }
   
   def update() {
@@ -71,6 +51,7 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
         if (player.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost())
         }
+        checkVictory()
       case Paused() =>
         //
       case s @ Won(score, victoryDrawX, victoryDrawZ) =>
@@ -99,71 +80,6 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     lastFrameTime = js.Date.now
   }
   
-  def unloadLevel() {
-    clear()
-  }
-  
-  def loadLevel(id: Int) {
-    levelId = id
-    loadLevel(Level.levels(levelId))
-  }
-  
-  def loadLevel(level: Level) {
-    map = new GameMap(this, level.width, level.height)
-    
-    val positions = map.loadFromString(level.mapCsv)
-    map.updateView()
-    add(map)
-    
-    player = new Player(map)
-    add(player)
-    playerControl = new PlayerControl(player, input)
-    
-    for {
-      playerPositions <- positions.get(MapData.Tile.Player)
-      (x, z) <- playerPositions.headOption
-    } {
-      player.setPosition(x, 0, z)
-    }
-    
-    // for now add all triggers and gates to one big group for the whole level.
-    val triggerGroup = new TriggerGroup
-    add(triggerGroup)
-    
-    // add level elements
-    def factoryConstruct(tileType: MapData.Tile) = tileType match {
-      case MapData.Tile.Crate =>
-        List(new Crate(map))
-      case MapData.Tile.Monster =>
-        List(new Monster(map))
-      case MapData.Tile.GateOpen | MapData.Tile.GateClosed =>
-        val gate = new Gate(map)
-        triggerGroup.addGate(gate)
-        List(gate)
-      case MapData.Tile.Trigger =>
-        val trigger = new Trigger(map)
-        triggerGroup.addTrigger(trigger)
-        List(trigger)
-      case MapData.Tile.TriggerWithCrate =>
-        val trigger = new Trigger(map)
-        triggerGroup.addTrigger(trigger)
-        val crate = new Crate(map)
-        List(trigger, crate)
-      case _ =>
-        List()
-    }
-    
-    positions.foreach { case (tileType: MapData.Tile, pos: List[(Int,Int)]) =>
-      pos.foreach { case (x,z) =>
-        factoryConstruct(tileType).foreach { obj =>
-          obj.setPosition(x, 0, z)
-          obj match {case c: Crate => c.place(x, z) case _ => }
-          add(obj)
-        }
-      }
-    }
-  }
-  
   def setState(newState: State) {
     newState match {
       case StartUp() =>
@@ -181,10 +97,13 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
     state = newState
   }
   
-  def notifyVictory(levelScore: Int) {
+  def checkVictory() {
     if (state.isInstanceOf[Running]) {
-      println("victory! "+levelScore)
-      setState(Won(levelScore, 0, 0))
+      val levelScore = map.checkVictory(getPlayerPositions)
+      if (levelScore >= 0) {
+        println("victory! "+levelScore)
+        setState(Won(levelScore, 0, 0))
+      }
     }
   }
   
@@ -195,5 +114,10 @@ class Game(context: DrawingContext, input: Input, gui: GUI) {
       loadLevel(levelId + (if (state.isInstanceOf[Won]) 1 else 0))
       setState(Running())
     }
+  }
+  
+  override def loadLevel(id: Int) {
+    super.loadLevel(id)
+    playerControl = new PlayerControl(player, input)
   }
 }
