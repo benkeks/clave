@@ -1,4 +1,4 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.game.characters
 
 import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.SpriteMaterial
@@ -7,8 +7,13 @@ import org.denigma.threejs.Sprite
 import net.mrkeks.clave.util.markovIf
 import org.denigma.threejs.Vector3
 import net.mrkeks.clave.util.Mathf
-import org.denigma.threejs.TextureLoader
 import org.denigma.threejs.Texture
+
+import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.ObjectShadow
+import net.mrkeks.clave.game.PositionedObject
+import net.mrkeks.clave.game.PositionedObjectData
+import scala.scalajs.js.Any.fromFunction1
 
 object Monster {
   val material = new SpriteMaterial()
@@ -83,7 +88,9 @@ class Monster(protected val map: GameMap)
         if (neighboringPlayers.nonEmpty) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
-            setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
+             if (p.isAlive) {
+               setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
+             }
           }
         } else markovIf (0.05 / (strollCoolDown + 1)) {
           // move into an arbitrary direction

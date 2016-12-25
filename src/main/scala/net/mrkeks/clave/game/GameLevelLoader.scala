@@ -7,6 +7,8 @@ import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.objects.Trigger
 import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.map.MapData
+import net.mrkeks.clave.game.characters.Player
+import net.mrkeks.clave.game.characters.Monster
 
 trait GameLevelLoader {
   self: GameObjectManagement =>

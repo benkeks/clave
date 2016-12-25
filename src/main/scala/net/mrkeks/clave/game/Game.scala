@@ -11,6 +11,9 @@ import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.Trigger
 import net.mrkeks.clave.game.objects.TriggerGroup
+import net.mrkeks.clave.view.PlayerControl
+import net.mrkeks.clave.game.characters.Player
+import net.mrkeks.clave.game.characters.PlayerData
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   extends GameObjectManagement with GameLevelLoader {
@@ -71,6 +74,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
           }
         }
       case Lost() =>
+        gameObjects.foreach(_.update(deltaTime))
         
     }
     

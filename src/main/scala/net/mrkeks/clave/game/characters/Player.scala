@@ -1,4 +1,4 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.game.characters
 
 import net.mrkeks.clave.view.DrawingContext
 import org.denigma.threejs.SpriteMaterial
@@ -9,8 +9,12 @@ import net.mrkeks.clave.game.objects.Crate
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
-import org.denigma.threejs.TextureLoader
 import org.denigma.threejs.Texture
+import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.ObjectShadow
+import net.mrkeks.clave.game.PositionedObject
+import net.mrkeks.clave.game.PositionedObjectData
+import scala.scalajs.js.Any.fromFunction1
 
 object Player {
   val material = new SpriteMaterial()
@@ -70,6 +74,9 @@ class Player(protected val map: GameMap)
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
+        sprite.position.set(position.x, position.y, position.z + .3)
+        sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
+        sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
       case Carrying(crate: Crate) =>
         anim += state.speed * deltaTime
         if (crate.canBePlaced(nextField._1, nextField._2)) {
@@ -81,13 +88,17 @@ class Player(protected val map: GameMap)
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
-      case Dead() =>
-        
+        sprite.position.set(position.x, position.y, position.z + .3)
+        sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
+        sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
+      case s @ Dead() =>
+        s.deathAnim = Math.max(s.deathAnim - .005 * deltaTime, .66)
+        sprite.position.set(position.x, position.y - .8 + s.deathAnim * .8, position.z + .3)
+        sprite.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim)
+        sprite.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
       case _ =>
     }
-    sprite.position.set(position.x, position.y + .15, position.z + .2)
-    sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
-    sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
+    
     updateShadow()
   }
   
@@ -112,7 +123,7 @@ class Player(protected val map: GameMap)
     }
     
     if (touching.isEmpty) {
-      val newTouchObj = neighboringObjects.collectFirst({case c: Crate => c})
+      val newTouchObj = neighboringObjects.collectFirst { case c: Crate => c }
       
       newTouchObj.foreach(touch)
     }
@@ -147,6 +158,17 @@ class Player(protected val map: GameMap)
   }
   
   def setState(newState: State) {
+    state = newState match {
+      case Dead() =>
+        state match {
+          case Carrying(c) =>
+            place(c.asInstanceOf[Crate])
+          case _ =>
+            
+        }
+        newState
+      case s => s
+    }
     state = newState
   }
 }

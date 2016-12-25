@@ -5,12 +5,12 @@ import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
 import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.Player
+import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.map.MapData
-import net.mrkeks.clave.game.Monster
+import net.mrkeks.clave.game.characters.Monster
 import org.denigma.threejs.BoxHelper
 
 object Crate {

@@ -7,7 +7,7 @@ import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
-import net.mrkeks.clave.game.Monster
+import net.mrkeks.clave.game.characters.Monster
 
 object Gate {
   private val material = new MeshLambertMaterial()

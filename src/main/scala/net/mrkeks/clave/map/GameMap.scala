@@ -20,7 +20,7 @@ import org.denigma.threejs.TextureFilter
 import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.Monster
+import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.view.DrawingContext
 import org.denigma.threejs.Vector3
