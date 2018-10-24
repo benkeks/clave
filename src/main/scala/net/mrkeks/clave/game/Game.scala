@@ -17,14 +17,9 @@ import net.mrkeks.clave.game.characters.PlayerData
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   extends GameObjectManagement with GameLevelLoader {
-  
-  abstract sealed class State
-  case class StartUp() extends State
-  case class Running() extends State
-  case class Paused() extends State
-  case class Won(levelScore: Int, var victoryDrawX: Int, var victoryDrawZ: Int) extends State
-  case class Lost() extends State
-  
+
+  import Game._
+
   var state: State = StartUp()
   
   var score = 0
@@ -40,7 +35,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   var player: Player = null
   
   var playerControl: PlayerControl = null
-  
+
+  gui.registerGame(this)
+
   def getPlayerPositions = {
     player.getPositionOnMap.toList
   }
@@ -99,6 +96,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
         input.keyPressListener.addBinding(32, continueLevel)
     }
     state = newState
+    gui.notifyGameState()
   }
   
   def checkVictory() {
@@ -124,4 +122,21 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     super.loadLevel(id)
     playerControl = new PlayerControl(player, input)
   }
+
+  def togglePause() = {
+    state match {
+      case Paused() => setState(Running())
+      case Running() => setState(Paused())
+      case _ =>
+    }
+  }
+}
+
+object Game {
+  abstract sealed class State
+  case class StartUp() extends State
+  case class Running() extends State
+  case class Paused() extends State
+  case class Won(levelScore: Int, var victoryDrawX: Int, var victoryDrawZ: Int) extends State
+  case class Lost() extends State
 }

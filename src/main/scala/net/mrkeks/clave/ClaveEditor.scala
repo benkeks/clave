@@ -20,12 +20,12 @@ object ClaveEditor {
   
   val input = new Input()
   
-  val game = new Game(context, input, gui)
+  val game: Game = new Game(context, input, gui)
   
   @JSExport
   def main(): Unit = {
     game.loadLevel(2)
-    game.setState(game.Running())
+    game.setState(Game.Running())
     
     dom.window.setInterval(() => game.update(), 20)
   }
