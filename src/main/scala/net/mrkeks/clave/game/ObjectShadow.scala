@@ -24,6 +24,7 @@ object ObjectShadow {
 
   val texture = new TextureLoader().load("gfx/shadow.gif", { tex: Texture =>
     material.map = tex
+    material.needsUpdate = true
   })
     
   val geometry = new PlaneGeometry(1.7, 1.7, 1, 1)

@@ -58,6 +58,7 @@ class GameMap(val width: Int, val height: Int)
     flower.polygonOffsetUnits = -3
     DrawingContext.textureLoader.load("gfx/flowers.png", { tex: Texture =>
       flower.map = tex
+      flower.needsUpdate = true
     })
   }
   
@@ -66,13 +67,9 @@ class GameMap(val width: Int, val height: Int)
       Materials.solidWall,
       Materials.flower))
   
-  private val box = new BoxGeometry(1, 1, 1)
+  private val box = new BoxGeometry(1.0, 1.0, 1.0)
   box.faces.foreach { f => f.materialIndex = 0 }
-  
-  // duplicate uv coords in order for groundMaterial.lightMap to work
-  box.faceVertexUvs = Seq(box.faceVertexUvs(0),
-      box.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0)))).toJSArray
-  
+
   private val mesh = new Mesh(new Geometry(), materials)
   
   private var victoryCheckNeeded = false
@@ -107,11 +104,18 @@ class GameMap(val width: Int, val height: Int)
     tex.wrapS = THREE.RepeatWrapping
     tex.wrapT = THREE.RepeatWrapping
     groundMaterial.lightMap = tex
+    groundMaterial.needsUpdate = true
   })
   
-  val underground = new Mesh(box, groundMaterial)
-  underground.scale.set(width, 10, height)
-  underground.position.set(.5 * width - .5, -5.5, .5 * height - .5)
+  val underground = new Mesh(new PlaneGeometry(1, 1), groundMaterial)
+  underground.scale.set(width, height, 1.0)
+  underground.rotation.x = -.5 * Math.PI
+  underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
+
+  // duplicate uv coords in order for groundMaterial.lightMap to work
+  underground.geometry.faces.foreach { f => f.materialIndex = 0 }
+  underground.geometry.faceVertexUvs = Seq(underground.geometry.faceVertexUvs(0),
+    underground.geometry.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0)))).toJSArray
   
   def init(context: DrawingContext) {
     for (x <- 0 until width) {

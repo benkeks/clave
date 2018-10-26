@@ -10,7 +10,7 @@ name := "Clave"
 
 version := "0.0.1"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.6"
 
 resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases") //for three js fascade
 
@@ -25,4 +25,4 @@ scalacOptions ++= Seq("-Xmax-classfile-name", "140")
 
 bootSnippet := "net.mrkeks.clave.Clave().main();"
 
-updateBrowsers <<= updateBrowsers.triggeredBy(fastOptJS in Compile)
+updateBrowsers := (updateBrowsers triggeredBy (fastOptJS in Compile)).value
