@@ -97,14 +97,14 @@ class Monster(protected val map: GameMap)
           val tar = Direction.toVec3(
               Direction.randomDirection()
             ).add(position)
-          if (!map.intersectsLevel(tar)) {
+          if (!map.intersectsLevel(tar, considerObstacles = true)) {
             setState(MoveTo(tar))
           }
         } markovElse {
           s.strollCoolDown = Math.max(s.strollCoolDown - deltaTime, 0.0)
         }
       case MoveTo(tar) =>
-        if (map.intersectsLevel(tar)) {
+        if (map.intersectsLevel(tar, considerObstacles = false)) {
           // if tile became blocked while moving there, turn around.
           setState(MoveTo(position.clone().round()))
         } else {
@@ -135,7 +135,7 @@ class Monster(protected val map: GameMap)
           position.setY(newY)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
-        if (map.intersectsLevel(tar)) {
+        if (map.intersectsLevel(tar, considerObstacles = true)) {
           // if tile became blocked while moving there, turn around.
           setState(PushedTo(from, -ySpeed))
         } else {

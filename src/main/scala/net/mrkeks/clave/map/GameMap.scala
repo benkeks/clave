@@ -207,6 +207,8 @@ class GameMap(val width: Int, val height: Int)
   def getObjectsAt(xz: (Int, Int)) = {
     positionedObjects.getOrElse(xz, Set())
   }
+
+  override def isObstacleAt(xz: (Int, Int)): Boolean = isMonsterOn(xz)
   
   def getAdjacentPositions(xz: (Int, Int)): List[(Int, Int)] = 
     getAdjacentPositions(xz._1, xz._2)

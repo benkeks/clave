@@ -74,7 +74,7 @@ class Crate(protected val map: GameMap)
   }
   
   def canBePlaced(x: Int, z: Int) = (
-    !map.intersectsLevel(x, z) 
+    !map.intersectsLevel(x, z, considerObstacles = false)
       && !map.getObjectsAt((x,z)).exists {
              case _: Monster | _: Gate => true
              case _ => false

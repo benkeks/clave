@@ -24,6 +24,9 @@ trait MapData {
   import MapData._
   
   protected val data = Array.ofDim[Tile](width, height)
+
+  /** To be implemented by class defining the dynamic level elements. */
+  def isObstacleAt(xz: (Int, Int)): Boolean
   
   /** loads a map from a CSV string representation
    *  returns a list of special positions like starting positions of players or monsters */
@@ -62,10 +65,10 @@ trait MapData {
     val newSrc = new Vector2(src.x, src.y)
     
     newSrc.setX(src.x + dir.x)
-    if (intersectsLevel(newSrc)) newSrc.setX(src.x)
+    if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setX(src.x)
 
     newSrc.setY(src.y + dir.y)
-    if (intersectsLevel(newSrc)) newSrc.setY(src.y)
+    if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setY(src.y)
     
     newSrc.clamp(topLeft, bottomRight)
   }
@@ -87,27 +90,27 @@ trait MapData {
     
   def isOnMapTupled = (isOnMap _).tupled
   
-  def intersectsLevel(v: Vector2): Boolean = {
+  def intersectsLevel(v: Vector2, considerObstacles: Boolean): Boolean = {
     val (x, z) = vecToMapPos(v)
-    intersectsLevel(x, z)
+    intersectsLevel(x, z, considerObstacles)
   }
     
-  def intersectsLevel(v: Vector3): Boolean = {
+  def intersectsLevel(v: Vector3, considerObstacles: Boolean = false): Boolean = {
     val (x, z) = vecToMapPos(v)
-    intersectsLevel(x, z)
+    intersectsLevel(x, z, considerObstacles)
   }
   
   def intersectsLevel(xz: (Int, Int)): Boolean = {
     val (x, z) = xz
-    intersectsLevel(x, z)
+    intersectsLevel(x, z, false)
   }
   
-  def intersectsLevel(x: Int, z: Int): Boolean = {
+  def intersectsLevel(x: Int, z: Int, considerObstacles: Boolean): Boolean = {
     if (x < 0 || x >= width || z < 0 || z >= height) {
       // being outside the level considered a 'collision'
       true
     } else {
-      isTileBlocked(x, z)
+      isTileBlocked(x, z) || (considerObstacles && isObstacleAt((x, z)))
     }
   }
   
@@ -160,4 +163,5 @@ trait MapData {
         false
     }
   }
+
 }

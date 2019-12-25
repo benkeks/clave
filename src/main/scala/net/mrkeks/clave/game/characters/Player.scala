@@ -64,7 +64,6 @@ class Player(protected val map: GameMap)
   }
   
   def update(deltaTime: Double) {
-    // drop preview visibility defaults to false
     dropPreview.visible = false
     
     state match {
