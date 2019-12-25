@@ -13,15 +13,23 @@ class Input {
     new HashMap[String, collection.mutable.Set[() => Unit]]
       with MultiMap[String, () => Unit]
   
-  dom.window.onkeydown = {(e: dom.KeyboardEvent) =>
-    keysDown.add(e.keyCode.toInt)
+  dom.window.onkeydown = { e: dom.KeyboardEvent =>
+    keysDown.add(toKeyCodeInt(e))
   }
-  dom.window.onkeyup = {(e: dom.KeyboardEvent) =>
-    keysDown.remove(e.keyCode.toInt)
+  dom.window.onkeyup = {e: dom.KeyboardEvent =>
+    keysDown.remove(toKeyCodeInt(e))
   }
   
   dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
     keyPressListener.get(e.key)
       .foreach(_.foreach(cb => cb()))
+  }
+
+  private def toKeyCodeInt(e: dom.KeyboardEvent) = {
+    if (e.charCode == ' '.toInt) {
+      32
+    } else {
+      e.keyCode.toInt
+    }
   }
 }

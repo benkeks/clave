@@ -4,7 +4,6 @@ import scala.scalajs.js.Any.fromFunction0
 import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport}
 
 import org.scalajs.dom
-
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.view.DrawingContext
