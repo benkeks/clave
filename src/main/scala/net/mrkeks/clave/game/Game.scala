@@ -89,11 +89,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
       case Won(levelScore, _, _) =>
         score += levelScore
         gui.setScore(score)
-        input.keyPressListener.addBinding(32, continueLevel)
+        input.keyPressListener.addBinding(" ", continueLevel)
       case Lost() => 
         score -= 50
         gui.setScore(score)
-        input.keyPressListener.addBinding(32, continueLevel)
+        input.keyPressListener.addBinding(" ", continueLevel)
     }
     state = newState
     gui.notifyGameState()
@@ -111,7 +111,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   
   def continueLevel(): Unit = {
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
-      input.keyPressListener.removeBinding(32, continueLevel)
+      input.keyPressListener.removeBinding(" ", continueLevel)
       unloadLevel()
       loadLevel(levelId + (if (state.isInstanceOf[Won]) 1 else 0))
       setState(Running())

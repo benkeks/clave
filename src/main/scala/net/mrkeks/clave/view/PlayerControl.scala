@@ -4,7 +4,7 @@ import net.mrkeks.clave.game.characters.Player
 
 class PlayerControl(val player: Player, val input: Input) {
   
-  input.keyPressListener.addBinding(32, actionKey)
+  input.keyPressListener.addBinding(" ", actionKey)
   
   def update(deltaTime: Double) {
     player.direction.set(0,0)
@@ -21,7 +21,7 @@ class PlayerControl(val player: Player, val input: Input) {
   }
   
   def clear() {
-    input.keyPressListener.removeBinding(32, actionKey)
+    input.keyPressListener.removeBinding(" ", actionKey)
   }
   
 }

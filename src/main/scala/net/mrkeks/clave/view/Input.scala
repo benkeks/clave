@@ -9,9 +9,9 @@ import scala.scalajs.js.Any.fromFunction1
 class Input {
   val keysDown = collection.mutable.Set.empty[Int]
   
-  val keyPressListener: MultiMap[Int, (() => Unit)] =
-    new HashMap[Int, collection.mutable.Set[() => Unit]]
-      with MultiMap[Int, () => Unit]
+  val keyPressListener: MultiMap[String, (() => Unit)] =
+    new HashMap[String, collection.mutable.Set[() => Unit]]
+      with MultiMap[String, () => Unit]
   
   dom.window.onkeydown = {(e: dom.KeyboardEvent) =>
     keysDown.add(e.keyCode.toInt)
@@ -21,7 +21,7 @@ class Input {
   }
   
   dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
-    keyPressListener.get(e.keyCode.toInt)
+    keyPressListener.get(e.key)
       .foreach(_.foreach(cb => cb()))
   }
 }

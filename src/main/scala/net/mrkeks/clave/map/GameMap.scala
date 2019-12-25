@@ -58,6 +58,7 @@ class GameMap(val width: Int, val height: Int)
     flower.polygonOffsetUnits = -3
     DrawingContext.textureLoader.load("gfx/flowers.png", { tex: Texture =>
       flower.map = tex
+      flower.needsUpdate = true
     })
   }
   
@@ -107,6 +108,7 @@ class GameMap(val width: Int, val height: Int)
     tex.wrapS = THREE.RepeatWrapping
     tex.wrapT = THREE.RepeatWrapping
     groundMaterial.lightMap = tex
+    groundMaterial.needsUpdate = true
   })
   
   val underground = new Mesh(box, groundMaterial)
