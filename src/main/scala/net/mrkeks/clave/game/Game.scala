@@ -42,7 +42,20 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     player.getPositionOnMap.toList
   }
   
-  def update(timestamp: Double) {
+  def update(timeStamp: Double) {
+
+    input.update(timeStamp)
+
+    handleState()
+
+    context.render()
+    
+    deltaTime = js.Date.now - lastFrameTime
+    lastFrameTime = js.Date.now
+  }
+
+  def handleState() {
+
     state match {
       case StartUp() =>
       case Running() =>
@@ -82,11 +95,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     }
     
     context.camera.position.y = 20 + player.getPosition.y * .5
-
-    context.render()
-    
-    deltaTime = js.Date.now - lastFrameTime
-    lastFrameTime = js.Date.now
   }
   
   def setState(newState: State) {

@@ -1,5 +1,6 @@
 package net.mrkeks.clave.view
 
+import scala.scalajs.js
 import org.scalajs.dom
 import org.denigma.threejs.WebGLRenderer
 import org.denigma.threejs.OrthographicCamera
