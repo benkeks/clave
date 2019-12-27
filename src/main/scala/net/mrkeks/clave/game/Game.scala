@@ -1,6 +1,7 @@
 package net.mrkeks.clave.game
 
 import scala.scalajs.js
+import org.scalajs.dom
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
@@ -42,7 +43,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     player.getPositionOnMap.toList
   }
   
-  def update() {
+  def update(timestamp: Double) {
     state match {
       case StartUp() =>
       case Running() =>
@@ -72,13 +73,23 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
         }
       case Lost() =>
         gameObjects.foreach(_.update(deltaTime))
-        
+      case Continuing() =>
+        player.update(deltaTime)
+        if (player.getPosition.y > 50) {
+          unloadLevel()
+          loadLevel(levelId)
+          setState(Running())
+        }
     }
     
+    context.camera.position.y = 20 + player.getPosition.y * .5
+
     context.render()
     
     deltaTime = js.Date.now - lastFrameTime
     lastFrameTime = js.Date.now
+
+    dom.window.requestAnimationFrame(update _)
   }
   
   def setState(newState: State) {
@@ -86,14 +97,31 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
       case StartUp() =>
       case Running() =>
       case Paused() =>
+      case Continuing() =>
       case Won(levelScore, _, _) =>
         score += levelScore
         gui.setScore(score)
-        input.keyPressListener.addBinding(" ", continueLevel)
+        gui.setPopup(s"""
+          <div class='message'>
+            <p>You have cleared the level!</p>
+            <p><strong>You scored $levelScore points.</strong></p>
+          </div>
+          <div>
+            Hit [Space] to continue!
+          </div>""")
+        input.keyPressListener.addBinding(" ", continueLevel _)
       case Lost() => 
         score -= 50
         gui.setScore(score)
-        input.keyPressListener.addBinding(" ", continueLevel)
+        gui.setPopup(s"""
+          <div class='message'>
+            <p>Oh no!</p>
+            <p><strong>The monsters got you!</strong></p>
+          </div>
+          <div>
+            Hit [Space] to try again!
+          </div>""")
+        input.keyPressListener.addBinding(" ", continueLevel _)
     }
     state = newState
     gui.notifyGameState()
@@ -111,16 +139,18 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   
   def continueLevel(): Unit = {
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
-      input.keyPressListener.removeBinding(" ", continueLevel)
-      unloadLevel()
-      loadLevel(levelId + (if (state.isInstanceOf[Won]) 1 else 0))
-      setState(Running())
+      input.keyPressListener.removeBinding(" ", continueLevel _)
+      gui.setPopup("")
+      levelId += (if (state.isInstanceOf[Won]) 1 else 0)
+      player.setState(PlayerData.Spawning(ySpeed = 0.07))
+      setState(Continuing())
     }
   }
   
   override def loadLevel(id: Int) {
     super.loadLevel(id)
     playerControl = new PlayerControl(player, input)
+    player.setState(PlayerData.Spawning(ySpeed = -.06))
   }
 
   def togglePause() = {
@@ -139,4 +169,5 @@ object Game {
   case class Paused() extends State
   case class Won(levelScore: Int, var victoryDrawX: Int, var victoryDrawZ: Int) extends State
   case class Lost() extends State
+  case class Continuing() extends State
 }

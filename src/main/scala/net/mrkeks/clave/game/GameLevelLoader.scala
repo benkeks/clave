@@ -40,7 +40,7 @@ trait GameLevelLoader {
       playerPositions <- positions.get(MapData.Tile.Player)
       (x, z) <- playerPositions.headOption
     } {
-      player.setPosition(x, 0, z)
+      player.setPosition(x, 400, z)
     }
     
     // for now add all triggers and gates to one big group for the whole level.

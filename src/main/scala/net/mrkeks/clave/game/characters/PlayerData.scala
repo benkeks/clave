@@ -18,6 +18,8 @@ object PlayerData extends PositionedObjectData {
     override val speed = 0.0
     var deathAnim = 1.0
   }
+
+  case class Spawning(var ySpeed: Double = 0) extends State
 }
 
 trait PlayerData extends GameObjectData with PositionedObjectData {

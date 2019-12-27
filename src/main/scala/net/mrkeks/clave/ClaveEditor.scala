@@ -26,6 +26,6 @@ object ClaveEditor {
     game.loadLevel(2)
     game.setState(Game.Running())
     
-    dom.window.setInterval(() => game.update(), 20)
+    //dom.window.setInterval(() => game.update(), 20)
   }
 }

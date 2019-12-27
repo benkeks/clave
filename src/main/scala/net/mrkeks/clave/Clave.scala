@@ -28,6 +28,6 @@ object Clave {
     game.loadLevel(0)
     game.setState(Game.Running())
     
-    dom.window.setInterval(() => game.update(), 20)
+    dom.window.requestAnimationFrame(game.update _)
   }
 }

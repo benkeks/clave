@@ -13,9 +13,12 @@ resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases") //for three
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "0.9.1",
   //"org.denigma" %%% "threejs-facade" % "0.0.74-0.1.7" // manually compiled /lib/
-  "org.denigma" %%% "threejs-facade" % "0.0.77-0.1.8" //add dependency
+  "org.denigma" %%% "threejs-facade" % "0.0.77-0.1.8"
 )
 
-jsDependencies += "org.webjars" % "three.js" % "r77" / "three.min.js"
+jsDependencies ++= Seq(
+  "org.webjars" % "three.js" % "r77" / "three.min.js"
+  //"org.webjars.npm" % "three-bmfont-text" % "2.3.0"
+)
 
-scalacOptions ++= Seq("-Xmax-classfile-name", "140")
+scalacOptions ++= Seq("-deprecation", "-Xmax-classfile-name", "140")

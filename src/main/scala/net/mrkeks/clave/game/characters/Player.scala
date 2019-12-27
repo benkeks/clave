@@ -66,14 +66,21 @@ class Player(protected val map: GameMap)
   def update(deltaTime: Double) {
     dropPreview.visible = false
     
+    sprite.position.set(position.x, position.y, position.z + .3)
+
     state match {
+      case Spawning(ySpeed) =>
+        setPosition(position.x, position.y + ySpeed * deltaTime, position.z)
+        if (position.y <= 0) {
+          setPosition(position.x, 0, position.z)
+          setState(Idle())
+        }
       case Idle()  =>
         anim += (state.speed * direction.length() + .001) * deltaTime
         move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
-        sprite.position.set(position.x, position.y, position.z + .3)
         sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
         sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
       case Carrying(crate: Crate) =>
@@ -87,7 +94,6 @@ class Player(protected val map: GameMap)
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
-        sprite.position.set(position.x, position.y, position.z + .3)
         sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
         sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
       case s @ Dead() =>
@@ -163,11 +169,14 @@ class Player(protected val map: GameMap)
           case Carrying(c) =>
             place(c.asInstanceOf[Crate])
           case _ =>
-            
+        }
+        newState
+      case Spawning(ySpeed) =>
+        if (ySpeed < 0) {
+          setPosition(position.x, 50, position.z)
         }
         newState
       case s => s
     }
-    state = newState
   }
 }

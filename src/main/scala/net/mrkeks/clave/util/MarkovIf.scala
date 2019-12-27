@@ -4,18 +4,18 @@ package net.mrkeks.clave.util
  *  
  *  (There must be a `markovElse`, for this to work.)*/
 
-class MarkovIf[Return](rnd: Double, cond: Double, then: =>Return) {
+class markovIf[Return](rnd: Double, cond: Double, thenc: =>Return) {
   def markovElseIf(elseCond: Double)(elseThen: =>Return) = {
     if (rnd < cond) {
       this
     } else {
-      new MarkovIf(rnd - cond, elseCond, elseThen)
+      new markovIf(rnd - cond, elseCond, elseThen)
     }
   }
   
   def markovElse(elseThen: =>Return) = {
     if (rnd < cond) {
-      then
+      thenc
     } else {
       elseThen
     }
@@ -23,8 +23,8 @@ class MarkovIf[Return](rnd: Double, cond: Double, then: =>Return) {
 }
 
 object markovIf {
-  def apply[Return](cond: Double)(then: =>Return) = {
+  def apply[Return](cond: Double)(thenc: =>Return) = {
     val rnd = Math.random()
-    new MarkovIf(rnd, cond, then)
+    new markovIf(rnd, cond, thenc)
   }
 }

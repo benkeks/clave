@@ -24,7 +24,7 @@ class DrawingContext() {
   val renderer: WebGLRenderer = new WebGLRenderer()
   
   renderer.setSize(width, height)
-  dom.document.body.appendChild( renderer.domElement )
+  dom.document.body.appendChild(renderer.domElement)
   
   renderer.setClearColor(new Color(0x604060))
   
