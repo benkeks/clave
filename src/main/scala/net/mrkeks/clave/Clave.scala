@@ -28,6 +28,11 @@ object Clave {
     game.loadLevel(0)
     game.setState(Game.Running())
     
-    dom.window.requestAnimationFrame(game.update _)
+    def tick(timestamp: Double) {
+      game.update(timestamp)
+      dom.window.requestAnimationFrame(tick _)
+    }
+
+    dom.window.requestAnimationFrame(tick _)
   }
 }

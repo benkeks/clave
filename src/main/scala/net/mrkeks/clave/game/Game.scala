@@ -1,7 +1,6 @@
 package net.mrkeks.clave.game
 
 import scala.scalajs.js
-import org.scalajs.dom
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
@@ -88,8 +87,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     
     deltaTime = js.Date.now - lastFrameTime
     lastFrameTime = js.Date.now
-
-    dom.window.requestAnimationFrame(update _)
   }
   
   def setState(newState: State) {
