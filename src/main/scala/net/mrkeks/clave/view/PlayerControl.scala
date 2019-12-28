@@ -7,7 +7,7 @@ class PlayerControl(val player: Player, val input: Input) {
   input.keyPressListener.addBinding(" ", actionKey _)
   
   def update(deltaTime: Double) {
-    player.direction.set(0,0)
+    player.direction.set(0,0,0)
     
     if (input.keysDown(37)) player.direction.x -= 1
     if (input.keysDown(39)) player.direction.x += 1

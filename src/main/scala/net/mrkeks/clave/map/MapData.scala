@@ -1,6 +1,5 @@
 package net.mrkeks.clave.map
 
-import org.denigma.threejs.Vector2
 import org.denigma.threejs.Vector3
 import scala.util.Random
 
@@ -18,8 +17,8 @@ trait MapData {
   val width: Int
   val height: Int
   
-  val topLeft = new Vector2(0, 0)
-  val bottomRight = new Vector2(width - 1, height - 1)
+  val topLeft = new Vector3(0, 0, 0)
+  val bottomRight = new Vector3(width - 1, 0, height - 1)
   
   import MapData._
   
@@ -61,20 +60,16 @@ trait MapData {
    *  is still allowed to take effect)
    *  (used for collision detection)
    *  (does not change src or dir) */
-  def localSlideCast(src: Vector2, dir: Vector2): Vector2 = {
-    val newSrc = new Vector2(src.x, src.y)
+  def localSlideCast(src: Vector3, dir: Vector3): Vector3 = {
+    val newSrc = new Vector3(src.x, src.y)
     
     newSrc.setX(src.x + dir.x)
     if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setX(src.x)
 
-    newSrc.setY(src.y + dir.y)
-    if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setY(src.y)
+    newSrc.setZ(src.z + dir.z)
+    if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setZ(src.z)
     
     newSrc.clamp(topLeft, bottomRight)
-  }
-  
-  def vecToMapPos(v: Vector2) = {
-    (v.x.round.toInt, v.y.round.toInt)
   }
   
   def vecToMapPos(v: Vector3) = {
@@ -90,11 +85,6 @@ trait MapData {
     
   def isOnMapTupled = (isOnMap _).tupled
   
-  def intersectsLevel(v: Vector2, considerObstacles: Boolean): Boolean = {
-    val (x, z) = vecToMapPos(v)
-    intersectsLevel(x, z, considerObstacles)
-  }
-    
   def intersectsLevel(v: Vector3, considerObstacles: Boolean = false): Boolean = {
     val (x, z) = vecToMapPos(v)
     intersectsLevel(x, z, considerObstacles)

@@ -1,6 +1,6 @@
 package net.mrkeks.clave.game.characters
 
-import org.denigma.threejs.Vector2
+import org.denigma.threejs.Vector3
 import net.mrkeks.clave.game.objects.CrateData
 import net.mrkeks.clave.game.GameObjectData
 import net.mrkeks.clave.game.PositionedObjectData
@@ -27,7 +27,7 @@ trait PlayerData extends GameObjectData with PositionedObjectData {
   import PlayerData._
   import PositionedObjectData.Direction
   
-  val direction = new Vector2()
+  val direction = new Vector3()
   
   var viewDirection = Direction.Down
   

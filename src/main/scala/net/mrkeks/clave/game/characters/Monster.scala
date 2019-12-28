@@ -94,7 +94,7 @@ class Monster(protected val map: GameMap)
           }
         } else markovIf (0.05 / (strollCoolDown + 1)) {
           // move into an arbitrary direction
-          val tar = Direction.toVec3(
+          val tar = Direction.toVec(
               Direction.randomDirection()
             ).add(position)
           if (!map.intersectsLevel(tar, considerObstacles = true)) {

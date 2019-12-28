@@ -3,7 +3,7 @@ package net.mrkeks.clave.game.characters
 import net.mrkeks.clave.view.DrawingContext
 import org.denigma.threejs.SpriteMaterial
 import org.denigma.threejs.Sprite
-import org.denigma.threejs.Vector2
+import org.denigma.threejs.Vector3
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
 import org.denigma.threejs.MeshLambertMaterial
@@ -107,11 +107,12 @@ class Player(protected val map: GameMap)
     updateShadow()
   }
   
-  def move(dir: Vector2) {
-    if (dir.x != 0 || dir.y != 0) {
+  /** Transforms the player in the plane. (The y component of the Vec3 will be ignored!) */
+  def move(dir: Vector3) {
+    if (dir.x != 0 || dir.z != 0) {
       viewDirection = Direction.fromVec(dir)
-      val newPos2d = map.localSlideCast(new Vector2(position.x, position.z), dir)
-      setPosition(newPos2d.x, position.y, newPos2d.y)
+      val newPos2d = map.localSlideCast(position.clone(), dir)
+      setPosition(newPos2d.x, position.y, newPos2d.z)
       nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos2d)
       updateTouch()
     }

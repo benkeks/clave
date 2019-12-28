@@ -46,7 +46,7 @@ class Crate(protected val map: GameMap)
       case Standing() =>
         position.setY(if (touching.isEmpty) -.025 else .1)
       case Carried(player) =>
-        val dir = PositionedObjectData.Direction.toVec3(player.viewDirection)
+        val dir = PositionedObjectData.Direction.toVec(player.viewDirection)
           .multiplyScalar(.2)
           .setY(.5)
         position.copy(dir add player.getPosition)

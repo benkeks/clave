@@ -2,7 +2,6 @@ package net.mrkeks.clave.game
 
 import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.Vector3
-import org.denigma.threejs.Vector2
 import net.mrkeks.clave.util.markovIf
 import net.mrkeks.clave.map.MapData
 
@@ -10,14 +9,14 @@ object PositionedObjectData {
   object Direction extends Enumeration {
     val Up, Down, Left, Right = Value
     
-    /** converts vector to four-way direction
+    /** converts vector to four-way direction (in x-z-plane)
      *  prioritizes up-down movement; defaults to Down */
-    def fromVec(v: Vector2) = {
-      if (v.y < 0) {
+    def fromVec(v: Vector3) = {
+      if (v.z < 0) {
         Up 
-      } else if (v.y == 0 && v.x > 0) {
+      } else if (v.z == 0 && v.x > 0) {
         Right
-      } else if (v.y == 0 && v.x < 0) {
+      } else if (v.z == 0 && v.x < 0) {
         Left
        } else {
         Down
@@ -25,13 +24,6 @@ object PositionedObjectData {
     }
     
     def toVec(d: Direction.Value) = d match {
-      case Up    => new Vector2( 0,-1)
-      case Down  => new Vector2( 0, 1)
-      case Left  => new Vector2(-1, 0)
-      case Right => new Vector2( 1, 0)
-    }
-    
-    def toVec3(d: Direction.Value) = d match {
       case Up    => new Vector3( 0, 0,-1)
       case Down  => new Vector3( 0, 0, 1)
       case Left  => new Vector3(-1, 0, 0)
