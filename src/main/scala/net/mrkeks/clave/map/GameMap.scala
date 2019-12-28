@@ -220,7 +220,7 @@ class GameMap(val width: Int, val height: Int)
   }
   
   def checkVictory(playerPositions: List[(Int, Int)]): Int = {
-    if (victoryCheckNeeded) {
+    if (victoryCheckNeeded && playerPositions.exists(xz => !intersectsLevel(xz))) {
       victoryCheckNeeded = false
       computeVictory(playerPositions)
     } else {

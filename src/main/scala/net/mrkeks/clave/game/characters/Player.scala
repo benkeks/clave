@@ -68,6 +68,12 @@ class Player(protected val map: GameMap)
     
     sprite.position.set(position.x, position.y, position.z + .3)
 
+    if (map.intersectsLevel(positionOnMap)) {
+      val tar = map.mapPosToVec(
+          map.findNextFreeField(positionOnMap))
+      move(tar.sub(position).setLength(.01 * deltaTime))
+    }
+
     state match {
       case Spawning(ySpeed) =>
         setPosition(position.x, position.y + ySpeed * deltaTime, position.z)
