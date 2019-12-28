@@ -77,7 +77,7 @@ class Player(protected val map: GameMap)
         }
       case Idle()  =>
         anim += (state.speed * direction.length() + .001) * deltaTime
-        move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
+        move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
@@ -90,7 +90,7 @@ class Player(protected val map: GameMap)
           dropPreview.position.copy(map.mapPosToVec(nextField))
           dropPreview.position.setY(-.5)
         }
-        move(direction.multiplyScalar(state.speed * deltaTime)) // WARNING: destroys direction!
+        move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
@@ -111,9 +111,10 @@ class Player(protected val map: GameMap)
   def move(dir: Vector3) {
     if (dir.x != 0 || dir.z != 0) {
       viewDirection = Direction.fromVec(dir)
-      val newPos2d = map.localSlideCast(position.clone(), dir)
-      setPosition(newPos2d.x, position.y, newPos2d.z)
-      nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos2d)
+      val newPos = map.localSlideCast(position, dir,
+        bumpingDist = if (state.isInstanceOf[Carrying]) .8 else .4 )
+      setPosition(newPos.x, position.y, newPos.z)
+      nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos)
       updateTouch()
     }
   }

@@ -60,16 +60,25 @@ trait MapData {
    *  is still allowed to take effect)
    *  (used for collision detection)
    *  (does not change src or dir) */
-  def localSlideCast(src: Vector3, dir: Vector3): Vector3 = {
-    val newSrc = new Vector3(src.x, src.y)
+  def localSlideCast(src: Vector3, dir: Vector3, bumpingDist: Double): Vector3 = {
+    val newPos = src.clone()
     
-    newSrc.setX(src.x + dir.x)
-    if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setX(src.x)
-
-    newSrc.setZ(src.z + dir.z)
-    if (intersectsLevel(newSrc, considerObstacles = true)) newSrc.setZ(src.z)
+    newPos.setX(src.x + dir.x + dir.x.signum * bumpingDist)
+    newPos.setX(
+      if (intersectsLevel(newPos, considerObstacles = true))
+        src.x
+      else
+        src.x + dir.x
+    )
+    newPos.setZ(src.z + dir.z + dir.z.signum * bumpingDist)
+    newPos.setZ(
+      if (intersectsLevel(newPos, considerObstacles = true))
+        src.z
+      else
+        src.z + dir.z
+    )
     
-    newSrc.clamp(topLeft, bottomRight)
+    newPos.clamp(topLeft, bottomRight)
   }
   
   def vecToMapPos(v: Vector3) = {

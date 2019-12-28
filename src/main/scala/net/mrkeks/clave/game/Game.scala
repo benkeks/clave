@@ -29,6 +29,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   
   /** Time that passed since the last frame. (in ms) */
   var deltaTime = 0.0
+
+  /** how many milliseconds constitute a tick of the game logic. */
+  val tickTime = 10.0
+
+  /** how many ticks have to be computed to catch up with the game time*/
+  var tickBalance = 0.0
   
   var map: GameMap = null
   
@@ -51,6 +57,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     context.render()
     
     deltaTime = js.Date.now - lastFrameTime
+    if (deltaTime > 500) {
+      // if more than half a second has passed, there is no point in trying to catch up. (probably due to switched app or tab)
+      deltaTime = 0
+    }
     lastFrameTime = js.Date.now
   }
 
@@ -60,11 +70,16 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
       case StartUp() =>
       case Running() =>
         playerControl.update(deltaTime)
-        gameObjects.foreach(_.update(deltaTime))
+        tickBalance += deltaTime
+        while (tickBalance >= tickTime) {
+          tickBalance -= tickTime
+          gameObjects.foreach(_.update(tickTime))
+        }
         if (player.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost())
+        } else {
+          checkVictory()
         }
-        checkVictory()
       case Paused() =>
         //
       case s @ Won(score, victoryDrawX, victoryDrawZ) =>

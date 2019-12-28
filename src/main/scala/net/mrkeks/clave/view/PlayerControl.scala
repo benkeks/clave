@@ -11,8 +11,8 @@ class PlayerControl(val player: Player, val input: Input) {
     
     if (input.keysDown(37)) player.direction.x -= 1
     if (input.keysDown(39)) player.direction.x += 1
-    if (input.keysDown(38)) player.direction.y -= 1
-    if (input.keysDown(40)) player.direction.y += 1
+    if (input.keysDown(38)) player.direction.z -= 1
+    if (input.keysDown(40)) player.direction.z += 1
     
   }
   
