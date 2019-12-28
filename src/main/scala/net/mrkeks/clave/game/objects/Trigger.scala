@@ -15,7 +15,7 @@ object Trigger {
   
   private val box = new BoxGeometry(1.06, .1, 1.06)
   
-  def clear() {
+  def clear(): Unit = {
     material.dispose()
     box.dispose()
   }
@@ -29,25 +29,23 @@ class Trigger(protected val map: GameMap)
   val material = Trigger.material.clone()
   val mesh = new Mesh(Trigger.box, material)
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     setState(Idle())
     context.scene.add(mesh)
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     context.scene.remove(mesh)
     material.dispose()
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     
     state match {
       case Idle() =>
-        val objectsAbove = map.getObjectsAt(positionOnMap)
-        // the collection also contains `this` object
-        if (objectsAbove.size > 1) {
-          setState(Pushed((objectsAbove - this).head))
-        }
+        // be sure to remove the `this` object from the colection...
+        val objectsAbove = map.getObjectsAt(positionOnMap).diff(Set(this))
+        objectsAbove.headOption.map(o => setState(Pushed(o)))
       case Pushed(by) =>
         if (by.getPositionOnMap != Some(positionOnMap)) {
           setState(Idle())
@@ -57,7 +55,7 @@ class Trigger(protected val map: GameMap)
     mesh.position.copy(position)
   }
   
-  def setState(newState: State) {
+  def setState(newState: State): Unit = {
     state = newState match {
       case Idle() =>
         position.setY(-.45)

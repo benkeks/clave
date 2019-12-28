@@ -28,7 +28,6 @@ import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.GateData
 import scala.scalajs.js.typedarray.Uint32Array
 import scala.scalajs.js.typedarray.Uint16Array
-import scala.scalajs.js.JSConverters.JSRichGenTraversableOnce
 import org.denigma.threejs.PixelType
 import org.denigma.threejs.Texture
 import org.denigma.threejs.THREE
@@ -62,15 +61,15 @@ class GameMap(val width: Int, val height: Int)
     })
   }
   
-  private val materials = new MeshFaceMaterial(js.Array(
+  private val materials = js.Array(
       Materials.wall,
       Materials.solidWall,
-      Materials.flower))
+      Materials.flower)
   
   private val box = new BoxGeometry(1.0, 1.0, 1.0)
   box.faces.foreach { f => f.materialIndex = 0 }
 
-  private val mesh = new Mesh(new Geometry(), materials)
+  private val mesh = new Mesh(new Geometry(), materials.asInstanceOf[MeshFaceMaterial])
   
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Boolean](width, height)
@@ -80,9 +79,10 @@ class GameMap(val width: Int, val height: Int)
   val groundShadow = new Uint16Array(width * height)
   (0 until width * height).foreach ( groundShadow.update(_, 255) )
   
-  val groundShadowTexture = new DataTexture()
-  groundShadowTexture.format = threejs.THREE.RGBAFormat
-  groundShadowTexture.`type` = threejs.THREE.UnsignedShort4444Type.asInstanceOf[TextureDataType]
+  val groundShadowTexture = new DataTexture(groundShadow, width, height, threejs.THREE.RGBAFormat,
+    threejs.THREE.UnsignedShort4444Type.asInstanceOf[TextureDataType], magFilter = threejs.THREE.LinearFilter)
+  /*groundShadowTexture.format = 
+  groundShadowTexture.`type` =
   groundShadowTexture.magFilter = threejs.THREE.LinearFilter
   groundShadowTexture.image = {
     val w = width
@@ -93,7 +93,7 @@ class GameMap(val width: Int, val height: Int)
       var data = groundShadow
     }
   }
-  groundShadowTexture.needsUpdate = true
+  groundShadowTexture.needsUpdate = true*/
   
   val groundMaterial = new MeshLambertMaterial()
   groundMaterial.color.setHex(0x808080)
@@ -107,17 +107,18 @@ class GameMap(val width: Int, val height: Int)
     groundMaterial.needsUpdate = true
   })
   
-  val underground = new Mesh(new PlaneGeometry(1, 1), groundMaterial)
+  val undergroundPlane = new PlaneGeometry(1, 1)
+  // duplicate uv coords in order for groundMaterial.lightMap to work
+  undergroundPlane.faces.foreach { f => f.materialIndex = 0 }
+  undergroundPlane.faceVertexUvs = js.Array(undergroundPlane.faceVertexUvs(0),
+    undergroundPlane.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0))))
+
+  val underground = new Mesh(undergroundPlane, groundMaterial)
   underground.scale.set(width, height, 1.0)
   underground.rotation.x = -.5 * Math.PI
   underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
-
-  // duplicate uv coords in order for groundMaterial.lightMap to work
-  underground.geometry.faces.foreach { f => f.materialIndex = 0 }
-  underground.geometry.faceVertexUvs = Seq(underground.geometry.faceVertexUvs(0),
-    underground.geometry.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0)))).toJSArray
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         updateLighting(x, z)
@@ -128,11 +129,11 @@ class GameMap(val width: Int, val height: Int)
     context.scene.add(underground)
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     
   }
   
-  def updateView() {
+  def updateView(): Unit = {
     val beginUpdate = js.Date.now
     
     val rotateUp = new Matrix4().makeRotationX(-Math.PI * .5)
@@ -166,7 +167,7 @@ class GameMap(val width: Int, val height: Int)
     println("Map geometry update: " + (js.Date.now - beginUpdate) + "ms.")
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     mesh.geometry.dispose()
     groundShadowTexture.dispose()
     groundMaterial.dispose()
@@ -273,7 +274,7 @@ class GameMap(val width: Int, val height: Int)
       }
   }
   
-  def updateLighting(x: Int, z: Int, overlay: Int = 0) {
+  def updateLighting(x: Int, z: Int, overlay: Int = 0): Unit = {
     groundShadow.update ( (x)+(height-z-1)*width,
       if (isTileBlocked(x, z))
         0x021f | overlay
@@ -285,7 +286,7 @@ class GameMap(val width: Int, val height: Int)
     groundShadowTexture.needsUpdate = true
   }
   
-  def updateAllLighting() {
+  def updateAllLighting(): Unit = {
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         updateLighting(x, z)
@@ -293,7 +294,7 @@ class GameMap(val width: Int, val height: Int)
     }
   }
   
-  def victoryLighting(x: Int, z: Int) {
+  def victoryLighting(x: Int, z: Int): Unit = {
     if (isOnMap(x, z)) {
       updateLighting(x, z, if (victoryCheck(x)(z)) 0xee3f else 0x0000)
     }

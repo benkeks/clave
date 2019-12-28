@@ -19,8 +19,10 @@ import scala.scalajs.js.Any.fromFunction1
 object Player {
   val material = new SpriteMaterial()
   
-  DrawingContext.textureLoader.load(
-      "gfx/player_monster.png", material.map = _: Texture)
+  DrawingContext.textureLoader.load("gfx/player_monster.png", { tex: Texture =>
+    material.map = tex
+    material.needsUpdate = true
+  })
   
   private val dropPreviewMaterial = new MeshLambertMaterial()
   dropPreviewMaterial.transparent = true
@@ -29,7 +31,7 @@ object Player {
   
   private val dropPreviewGeometry = new BoxGeometry(1.1, .1, 1.1)
   
-  def clear() {
+  def clear(): Unit = {
     material.dispose()
     dropPreviewMaterial.dispose()
   }
@@ -51,19 +53,19 @@ class Player(protected val map: GameMap)
   
   val shadowSize = 0.7
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     context.scene.add(sprite)
     context.scene.add(dropPreview)
     initShadow(context)
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     context.scene.remove(sprite)
     context.scene.remove(dropPreview)
     clearShadow(context)
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     dropPreview.visible = false
     
     sprite.position.set(position.x, position.y, position.z + .3)
@@ -114,7 +116,7 @@ class Player(protected val map: GameMap)
   }
   
   /** Transforms the player in the plane. (The y component of the Vec3 will be ignored!) */
-  def move(dir: Vector3) {
+  def move(dir: Vector3): Unit = {
     if (dir.x != 0 || dir.z != 0) {
       viewDirection = Direction.fromVec(dir)
       val newPos = map.localSlideCast(position, dir,
@@ -125,7 +127,7 @@ class Player(protected val map: GameMap)
     }
   }
   
-  def updateTouch() {
+  def updateTouch(): Unit = {
     val neighboringObjects = map.getObjectsAt(nextField)
     
     touching match {
@@ -142,7 +144,7 @@ class Player(protected val map: GameMap)
     }
   }
   
-  def doAction() {
+  def doAction(): Unit = {
     state match {
       case Idle() =>
         touching match {
@@ -159,18 +161,18 @@ class Player(protected val map: GameMap)
     }
   }
   
-  def pickup(crate: Crate) {
+  def pickup(crate: Crate): Unit = {
     setState(Carrying(crate))
     crate.pickup(this)
   }
   
-  def place(crate: Crate) {
+  def place(crate: Crate): Unit = {
     if ((crate.place _).tupled(nextField)) {
       setState(Idle())
     }
   }
   
-  def setState(newState: State) {
+  def setState(newState: State): Unit = {
     state = newState match {
       case Dead() =>
         state match {

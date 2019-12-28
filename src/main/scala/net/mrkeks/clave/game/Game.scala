@@ -48,7 +48,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     player.getPositionOnMap.toList
   }
   
-  def update(timeStamp: Double) {
+  def update(timeStamp: Double): Unit = {
 
     input.update(timeStamp)
 
@@ -64,7 +64,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     lastFrameTime = js.Date.now
   }
 
-  def handleState() {
+  def handleState(): Unit = {
 
     state match {
       case StartUp() =>
@@ -112,7 +112,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     context.camera.position.y = 20 + player.getPosition.y * .5
   }
   
-  def setState(newState: State) {
+  def setState(newState: State): Unit = {
     newState match {
       case StartUp() =>
       case Running() =>
@@ -147,7 +147,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     gui.notifyGameState()
   }
   
-  def checkVictory() {
+  def checkVictory(): Unit = {
     if (state.isInstanceOf[Running]) {
       val levelScore = map.checkVictory(getPlayerPositions)
       if (levelScore >= 0) {
@@ -167,7 +167,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     }
   }
   
-  override def loadLevel(id: Int) {
+  override def loadLevel(id: Int): Unit = {
     super.loadLevel(id)
     playerControl = new PlayerControl(player, input)
     player.setState(PlayerData.Spawning(ySpeed = -.06))

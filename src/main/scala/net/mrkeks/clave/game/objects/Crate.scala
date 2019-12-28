@@ -19,7 +19,7 @@ object Crate {
   
   private val box = new BoxGeometry(.95, .95, .95)
   
-  def clear() {
+  def clear(): Unit = {
     material.dispose()
     box.dispose()
   }
@@ -32,16 +32,16 @@ class Crate(protected val map: GameMap)
   
   val mesh = new Mesh(Crate.box, Crate.material)
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     mesh.rotateY(.1 - .2 * Math.random())
     context.scene.add(mesh)
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     context.scene.remove(mesh)
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     state match {
       case Standing() =>
         position.setY(if (touching.isEmpty) -.025 else .1)
@@ -55,7 +55,7 @@ class Crate(protected val map: GameMap)
     //mesh.position.lerp(position, .5)
   }
   
-  def pickup(player: Player) {
+  def pickup(player: Player): Unit = {
     state = Carried(player)
     
     // temporally move to fictional position in order to remove location from game map

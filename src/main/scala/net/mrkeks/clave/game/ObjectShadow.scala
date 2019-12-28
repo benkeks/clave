@@ -30,7 +30,7 @@ object ObjectShadow {
   val geometry = new PlaneGeometry(1.7, 1.7, 1, 1)
   geometry.normalsNeedUpdate = true
   
-  def clear() {
+  def clear(): Unit = {
     material.dispose()
     geometry.dispose()
   }
@@ -43,17 +43,17 @@ trait ObjectShadow {
   
   private val towel = new Mesh(ObjectShadow.geometry, ObjectShadow.material)
   
-  def initShadow(context: DrawingContext) {
+  def initShadow(context: DrawingContext): Unit = {
     towel.rotateX(-Math.PI * .5)
     towel.scale.set(shadowSize, shadowSize, shadowSize)
     context.scene.add(towel)
   }
     
-  def updateShadow() {
+  def updateShadow(): Unit = {
     towel.position.set(position.x + position.y*.4 + 0.3, -0.5, position.z)
   }
   
-  def clearShadow(context: DrawingContext) {
+  def clearShadow(context: DrawingContext): Unit = {
     context.scene.remove(towel)
   }
 }

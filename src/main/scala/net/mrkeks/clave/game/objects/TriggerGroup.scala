@@ -18,11 +18,11 @@ class TriggerGroup extends GameObject {
     gates.push(gate)
   }
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     // trigger groups have no own visual representation
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     if (triggers.forall(_.state.isInstanceOf[TriggerData.Pushed])) {
       gates.foreach(_.close())
     } else {
@@ -30,7 +30,7 @@ class TriggerGroup extends GameObject {
     }
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     gates.clear()
     triggers.clear()
   }

@@ -30,15 +30,15 @@ class GUI() {
 
   var game: Option[Game] = None
 
-  def registerGame(game: Game) {
+  def registerGame(game: Game): Unit = {
     this.game = Some(game)
   }
 
-  def setScore(score: Int) {
+  def setScore(score: Int): Unit = {
     scoreText.textContent = "Score: "+score
   }
 
-  def setPopup(text: String) {
+  def setPopup(text: String): Unit = {
     popup.innerHTML = text
     if (text == "") {
       popup.classList.remove("visible")

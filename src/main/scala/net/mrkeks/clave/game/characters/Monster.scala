@@ -24,7 +24,7 @@ object Monster {
   DrawingContext.textureLoader.load("gfx/monster.png", texture = _: Texture)
   DrawingContext.textureLoader.load("gfx/monster_blink.png", textureBlink = _: Texture)
   
-  def clear() {
+  def clear(): Unit = {
     material.dispose()
   }
 }
@@ -36,7 +36,7 @@ class Monster(protected val map: GameMap)
   import PositionedObjectData._
   
   val material = Monster.material.clone()
-  
+
   val sprite = new Sprite(material)
   sprite.scale.set(1.4, 1.4, 1)
   
@@ -46,19 +46,19 @@ class Monster(protected val map: GameMap)
   
   val shadowSize = 1.0
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     context.scene.add(sprite)
     initShadow(context)
     anim = 200.0 * Math.random()
     setState(Idle(2000 + 2000 * Math.random()))
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     context.scene.remove(sprite)
     clearShadow(context)
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     // check whether something might push the monster away
     if (!state.isInstanceOf[PushedTo] 
         && map.intersectsLevel(positionOnMap)) {
@@ -71,8 +71,10 @@ class Monster(protected val map: GameMap)
     
     if (anim % 200 < 20.0) {
       material.map = Monster.textureBlink
+      material.needsUpdate = true
     } else {
       material.map = Monster.texture
+      material.needsUpdate = false
     }
     
     state match {
@@ -169,14 +171,14 @@ class Monster(protected val map: GameMap)
     }
     sprite.position.set(position.x, position.y + .2, position.z + .3)
     sprite.scale.set(1.4 - yScale * .5, 1.4 + yScale, 1)
-    sprite.material.rotation = rotate
+    sprite.material.asInstanceOf[SpriteMaterial].rotation = rotate
     updateShadow()
   }
   
   def approach(src: Double, tar: Double, speed: Double) =
     if (Math.abs(tar - src) <= speed) tar else src + speed * Math.signum(tar - src)
   
-  def setState(newState: State) {
+  def setState(newState: State): Unit = {
     state = newState match {
       case s => s
     }

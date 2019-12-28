@@ -15,7 +15,7 @@ object Gate {
   
   private val box = new BoxGeometry(.99, 1.0, .99)
   
-  def clear() {
+  def clear(): Unit = {
     material.dispose()
     box.dispose()
   }
@@ -30,15 +30,15 @@ class Gate(protected val map: GameMap)
   
   var animY = 0.0
   
-  def init(context: DrawingContext) {
+  def init(context: DrawingContext): Unit = {
     context.scene.add(mesh)
   }
   
-  def clear(context: DrawingContext) {
+  def clear(context: DrawingContext): Unit = {
     context.scene.remove(mesh)
   }
   
-  def update(deltaTime: Double) {
+  def update(deltaTime: Double): Unit = {
     state match {
       case Open() =>
         animY = Math.max(animY - .01 * deltaTime, -.99)
@@ -57,19 +57,19 @@ class Gate(protected val map: GameMap)
     mesh.position.set(position.x, animY, position.z)
   }
   
-  def open() {
+  def open(): Unit = {
     setState(Open())
     updatePositionOnMap()
   }
   
-  def close() {
+  def close(): Unit = {
     if (state.isInstanceOf[Open]) {
       setState(Closing())
       updatePositionOnMap()
     }
   }
   
-  def setState(newState: State) {
+  def setState(newState: State): Unit = {
     state = newState
   }
 }

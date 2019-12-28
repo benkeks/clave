@@ -51,7 +51,7 @@ trait MapData {
       }
     }
     
-    specialTiles.groupBy(_._1).mapValues(_.map(_._2))
+    specialTiles.groupBy(_._1).view.mapValues(_.map(_._2))
   }
   
   /** performs a spacially isolated sliding raycast on the tilemap
@@ -63,14 +63,14 @@ trait MapData {
   def localSlideCast(src: Vector3, dir: Vector3, bumpingDist: Double): Vector3 = {
     val newPos = src.clone()
     
-    newPos.setX(src.x + dir.x + dir.x.signum * bumpingDist)
+    newPos.setX(src.x + dir.x + dir.x.sign * bumpingDist)
     newPos.setX(
       if (intersectsLevel(newPos, considerObstacles = true))
         src.x
       else
         src.x + dir.x
     )
-    newPos.setZ(src.z + dir.z + dir.z.signum * bumpingDist)
+    newPos.setZ(src.z + dir.z + dir.z.sign * bumpingDist)
     newPos.setZ(
       if (intersectsLevel(newPos, considerObstacles = true))
         src.z

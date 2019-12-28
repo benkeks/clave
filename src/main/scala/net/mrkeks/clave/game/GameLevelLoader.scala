@@ -17,16 +17,16 @@ trait GameLevelLoader {
   var player: Player
   var map: GameMap
   
-  def unloadLevel() {
+  def unloadLevel(): Unit = {
     clear()
   }
   
-  def loadLevel(id: Int) {
+  def loadLevel(id: Int): Unit = {
     levelId = id
     loadLevel(Level.levels(levelId))
   }
   
-  def loadLevel(level: Level) {
+  def loadLevel(level: Level): Unit = {
     map = new GameMap(level.width, level.height)
     
     val positions = map.loadFromString(level.mapCsv)
