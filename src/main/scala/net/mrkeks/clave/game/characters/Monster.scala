@@ -21,8 +21,14 @@ object Monster {
   var texture: Texture = null
   var textureBlink: Texture = null
 
-  DrawingContext.textureLoader.load("gfx/monster.png", texture = _: Texture)
-  DrawingContext.textureLoader.load("gfx/monster_blink.png", textureBlink = _: Texture)
+  DrawingContext.textureLoader.load("gfx/monster.png", { tex =>
+    texture = tex
+    material.needsUpdate = true
+  })
+  DrawingContext.textureLoader.load("gfx/monster_blink.png", { tex =>
+    textureBlink = tex
+    material.needsUpdate = true
+  })
   
   def clear(): Unit = {
     material.dispose()
