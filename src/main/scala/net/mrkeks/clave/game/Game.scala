@@ -1,6 +1,6 @@
 package net.mrkeks.clave.game
 
-import scala.scalajs.js
+import net.mrkeks.clave.util.TimeManagement
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
@@ -16,7 +16,7 @@ import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.PlayerData
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI)
-  extends GameObjectManagement with GameLevelLoader {
+  extends GameObjectManagement with GameLevelLoader with TimeManagement {
 
   import Game._
 
@@ -24,18 +24,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   
   var score = 0
   var levelId = 0
-  
-  var lastFrameTime = js.Date.now
-  
-  /** Time that passed since the last frame. (in ms) */
-  var deltaTime = 0.0
-
-  /** how many milliseconds constitute a tick of the game logic. */
-  val tickTime = 10.0
-
-  /** how many ticks have to be computed to catch up with the game time*/
-  var tickBalance = 0.0
-  
+    
   var map: GameMap = null
   
   var player: Player = null
@@ -55,13 +44,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
     handleState()
 
     context.render()
-    
-    deltaTime = js.Date.now - lastFrameTime
-    if (deltaTime > 500) {
-      // if more than half a second has passed, there is no point in trying to catch up. (probably due to switched app or tab)
-      deltaTime = 0
-    }
-    lastFrameTime = js.Date.now
+
+    updateTime(timeStamp)
   }
 
   def handleState(): Unit = {
@@ -70,11 +54,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
       case StartUp() =>
       case Running() =>
         playerControl.update(deltaTime)
-        tickBalance += deltaTime
-        while (tickBalance >= tickTime) {
-          tickBalance -= tickTime
+
+        tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
         }
+        
         if (player.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost())
         } else {

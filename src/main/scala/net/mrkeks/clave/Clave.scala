@@ -9,12 +9,13 @@ import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.view.Input
+import net.mrkeks.clave.editor.Editor
 
 
 @JSExportTopLevel("Clave")
 object Clave {
   
-  class Config(val startLevel: Int = 0)
+  class Config(val startLevel: Int = 0, val editor: Boolean = false)
 
   @JSExport
   def main(): Unit = {
@@ -26,18 +27,34 @@ object Clave {
     val gui = new GUI()
     
     val input = new Input()
-    
-    val game: Game = new Game(context, input, gui)
 
-    game.loadLevel(configuration.startLevel)
-    game.setState(Game.Running())
-    
-    def tick(timeStamp: Double): Unit = {
-      game.update(timeStamp)
-      dom.window.requestAnimationFrame(tick _)
+    if (configuration.editor) {
+
+      val editor: Editor = new Editor(context, input, gui)
+
+      editor.loadLevel(configuration.startLevel)
+      
+      def update(timeStamp: Double): Unit = {
+        editor.update(timeStamp)
+        dom.window.requestAnimationFrame(update _)
+      }
+  
+      dom.window.requestAnimationFrame(update _)
+
+    } else {
+
+      val game: Game = new Game(context, input, gui)
+
+      game.loadLevel(configuration.startLevel)
+      game.setState(Game.Running())
+      
+      def update(timeStamp: Double): Unit = {
+        game.update(timeStamp)
+        dom.window.requestAnimationFrame(update _)
+      }
+  
+      dom.window.requestAnimationFrame(update _)
     }
-
-    dom.window.requestAnimationFrame(tick _)
   }
 
   def loadConfig() = {
@@ -49,7 +66,8 @@ object Clave {
     } yield (kv(0), kv(1)) }.toMap
 
     new Config(
-      startLevel = cfgs.get("level").flatMap(_.toIntOption).getOrElse(0)
+      startLevel = cfgs.get("level").flatMap(_.toIntOption).getOrElse(0),
+      editor = cfgs.get("editor").map(_ == "true").getOrElse(false)
     )
   }
 }
