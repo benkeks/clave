@@ -129,7 +129,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
           <div>
             Hit [Space] to continue!
           </div>""")
-        input.keyPressListener.addBinding(" ", continueLevel _)
+        input.keyPressListener.addOne(" ", continueLevel _)
       case Lost() => 
         score -= 50
         gui.setScore(score)
@@ -141,7 +141,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
           <div>
             Hit [Space] to try again!
           </div>""")
-        input.keyPressListener.addBinding(" ", continueLevel _)
+        input.keyPressListener.addOne(" ", continueLevel _)
     }
     state = newState
     gui.notifyGameState()
@@ -159,7 +159,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
   
   def continueLevel(): Unit = {
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
-      input.keyPressListener.removeBinding(" ", continueLevel _)
+      input.keyPressListener.subtractOne(" ", continueLevel _)
       gui.setPopup("")
       levelId += (if (state.isInstanceOf[Won]) 1 else 0)
       player.setState(PlayerData.Spawning(ySpeed = 0.07))

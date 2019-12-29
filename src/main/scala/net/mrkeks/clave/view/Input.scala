@@ -1,17 +1,14 @@
 package net.mrkeks.clave.view
 
 import org.scalajs.dom
-import scala.collection.mutable.MultiMap
-import scala.collection.mutable.HashMap
+import scala.collection.mutable.MultiDict
 import scala.scalajs.js.Any.fromFunction1
 
 /** centrally manages the key board input */
 class Input {
   val keysDown = collection.mutable.Set.empty[Int]
   
-  val keyPressListener: MultiMap[String, (() => Unit)] =
-    new HashMap[String, collection.mutable.Set[() => Unit]]
-      with MultiMap[String, () => Unit]
+  val keyPressListener = MultiDict[String, (() => Unit)]()
   
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     keysDown.add(toKeyCodeInt(e))
@@ -22,7 +19,7 @@ class Input {
   
   dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
     keyPressListener.get(e.key)
-      .foreach(_.foreach(cb => cb()))
+      .foreach(cb => cb())
   }
 
   class Touch(
@@ -101,7 +98,7 @@ class Input {
       }
       if (!t.changedDirection && e.timeStamp - t.start < 500) {
         keyPressListener.get(" ")
-          .foreach(_.foreach(cb => cb()))
+          .foreach(cb => cb())
       }
     }
   })

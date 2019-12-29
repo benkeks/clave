@@ -1,8 +1,6 @@
 package net.mrkeks.clave.map
 
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.MultiMap
-import scala.collection.mutable.Set
+import scala.collection.mutable.MultiDict
 import scala.scalajs.js
 import scala.scalajs.js.Any.jsArrayOps
 import scala.scalajs.js.typedarray.Uint8Array
@@ -39,9 +37,8 @@ class GameMap(val width: Int, val height: Int)
   
   import MapData._
   
-  private val positionedObjects: MultiMap[(Int, Int), PositionedObject] =
-      new HashMap[(Int, Int), Set[PositionedObject]] 
-        with MultiMap[(Int, Int), PositionedObject]
+  private val positionedObjects =
+      MultiDict[(Int, Int), PositionedObject]()
   
   private object Materials {
     val wall = new MeshLambertMaterial()
@@ -179,8 +176,8 @@ class GameMap(val width: Int, val height: Int)
     val newPosition = vecToMapPos(position)
     val oldPositionOnMap = o.getPositionOnMap
     
-    oldPositionOnMap.foreach(positionedObjects.removeBinding(_ , o))
-    positionedObjects.addBinding(newPosition, o)
+    oldPositionOnMap.foreach(positionedObjects.subtractOne(_ , o))
+    positionedObjects.addOne(newPosition, o)
     
     o match {
       case _: Crate =>
@@ -206,7 +203,7 @@ class GameMap(val width: Int, val height: Int)
     getObjectsAt(xz).exists(_.isInstanceOf[Monster])
   
   def getObjectsAt(xz: (Int, Int)) = {
-    positionedObjects.getOrElse(xz, Set())
+    positionedObjects.get(xz)
   }
 
   override def isObstacleAt(xz: (Int, Int)): Boolean = isMonsterOn(xz)
