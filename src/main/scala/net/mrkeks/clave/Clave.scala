@@ -14,12 +14,12 @@ import net.mrkeks.clave.view.Input
 @JSExportTopLevel("Clave")
 object Clave {
   
-  class Config(startLevel: Int = 0)
+  class Config(val startLevel: Int = 0)
 
   @JSExport
   def main(): Unit = {
     
-    //val configuration = loadConfig()
+    val configuration = loadConfig()
 
     val context = new DrawingContext()
     
@@ -29,7 +29,7 @@ object Clave {
     
     val game: Game = new Game(context, input, gui)
 
-    game.loadLevel(0)
+    game.loadLevel(configuration.startLevel)
     game.setState(Game.Running())
     
     def tick(timeStamp: Double): Unit = {
@@ -42,16 +42,14 @@ object Clave {
 
   def loadConfig() = {
 
-    /*val cfgs = { for {
+    val cfgs = { for {
       assignment <- dom.window.location.hash.drop(1).split('&')
       kv = assignment.split('=')
       if kv.length == 2
     } yield (kv(0), kv(1)) }.toMap
 
-    cfgs.get("level").map(_.toInt)
-
     new Config(
-      startLevel = cfgs.
-    )*/
+      startLevel = cfgs.get("level").flatMap(_.toIntOption).getOrElse(0)
+    )
   }
 }
