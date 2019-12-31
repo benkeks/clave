@@ -78,19 +78,6 @@ class GameMap(val width: Int, val height: Int)
   
   val groundShadowTexture = new DataTexture(groundShadow, width, height, threejs.THREE.RGBAFormat,
     threejs.THREE.UnsignedShort4444Type.asInstanceOf[TextureDataType], magFilter = threejs.THREE.LinearFilter)
-  /*groundShadowTexture.format = 
-  groundShadowTexture.`type` =
-  groundShadowTexture.magFilter = threejs.THREE.LinearFilter
-  groundShadowTexture.image = {
-    val w = width
-    val h = height
-    new js.Object {
-      var width = w
-      var height = h
-      var data = groundShadow
-    }
-  }
-  groundShadowTexture.needsUpdate = true*/
   
   val groundMaterial = new MeshLambertMaterial()
   groundMaterial.color.setHex(0x808080)
