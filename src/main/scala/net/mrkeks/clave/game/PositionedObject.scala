@@ -6,6 +6,8 @@ import org.denigma.threejs.Vector3
 trait PositionedObject extends PositionedObjectData {
   protected val map: GameMap
   
+  var isPreview: Boolean = false
+
   def setPosition(newPosition: Vector3): Unit = {
     position.copy(newPosition)
     updatePositionOnMap()
@@ -13,7 +15,7 @@ trait PositionedObject extends PositionedObjectData {
   
   def setPosition(x: Double, y: Double, z: Double): Unit = {
     position.set(x, y, z)
-    updatePositionOnMap()
+    if (!isPreview) updatePositionOnMap()
   }
   
   def updatePositionOnMap(): Unit = {

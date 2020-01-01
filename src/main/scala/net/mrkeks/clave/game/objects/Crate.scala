@@ -6,12 +6,12 @@ import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.characters.Player
-import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.game.characters.Monster
 import org.denigma.threejs.BoxHelper
+import net.mrkeks.clave.game.PlaceableObject
 
 object Crate {
   private val material = new MeshLambertMaterial()
@@ -26,7 +26,7 @@ object Crate {
 }
 
 class Crate(protected val map: GameMap)
-  extends GameObject with PositionedObject with CrateData {
+  extends GameObject with PlaceableObject with CrateData {
   
   import CrateData._
   
@@ -63,7 +63,7 @@ class Crate(protected val map: GameMap)
     updatePositionOnMap()
   }
   
-  def place(x: Int, z: Int) = {
+  override def place(x: Int, z: Int) = {
     if (canBePlaced(x, z)) {
       setPosition(x, 0, z)
       state = Standing()
@@ -73,7 +73,7 @@ class Crate(protected val map: GameMap)
     }
   }
   
-  def canBePlaced(x: Int, z: Int) = (
+  override def canBePlaced(x: Int, z: Int) = (
     !map.intersectsLevel(x, z, considerObstacles = false)
       && !map.getObjectsAt((x,z)).exists {
              case _: Monster | _: Gate => true

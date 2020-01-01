@@ -27,7 +27,7 @@ class Editor(val context: DrawingContext, val input: Input, val gui: GUI)
 
   var map: GameMap = null
 
-  val editorInput = new EditorInput(context)
+  val editorInput = new EditorInput(this)
 
   val editorTools = List[AbstractEditorTool](
     new ObjectPlacer(() => new Crate(map))
@@ -45,7 +45,7 @@ class Editor(val context: DrawingContext, val input: Input, val gui: GUI)
 
     updateTime(timeStamp)
 
-    editorInput.update(timeStamp, this)
+    editorInput.update(timeStamp)
   }
 
 }
