@@ -5,9 +5,16 @@ import net.mrkeks.clave.game.GameObjectManagement
 
 import org.denigma.threejs
 
-class ObjectPlacer[T <: GameObject with PlaceableObject](factory: () => T) extends AbstractEditorTool {
+class ObjectPlacer[T <: GameObject with PlaceableObject](override val name: String, factory: () => T) extends AbstractEditorTool {
   
   private var newObject: Option[T] = None
+
+  def deactivate(): Unit = {
+    for (o <- newObject) {
+      o.markForDeletion()
+    }
+    newObject = None
+  }
 
   def previewTool(intersection: threejs.Intersection, gameObjectManagement: GameObjectManagement): AbstractEditorTool.Result = {
     

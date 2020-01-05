@@ -6,6 +6,10 @@ import org.denigma.threejs
 
 trait AbstractEditorTool {
 
+  val name: String
+
+  def deactivate(): Unit
+
   def previewTool(intersection: threejs.Intersection, gameObjectManagement: GameObjectManagement): AbstractEditorTool.Result
 
   def runTool(intersection: threejs.Intersection, gameObjectManagement: GameObjectManagement): AbstractEditorTool.Result

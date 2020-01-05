@@ -57,6 +57,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI)
 
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
+
+          removeAllMarkedForDeletion()
         }
         
         if (player.state.isInstanceOf[PlayerData.Dead]) {

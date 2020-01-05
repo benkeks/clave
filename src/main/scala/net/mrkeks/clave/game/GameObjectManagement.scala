@@ -21,7 +21,15 @@ trait GameObjectManagement {
     gameObjects = gameObjects.filterNot(_.id == o.id)
     o.clear(context)
   }
-  
+
+  def removeAllMarkedForDeletion(): Unit = {
+    if (gameObjects.exists(_.markedForDeletion)) { // only rebuild the list if necessary
+      val (deleted, surviving) = gameObjects.partition(_.markedForDeletion)
+      deleted.foreach(_.clear(context))
+      gameObjects = surviving
+    }
+  }
+
   def clear(): Unit = {
     gameObjects.foreach(remove)
   }

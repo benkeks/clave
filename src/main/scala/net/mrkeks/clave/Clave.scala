@@ -10,6 +10,7 @@ import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.editor.Editor
+import net.mrkeks.clave.editor.EditorGUI
 
 
 @JSExportTopLevel("Clave")
@@ -24,11 +25,11 @@ object Clave {
 
     val context = new DrawingContext()
     
-    val gui = new GUI()
-    
     val input = new Input()
 
     if (configuration.editor) {
+
+      val gui = new EditorGUI()
 
       val editor: Editor = new Editor(context, input, gui)
 
@@ -42,6 +43,8 @@ object Clave {
       dom.window.requestAnimationFrame(update _)
 
     } else {
+
+      val gui = new GUI()
 
       val game: Game = new Game(context, input, gui)
 

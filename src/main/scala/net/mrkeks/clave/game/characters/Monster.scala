@@ -14,6 +14,7 @@ import net.mrkeks.clave.game.ObjectShadow
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
 import scala.scalajs.js.Any.fromFunction1
+import net.mrkeks.clave.game.PlaceableObject
 
 object Monster {
   val material = new SpriteMaterial()
@@ -36,7 +37,7 @@ object Monster {
 }
 
 class Monster(protected val map: GameMap)
-  extends GameObject with PositionedObject with MonsterData with ObjectShadow {
+  extends GameObject with PlaceableObject with MonsterData with ObjectShadow {
   
   import MonsterData._
   import PositionedObjectData._
