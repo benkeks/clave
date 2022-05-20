@@ -8,12 +8,16 @@ class GUI() {
   private val hudContainer = dom.document.createElement("div")
   hudContainer.id = "hud"
 
+  private val scoreTextNode = dom.document.createElement("p")
+  scoreTextNode.classList.add("score")
+  hudContainer.appendChild(scoreTextNode)
+  private val scoreText = dom.document.createTextNode("Score: 0")
+  scoreTextNode.appendChild(scoreText)
 
-  private val scoreText = dom.document.createTextNode("Score: 0") 
-  hudContainer.appendChild(scoreText)
-
-  private val pauseButton = dom.document.createElement("button")
+  private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
   private val pauseButtonText = dom.document.createTextNode("Pause")
+  pauseButton.classList.add("btn")
+  pauseButton.classList.add("btn-secondary")
   pauseButton.appendChild(pauseButtonText)
   pauseButton.addEventListener("click", clickPause _)
   hudContainer.appendChild(pauseButton)
@@ -48,8 +52,8 @@ class GUI() {
   }
 
   def clickPause(ev: org.scalajs.dom.raw.Event): Unit = {
-    println("hit pause!")
     game foreach (_.togglePause())
+    pauseButton.blur()
   }
 
   def notifyGameState(): Unit = {
