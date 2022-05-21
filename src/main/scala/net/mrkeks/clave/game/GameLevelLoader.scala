@@ -18,7 +18,8 @@ trait GameLevelLoader {
   var player: Player
   var map: GameMap
   val levelDownloader: LevelDownloader
-  
+  var currentLevel: Option[Level] = None
+
   def unloadLevel(): Unit = {
     clear()
   }
@@ -31,6 +32,7 @@ trait GameLevelLoader {
   }
   
   def loadLevel(level: Level): Unit = {
+    currentLevel = Some(level)
     map = new GameMap(level.width, level.height)
 
     context.adjustCameraForMap(level.width, level.height)

@@ -137,7 +137,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     if (state.isInstanceOf[Running]) {
       val levelScore = map.checkVictory(getPlayerPositions)
       if (levelScore >= 0) {
-        println("victory! "+levelScore)
         setState(Won(levelScore, 0, 0))
       }
     }
@@ -155,6 +154,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   
   override def loadLevel(id: Int): Unit = {
     super.loadLevel(id)
+    for (l <- currentLevel) gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
     playerControl = new PlayerControl(player, input)
     player.setState(PlayerData.Spawning(ySpeed = -.06))
   }

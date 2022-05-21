@@ -2,8 +2,9 @@ package net.mrkeks.clave.view
 
 import net.mrkeks.clave.game.Game
 import org.scalajs.dom
+import net.mrkeks.clave.util.TimeManagement
 
-class GUI() {
+class GUI() extends TimeManagement {
 
   private val hudContainer = dom.document.createElement("div")
   hudContainer.id = "hud"
@@ -29,6 +30,7 @@ class GUI() {
   private val popup = dom.document.createElement("div")
   popup.id = "popup"
   hudContainer.appendChild(popup)
+  private var popupText = ""
 
   dom.document.body.appendChild(hudContainer)
 
@@ -42,13 +44,29 @@ class GUI() {
     scoreText.textContent = "Score: "+score
   }
 
-  def setPopup(text: String): Unit = {
-    popup.innerHTML = text
+  /**
+    * @param text popup text to be displayed
+    * @param time if set, remove the the popup after `time` milliseconds
+    */
+  def setPopup(text: String, time: Double = 0): Unit = {
     if (text == "") {
       popup.classList.remove("visible")
     } else {
+      popup.innerHTML = text
       popup.classList.add("visible")
     }
+    popupText = text
+    if (time != 0) {
+      schedule(lastFrameTime + time) { () =>
+        if (popupText == text) {
+          setPopup("")
+        }
+      }
+    }
+  }
+
+  def update(timeStamp: Double): Unit = {
+    updateTime(timeStamp)
   }
 
   def clickPause(ev: org.scalajs.dom.raw.Event): Unit = {

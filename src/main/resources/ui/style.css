@@ -39,25 +39,22 @@ body {
 	position: absolute;
 	left: 50%;
 	top: 55%;
-	transform: translateY(-40%) translateX(-50%) scale(1);
-	display: none;
+	transform: translateX(-50%) translateY(-10%) scale(0.7);
+	transition: transform 800ms, opacity 800ms;
+	display: block;
+	opacity: 0;
 	text-align: center;
 	pointer-events: none;
 }
 
 #popup.visible {
-	display: block;
-	animation: popupin 300ms ease-out;
+	transform: translateX(-50%) translateY(-40%) scale(1);
+	opacity: 1;
+	transition: transform 800ms, opacity 800ms;
 }
-@keyframes popupin {
-	0% {
-	  transform: translateX(-50%) translateY(+60%) scale(0.50);
-	  opacity: 0;
-	}
-	100% {
-		transform: translateX(-50%) translateY(-40%) scale(1);
-		opacity: 1;
-	}
+
+#popup .level-name {
+  margin-top: 100%;
 }
 
 .scene-fadeout {
