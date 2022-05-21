@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/scala-main-build.yml
   deploy:
     name: Upload to Itch
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
