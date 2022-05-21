@@ -1,0 +1,25 @@
+name: Deploy Itch
+
+on:
+  release:
+  workflow_dispatch:
+env:
+  ITCH_USER: benkeks
+  ITCH_GAME: clave
+jobs:
+  deploy:
+    name: Upload to Itch
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/download-artifact@v2.0.8
+        with:
+          name: clave
+          path: build/clave
+      - uses: manleydev/butler-publish-itchio-action@v1.0.3
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: html5
+          PACKAGE: build/clave
+          VERSION: 0.1.0
