@@ -2,6 +2,7 @@ name: Deploy Itch
 
 on:
   release:
+    types: [published]
   workflow_dispatch:
 env:
   ITCH_USER: benkeks
