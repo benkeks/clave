@@ -24,10 +24,10 @@ jsDependencies ++= Seq(
 )
 
 artifactPath in (Compile,fastOptJS) :=
-      ((classDirectory in Compile).value / ((moduleName in fastOptJS).value + ".js"))
+      ((classDirectory in Compile).value / "app" / ((moduleName in fastOptJS).value + ".js"))
 
 artifactPath in (Compile,fullOptJS) := (artifactPath in (Compile,fastOptJS)).value
 
-Compile / packageJSDependencies / artifactPath := ((classDirectory in Compile).value / ((moduleName in fastOptJS).value + "-jsdeps.js"))
+Compile / packageJSDependencies / artifactPath := ((classDirectory in Compile).value / "app" / ((moduleName in fastOptJS).value + "-jsdeps.js"))
 
 scalacOptions ++= Seq("-deprecation")
