@@ -23,7 +23,7 @@ jobs:
     - name: Coursier cache
       uses: coursier/cache-action@v6
     - name: Compile game
-      run: sbt fullOptJS
+      run: sbt fastOptJS
     - name: Archive production webclient artifact
       uses: actions/upload-artifact@v3
       with:
