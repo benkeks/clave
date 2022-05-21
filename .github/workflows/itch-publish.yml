@@ -7,6 +7,8 @@ env:
   ITCH_USER: benkeks
   ITCH_GAME: clave
 jobs:
+  build:
+    uses: ./.github/workflows/scala-main-build.yml
   deploy:
     name: Upload to Itch
     runs-on: ubuntu-latest
