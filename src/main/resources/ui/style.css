@@ -21,6 +21,13 @@ body {
     height: 100%;
 }
 
+.score {
+  text-align: center;
+	font-size: 2em;
+	color: white;
+	text-shadow: 0 0 5px black;
+}
+
 #overlay {
   pointer-events: none;
 }
@@ -31,8 +38,8 @@ body {
 	text-shadow: 0 0 5px black;
 	position: absolute;
 	left: 50%;
-	top: 50%;
-	transform: translateY(-50%) translateX(-50%) scale(1);
+	top: 55%;
+	transform: translateY(-40%) translateX(-50%) scale(1);
 	display: none;
 	text-align: center;
 	pointer-events: none;
@@ -44,11 +51,11 @@ body {
 }
 @keyframes popupin {
 	0% {
-	  transform: translateX(-50%) translateY(-56%) scale(0.50);
+	  transform: translateX(-50%) translateY(+60%) scale(0.50);
 	  opacity: 0;
 	}
 	100% {
-		transform: translateX(-50%) translateY(-50%) scale(1);
+		transform: translateX(-50%) translateY(-40%) scale(1);
 		opacity: 1;
 	}
 }
