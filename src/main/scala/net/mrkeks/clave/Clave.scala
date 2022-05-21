@@ -6,6 +6,7 @@ import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport}
 import org.scalajs.dom
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.map.Level
+import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.view.Input
@@ -20,44 +21,49 @@ object Clave {
 
   @JSExport
   def main(): Unit = {
-    
+
     val configuration = loadConfig()
 
     val context = new DrawingContext()
-    
+
     val input = new Input()
 
-    if (configuration.editor) {
+    val levelDownloader = new LevelDownloader()
+    levelDownloader.downloadWorld("levels/clave.world") {
 
-      val gui = new EditorGUI()
+      if (configuration.editor) {
 
-      val editor: Editor = new Editor(context, input, gui)
+        val gui = new EditorGUI()
 
-      editor.loadLevel(configuration.startLevel)
-      
-      def update(timeStamp: Double): Unit = {
-        editor.update(timeStamp)
+        val editor: Editor = new Editor(context, input, gui, levelDownloader)
+
+        editor.loadLevel(configuration.startLevel)
+
+        def update(timeStamp: Double): Unit = {
+          editor.update(timeStamp)
+          dom.window.requestAnimationFrame(update _)
+        }
+
+        dom.window.requestAnimationFrame(update _)
+
+      } else {
+
+        val gui = new GUI()
+
+        val game: Game = new Game(context, input, gui, levelDownloader)
+
+        game.loadLevel(configuration.startLevel)
+        game.setState(Game.Running())
+
+        def update(timeStamp: Double): Unit = {
+          game.update(timeStamp)
+          dom.window.requestAnimationFrame(update _)
+        }
+
         dom.window.requestAnimationFrame(update _)
       }
-  
-      dom.window.requestAnimationFrame(update _)
-
-    } else {
-
-      val gui = new GUI()
-
-      val game: Game = new Game(context, input, gui)
-
-      game.loadLevel(configuration.startLevel)
-      game.setState(Game.Running())
-      
-      def update(timeStamp: Double): Unit = {
-        game.update(timeStamp)
-        dom.window.requestAnimationFrame(update _)
-      }
-  
-      dom.window.requestAnimationFrame(update _)
     }
+
   }
 
   def loadConfig() = {

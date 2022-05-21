@@ -9,6 +9,7 @@ import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.Monster
+import net.mrkeks.clave.map.LevelDownloader
 
 trait GameLevelLoader {
   self: GameObjectManagement =>
@@ -16,6 +17,7 @@ trait GameLevelLoader {
   var levelId: Int
   var player: Player
   var map: GameMap
+  val levelDownloader: LevelDownloader
   
   def unloadLevel(): Unit = {
     clear()
@@ -23,12 +25,14 @@ trait GameLevelLoader {
   
   def loadLevel(id: Int): Unit = {
     levelId = id
-    loadLevel(Level.levels(levelId))
+    for (level <- levelDownloader.getLevelByNum(levelId)) {
+      loadLevel(level)
+    }
   }
   
   def loadLevel(level: Level): Unit = {
     map = new GameMap(level.width, level.height)
-    
+
     val positions = map.loadFromString(level.mapCsv)
     map.updateView()
     add(map)

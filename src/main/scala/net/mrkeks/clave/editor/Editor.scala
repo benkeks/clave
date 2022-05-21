@@ -6,7 +6,7 @@ import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
-import net.mrkeks.clave.map.Level
+import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.GameObjectManagement
 import net.mrkeks.clave.game.GameLevelLoader
 import net.mrkeks.clave.game.objects
@@ -14,7 +14,7 @@ import net.mrkeks.clave.game.characters
 import net.mrkeks.clave.editor.tools.AbstractEditorTool
 import net.mrkeks.clave.editor.tools.ObjectPlacer
 
-class Editor(val context: DrawingContext, val input: Input, val gui: EditorGUI)
+class Editor(val context: DrawingContext, val input: Input, val gui: EditorGUI, val levelDownloader: LevelDownloader)
   extends GameObjectManagement with GameLevelLoader with TimeManagement {
   
   var levelId: Int = 0

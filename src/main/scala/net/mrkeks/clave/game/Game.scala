@@ -6,7 +6,7 @@ import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
-import net.mrkeks.clave.map.Level
+import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.Trigger
@@ -15,7 +15,7 @@ import net.mrkeks.clave.view.PlayerControl
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.PlayerData
 
-class Game(val context: DrawingContext, val input: Input, val gui: GUI)
+class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
   extends GameObjectManagement with GameLevelLoader with TimeManagement {
 
   import Game._

@@ -14,7 +14,9 @@ workbenchDefaultRootObject := Some(("target/scala-2.13/classes/index.html", "tar
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.2.0",
-  "org.scala-js" %%% "scalajs-dom" % "0.9.8"
+  "org.scala-js" %%% "scalajs-dom" % "0.9.8",
+  "io.crashbox" %%% "yamlesque" % "0.2.0"
+
 )
 
 jsDependencies ++= Seq(
