@@ -57,6 +57,7 @@ object Clave {
 
         def update(timeStamp: Double): Unit = {
           game.update(timeStamp)
+          gui.update(timeStamp)
           dom.window.requestAnimationFrame(update _)
         }
 
