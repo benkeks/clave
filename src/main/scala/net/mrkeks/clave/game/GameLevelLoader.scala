@@ -33,6 +33,8 @@ trait GameLevelLoader {
   def loadLevel(level: Level): Unit = {
     map = new GameMap(level.width, level.height)
 
+    context.adjustCameraForMap(level.width, level.height)
+
     val positions = map.loadFromString(level.mapCsv)
     map.updateView()
     add(map)

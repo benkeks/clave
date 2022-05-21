@@ -45,5 +45,13 @@ class DrawingContext() {
   light.position.set(5,10.0,5)
   scene.add(light)
   
-  def render() = renderer.render(scene, camera)
+  def render() = {
+    renderer.render(scene, camera)
+  }
+
+  def adjustCameraForMap(mapWidth: Int, mapHeight: Int) = {
+    camera.position.z = .5 * mapHeight + 6
+	  camera.position.y = 20
+	  camera.position.x = .5 * mapWidth - 8
+  }
 }
