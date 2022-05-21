@@ -11,13 +11,21 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+project/project/
 
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
 
-# Eclipse
+# IDEs etc.
 .project
 .classpath
 .cache-main
 .settings/
+.bloop/
+.bsp/
+.idea/
+.metals/
+.vscode/
+project/.bloop/
+project/metals.sbt
