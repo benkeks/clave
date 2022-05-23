@@ -15,6 +15,9 @@ import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
 import scala.scalajs.js.Any.fromFunction1
 import net.mrkeks.clave.game.PlaceableObject
+import org.denigma.threejs.BufferGeometry
+import org.denigma.threejs.Group
+import org.scalajs.dom
 
 object Monster {
   val material = new SpriteMaterial()
@@ -30,7 +33,14 @@ object Monster {
     textureBlink = tex
     material.needsUpdate = true
   })
-  
+
+  var monsterMesh: Option[Group] = None
+  DrawingContext.gltfLoader.load("gfx/monster01.glb", {gltf =>
+    val mesh = gltf.scene.children(0).asInstanceOf[Group]
+    monsterMesh = Some(mesh)
+    dom.window.console.log(mesh)
+  })
+
   def clear(): Unit = {
     material.dispose()
   }
@@ -46,7 +56,9 @@ class Monster(protected val map: GameMap)
 
   val sprite = new Sprite(material)
   sprite.scale.set(1.4, 1.4, 1)
-  
+
+  var mesh: Group = new Group()
+
   var anim = 0.0
   var yScale = 0.0
   var rotate = 0.0
@@ -55,6 +67,7 @@ class Monster(protected val map: GameMap)
   
   def init(context: DrawingContext): Unit = {
     context.scene.add(sprite)
+    context.scene.add(mesh)
     initShadow(context)
     anim = 200.0 * Math.random()
     setState(Idle(2000 + 2000 * Math.random()))
@@ -62,6 +75,7 @@ class Monster(protected val map: GameMap)
   
   def clear(context: DrawingContext): Unit = {
     context.scene.remove(sprite)
+    context.scene.remove(mesh)
     clearShadow(context)
   }
   
@@ -120,7 +134,8 @@ class Monster(protected val map: GameMap)
           // breathing anim
           yScale = approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
           rotate = approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
-          
+
+          mesh.lookAt(tar)
           val speed = .001 * deltaTime
           val newX = approach(position.x, tar.x, speed)
           val newY = approach(position.y, 0, speed)
@@ -176,9 +191,16 @@ class Monster(protected val map: GameMap)
           setPosition(newX, 0, newZ)
         }
     }
-    sprite.position.set(position.x, position.y + .2, position.z + .3)
+    //sprite.position.set(position.x, position.y + .2, position.z + .3)
     sprite.scale.set(1.4 - yScale * .5, 1.4 + yScale, 1)
     sprite.material.asInstanceOf[SpriteMaterial].rotation = rotate
+
+    Monster.monsterMesh.foreach { m =>
+      if (mesh.children.isEmpty) {
+        m.children.foreach(c => mesh.add(c.clone()))
+      }
+    }
+    mesh.position.set(position.x, position.y + .2, position.z + .3)
     updateShadow()
   }
   

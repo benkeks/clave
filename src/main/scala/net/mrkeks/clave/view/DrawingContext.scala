@@ -10,9 +10,10 @@ import org.denigma.threejs.Vector3
 import org.denigma.threejs.PointLight
 import org.denigma.threejs.AmbientLight
 import org.denigma.threejs.TextureLoader
-
+import org.denigma.threejs.GLTFLoader
 object DrawingContext {
   val textureLoader = new TextureLoader()
+  val gltfLoader = new GLTFLoader()
 }
 
 class DrawingContext() {
