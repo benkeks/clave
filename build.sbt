@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
 
 jsDependencies ++= Seq(
   ProvidedJS / "lib/three.js" minified "lib/three.min.js" commonJSName "THREE",
+  ProvidedJS / "lib/loaders/GLTFLoader.js" commonJSName "GLTFLoader",
   "org.webjars" % "jquery" % "3.4.1" / "jquery.js" minified "jquery.min.js",
   "org.webjars" % "bootstrap" % "4.4.1" / "bootstrap.js" minified "bootstrap.min.js" dependsOn "jquery.js"
 )
