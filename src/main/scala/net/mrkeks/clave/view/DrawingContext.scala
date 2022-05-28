@@ -29,34 +29,38 @@ class DrawingContext() {
   dom.document.body.appendChild(renderer.domElement)
   
   renderer.setClearColor(new Color(0x604060))
-  
+
   val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
-  
+  val cameraOffset = new Vector3(0, 20, 14)
+  val cameraLookAt = new Vector3()
+  cameraUpdatePosition(new Vector3())
+
   val scene = new Scene()
-  
-  camera.position.z = 14
-	camera.position.y = 20
-	camera.position.x = 0
-	camera.lookAt(new Vector3())
 
   val ambient = new AmbientLight(0x606266)
-	scene.add(ambient)
-	
-	val light = new PointLight(0xffffff, 1.0)
+  scene.add(ambient)
+
+  val light = new PointLight(0xffffff, 1.0)
   light.position.set(5,10.0,2)
   scene.add(light)
 
-	val light2 = new PointLight(0x226644, 1.0)
+  val light2 = new PointLight(0x226644, 1.0)
   light2.position.set(-10,-5.0,-3)
   scene.add(light2)
-  
+
   def render() = {
     renderer.render(scene, camera)
   }
 
   def adjustCameraForMap(mapWidth: Int, mapHeight: Int) = {
-    camera.position.z = .5 * mapHeight + 6
-	  camera.position.y = 20
-	  camera.position.x = .5 * mapWidth - 8
+    cameraOffset.set(.5 * mapWidth - 8, 20, .5 * mapHeight + 6)
+    cameraLookAt.x = .5 * mapWidth - 8
+  }
+
+  def cameraUpdatePosition(lookFrom: Vector3) = {
+    camera.position.copy(lookFrom)
+    camera.position.add(cameraOffset)
+    cameraLookAt.y = .5 * lookFrom.y
+    camera.lookAt(cameraLookAt)
   }
 }

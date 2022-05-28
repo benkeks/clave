@@ -15,6 +15,8 @@ import net.mrkeks.clave.view.PlayerControl
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.PlayerData
 
+import org.denigma.threejs.Vector3
+
 class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
   extends GameObjectManagement with GameLevelLoader with TimeManagement {
 
@@ -94,8 +96,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           setState(Running())
         }
     }
-    
-    context.camera.position.y = 20 + player.getPosition.y * .5
+
+    val y = player.getPosition.y
+    context.cameraUpdatePosition(new Vector3(14 * Math.sin(.03 * y), 2.0 * y, 10 - 10 * Math.cos(.03 * y)))
   }
   
   def setState(newState: State): Unit = {
