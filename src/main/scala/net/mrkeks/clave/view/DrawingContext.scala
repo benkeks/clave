@@ -11,6 +11,7 @@ import org.denigma.threejs.PointLight
 import org.denigma.threejs.AmbientLight
 import org.denigma.threejs.TextureLoader
 import org.denigma.threejs.GLTFLoader
+
 object DrawingContext {
   val textureLoader = new TextureLoader()
   val gltfLoader = new GLTFLoader()
@@ -18,22 +19,20 @@ object DrawingContext {
 
 class DrawingContext() {
 
-  val width = dom.window.innerWidth
-  val height: Double = dom.window.innerHeight
+  var width: Double = 0.0
+  var height: Double = 0.0
+  var aspect: Double = 1.0
 
-  val aspect: Double = width / height
-
-  val renderer: WebGLRenderer = new WebGLRenderer()
-  
-  renderer.setSize(width, height)
+  var renderer: WebGLRenderer = new WebGLRenderer()
   dom.document.body.appendChild(renderer.domElement)
-  
+
   renderer.setClearColor(new Color(0x604060))
 
   val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   val cameraOffset = new Vector3(0, 20, 14)
   val cameraLookAt = new Vector3()
   cameraUpdatePosition(new Vector3())
+  adjustViewport()
 
   val scene = new Scene()
 
@@ -47,6 +46,20 @@ class DrawingContext() {
   val light2 = new PointLight(0x226644, 1.0)
   light2.position.set(-10,-5.0,-3)
   scene.add(light2)
+
+  dom.window.onresize = (uiEv) => {
+    adjustViewport()
+  }
+
+  def adjustViewport() = {
+    width = dom.window.innerWidth
+    height = dom.window.innerHeight
+    aspect = width / height
+    renderer.setSize(width, height)
+    camera.left = 7 - (8 * aspect)
+    camera.right = 7 + (8 * aspect)
+    camera.updateProjectionMatrix()
+  }
 
   def render() = {
     renderer.render(scene, camera)
