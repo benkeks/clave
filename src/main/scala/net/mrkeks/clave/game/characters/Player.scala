@@ -1,19 +1,23 @@
 package net.mrkeks.clave.game.characters
 
 import net.mrkeks.clave.view.DrawingContext
-import org.denigma.threejs.SpriteMaterial
-import org.denigma.threejs.Sprite
-import org.denigma.threejs.Vector3
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
-import org.denigma.threejs.MeshLambertMaterial
-import org.denigma.threejs.BoxGeometry
-import org.denigma.threejs.Mesh
-import org.denigma.threejs.Texture
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.ObjectShadow
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
+import net.mrkeks.clave.util.Mathf
+
+import org.denigma.threejs.SpriteMaterial
+import org.denigma.threejs.Sprite
+import org.denigma.threejs.Vector3
+import org.denigma.threejs.MeshLambertMaterial
+import org.denigma.threejs.BoxGeometry
+import org.denigma.threejs.Mesh
+import org.denigma.threejs.Object3D
+import org.denigma.threejs.Texture
+
 import scala.scalajs.js.Any.fromFunction1
 
 object Player {
@@ -23,7 +27,13 @@ object Player {
     material.map = tex
     material.needsUpdate = true
   })
-  
+
+  var playerMesh: Option[Object3D] = None
+  DrawingContext.gltfLoader.load("gfx/player_monster.glb", {gltf =>
+    val mesh = gltf.scene.children(0).asInstanceOf[Object3D]
+    playerMesh = Some(mesh)
+  })
+
   private val dropPreviewMaterial = new MeshLambertMaterial()
   dropPreviewMaterial.transparent = true
   dropPreviewMaterial.opacity = .5
@@ -48,27 +58,37 @@ class Player(protected val map: GameMap)
   var anim = 0.0
   
   val sprite = new Sprite(Player.material)
+  val mesh: Object3D = new Object3D()
+  var eyeMesh: Option[Object3D] = None
   
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
   val shadowSize = 0.7
   
   def init(context: DrawingContext): Unit = {
-    context.scene.add(sprite)
+    context.scene.add(mesh)
     context.scene.add(dropPreview)
     initShadow(context)
   }
   
   def clear(context: DrawingContext): Unit = {
-    context.scene.remove(sprite)
+    context.scene.remove(mesh)
     context.scene.remove(dropPreview)
     clearShadow(context)
   }
   
   def update(deltaTime: Double): Unit = {
     dropPreview.visible = false
-    
-    sprite.position.set(position.x, position.y, position.z + .3)
+
+    if (mesh.children.isEmpty) {
+      Player.playerMesh.foreach { m =>
+        m.children.foreach(c => mesh.add(c.clone()))
+        eyeMesh = Some(mesh.getObjectByName("Eyes"))
+      }
+    }
+
+    mesh.position.set(position.x, position.y, position.z)
+    mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .02 * deltaTime, wraparound = 2.0 * Math.PI)
 
     if (map.intersectsLevel(positionOnMap)) {
       val tar = map.mapPosToVec(
@@ -89,8 +109,8 @@ class Player(protected val map: GameMap)
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
-        sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
-        sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
+        mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
+        mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
         anim += state.speed * deltaTime
         if (crate.canBePlaced(nextField._1, nextField._2)) {
@@ -102,13 +122,13 @@ class Player(protected val map: GameMap)
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
         }
-        sprite.scale.setY(1.0 + Math.sin(anim * 2) * .1)
-        sprite.scale.setZ(1.0 - Math.sin(anim * 2 + .2) * .05)
+        mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
+        mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case s @ Dead() =>
         s.deathAnim = Math.max(s.deathAnim - .005 * deltaTime, .66)
-        sprite.position.set(position.x, position.y - .8 + s.deathAnim * .8, position.z + .3)
-        sprite.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim)
-        sprite.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
+        mesh.position.set(position.x, position.y - .8 + s.deathAnim * .8, position.z + .3)
+        mesh.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim)
+        mesh.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
       case _ =>
     }
     

@@ -18,4 +18,11 @@ object Mathf {
       -4.0 + 4.0 * x
     }
   }
+
+  def approach(src: Double, tar: Double, speed: Double, wraparound: Double = 0.0) = {
+    var diff = tar - src
+    if (wraparound != 0 && diff > wraparound * .5) diff -= wraparound
+    if (wraparound != 0 && diff < -wraparound * .5) diff += wraparound
+    if (Math.abs(diff) <= speed) tar else src + speed * Math.signum(diff)
+  }
 }

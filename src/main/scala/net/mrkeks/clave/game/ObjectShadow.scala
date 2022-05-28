@@ -27,7 +27,7 @@ object ObjectShadow {
     material.needsUpdate = true
   })
     
-  val geometry = new PlaneGeometry(1.7, 1.7, 1, 1)
+  val geometry = new PlaneGeometry(1.4, 1.4, 1, 1)
   geometry.normalsNeedUpdate = true
   
   def clear(): Unit = {

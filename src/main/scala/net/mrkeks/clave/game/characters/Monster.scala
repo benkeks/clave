@@ -40,14 +40,14 @@ class Monster(protected val map: GameMap)
   import MonsterData._
   import PositionedObjectData._
 
-  var mesh: Object3D = new Object3D()
+  val mesh: Object3D = new Object3D()
   var eyeMesh: Option[Object3D] = None
 
   var anim = 0.0
   var yScale = 0.0
   var rotate = 0.0
   
-  val shadowSize = .8
+  val shadowSize = .85
   
   def init(context: DrawingContext): Unit = {
     context.scene.add(mesh)
@@ -86,8 +86,8 @@ class Monster(protected val map: GameMap)
           player <- map.getObjectsAt(pos).collect {case p: Player => p }
         } yield (pos, player)
         
-        yScale = approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
-        rotate = approach(rotate, 0, .0001 * deltaTime)
+        yScale = Mathf.approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
+        rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
         
         if (neighboringPlayers.nonEmpty) {
           // player approaches
@@ -115,13 +115,13 @@ class Monster(protected val map: GameMap)
           setState(MoveTo(position.clone().round()))
         } else {
           // breathing anim
-          yScale = approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
-          rotate = approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
+          yScale = Mathf.approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
+          rotate = Mathf.approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
 
           val speed = .001 * deltaTime
-          val newX = approach(position.x, tar.x, speed)
-          val newY = approach(position.y, 0, speed)
-          val newZ = approach(position.z, tar.z, speed)
+          val newX = Mathf.approach(position.x, tar.x, speed)
+          val newY = Mathf.approach(position.y, 0, speed)
+          val newZ = Mathf.approach(position.z, tar.z, speed)
           setPosition(newX, newY , newZ)
           if (newX == tar.x && newZ == tar.z) {
             setState(Idle())
@@ -136,8 +136,8 @@ class Monster(protected val map: GameMap)
         } else {
           s.progress += .001 * deltaTime
           val newY = .3 * Mathf.pingpong(progress * 3.0)
-          yScale = approach(yScale, Math.abs(newY-.2)*1.0, .003 * deltaTime)
-          rotate = approach(rotate, 0, .0001 * deltaTime)
+          yScale = Mathf.approach(yScale, Math.abs(newY-.2)*1.0, .003 * deltaTime)
+          rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
           position.setY(newY)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
@@ -146,11 +146,11 @@ class Monster(protected val map: GameMap)
           setState(PushedTo(from, -ySpeed))
         } else {
           val speed = .0025 * deltaTime
-          val newX = approach(position.x, tar.x, speed)
-          val newZ = approach(position.z, tar.z, speed)
+          val newX = Mathf.approach(position.x, tar.x, speed)
+          val newZ = Mathf.approach(position.z, tar.z, speed)
           s.ySpeed -= .00004 * deltaTime
-          yScale = approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
-          rotate = approach(rotate, 0, .0001 * deltaTime)
+          yScale = Mathf.approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
+          rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
           // in flight don't update the map placement!
           position.set(newX, position.y + ySpeed * deltaTime, newZ)
           if (newX == tar.x && newZ == tar.z) {
@@ -161,12 +161,12 @@ class Monster(protected val map: GameMap)
         }
       case s @ PushedTo(tar, ySpeed) =>
         val speed = .0025 * deltaTime
-        val newX = approach(position.x, tar.x, speed)
-        val newZ = approach(position.z, tar.z, speed)
+        val newX = Mathf.approach(position.x, tar.x, speed)
+        val newZ = Mathf.approach(position.z, tar.z, speed)
         s.ySpeed -= .00004 * deltaTime
-        yScale = approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
+        yScale = Mathf.approach(yScale, Math.abs(s.ySpeed*10.0), .005 * deltaTime)
         setPosition(newX, position.y + ySpeed * deltaTime, newZ)
-        rotate = approach(rotate, 0, .0001 * deltaTime)
+        rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
         if (newX == tar.x && newZ == tar.z) {
           // give fewer cooldown after being pushed
           setState(Idle(strollCoolDown = 2000))
@@ -174,8 +174,8 @@ class Monster(protected val map: GameMap)
         }
     }
 
-    Monster.monsterMesh.foreach { m =>
-      if (mesh.children.isEmpty) {
+    if (mesh.children.isEmpty) {
+      Monster.monsterMesh.foreach { m =>
         m.children.foreach(c => mesh.add(c.clone()))
         val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
         val matMap = mat.map.clone()
@@ -190,17 +190,12 @@ class Monster(protected val map: GameMap)
     }
     mesh.position.set(position.x, position.y + .2, position.z)
     mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
-    mesh.rotation.y = approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
+    mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
     updateShadow()
   }
   
-  def approach(src: Double, tar: Double, speed: Double, wraparound: Double = 0.0) = {
-    var diff = tar - src
-    if (wraparound != 0 && diff > wraparound * .5) diff -= wraparound
-    if (wraparound != 0 && diff < -wraparound * .5) diff += wraparound
-    if (Math.abs(diff) <= speed) tar else src + speed * Math.signum(diff)
-  }
+  
 
   def setState(newState: State): Unit = {
     state = newState match {
