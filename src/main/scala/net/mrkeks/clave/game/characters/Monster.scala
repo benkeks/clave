@@ -1,87 +1,70 @@
 package net.mrkeks.clave.game.characters
 
 import net.mrkeks.clave.map.GameMap
-import org.denigma.threejs.SpriteMaterial
 import net.mrkeks.clave.view.DrawingContext
-import org.denigma.threejs.Sprite
-import net.mrkeks.clave.util.markovIf
-import org.denigma.threejs.Vector3
-import net.mrkeks.clave.util.Mathf
-import org.denigma.threejs.Texture
-
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.ObjectShadow
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
-import scala.scalajs.js.Any.fromFunction1
 import net.mrkeks.clave.game.PlaceableObject
-import org.denigma.threejs.BufferGeometry
-import org.denigma.threejs.Group
+
+import net.mrkeks.clave.util.markovIf
+import net.mrkeks.clave.util.Mathf
+
+import org.denigma.threejs.Sprite
+import org.denigma.threejs.SpriteMaterial
+import org.denigma.threejs.{Vector2, Vector3}
+import org.denigma.threejs.Texture
+import org.denigma.threejs.Mesh
+import org.denigma.threejs.Object3D
+import org.denigma.threejs.MeshStandardMaterial
+import org.denigma.threejs.Color
+
 import org.scalajs.dom
+import scala.scalajs.js.Any.fromFunction1
 
 object Monster {
-  val material = new SpriteMaterial()
-  
-  var texture: Texture = null
-  var textureBlink: Texture = null
-
-  DrawingContext.textureLoader.load("gfx/monster.png", { tex =>
-    texture = tex
-    material.needsUpdate = true
-  })
-  DrawingContext.textureLoader.load("gfx/monster_blink.png", { tex =>
-    textureBlink = tex
-    material.needsUpdate = true
-  })
-
-  var monsterMesh: Option[Group] = None
+  var monsterMesh: Option[Object3D] = None
   DrawingContext.gltfLoader.load("gfx/monster01.glb", {gltf =>
-    val mesh = gltf.scene.children(0).asInstanceOf[Group]
+    val mesh = gltf.scene.children(0).asInstanceOf[Object3D]
     monsterMesh = Some(mesh)
-    dom.window.console.log(mesh)
   })
 
   def clear(): Unit = {
-    material.dispose()
   }
 }
 
 class Monster(protected val map: GameMap)
   extends GameObject with PlaceableObject with MonsterData with ObjectShadow {
-  
+
   import MonsterData._
   import PositionedObjectData._
-  
-  val material = Monster.material.clone()
 
-  val sprite = new Sprite(material)
-  sprite.scale.set(1.4, 1.4, 1)
-
-  var mesh: Group = new Group()
+  var mesh: Object3D = new Object3D()
+  var eyeMesh: Option[Object3D] = None
 
   var anim = 0.0
   var yScale = 0.0
   var rotate = 0.0
   
-  val shadowSize = 1.0
+  val shadowSize = .8
   
   def init(context: DrawingContext): Unit = {
-    context.scene.add(sprite)
     context.scene.add(mesh)
     initShadow(context)
     anim = 200.0 * Math.random()
     setState(Idle(2000 + 2000 * Math.random()))
+    viewDirection = Direction.randomDirection()
   }
   
   def clear(context: DrawingContext): Unit = {
-    context.scene.remove(sprite)
     context.scene.remove(mesh)
     clearShadow(context)
   }
   
   def update(deltaTime: Double): Unit = {
     // check whether something might push the monster away
-    if (!state.isInstanceOf[PushedTo] 
+    if (!state.isInstanceOf[PushedTo]
         && map.intersectsLevel(positionOnMap)) {
       val tar = map.mapPosToVec(
           map.findNextFreeField(positionOnMap))
@@ -91,11 +74,9 @@ class Monster(protected val map: GameMap)
     anim += .1 * deltaTime
     
     if (anim % 200 < 20.0) {
-      material.map = Monster.textureBlink
-      material.needsUpdate = true
+      eyeMesh.foreach( e => e.scale.y = .2)
     } else {
-      material.map = Monster.texture
-      material.needsUpdate = false
+      eyeMesh.foreach( e => e.scale.y = 1.0)
     }
     
     state match {
@@ -115,11 +96,12 @@ class Monster(protected val map: GameMap)
                setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
              }
           }
-        } else markovIf (0.05 / (strollCoolDown + 1)) {
+        } else markovIf (0.0035) {
           // move into an arbitrary direction
-          val tar = Direction.toVec(
-              Direction.randomDirection()
-            ).add(position)
+          viewDirection = Direction.randomDirection()
+        }.markovElseIf (0.05 / (strollCoolDown + 1)) {
+          // move into an arbitrary direction
+          val tar = Direction.toVec(viewDirection).add(position)
           if (!map.intersectsLevel(tar, considerObstacles = true)) {
             setState(MoveTo(tar))
           }
@@ -127,7 +109,8 @@ class Monster(protected val map: GameMap)
           s.strollCoolDown = Math.max(s.strollCoolDown - deltaTime, 0.0)
         }
       case MoveTo(tar) =>
-        if (map.intersectsLevel(tar, considerObstacles = false)) {
+        if (map.intersectsLevel(tar, considerObstacles = false) ||
+          map.getObjectsAt(map.vecToMapPos(tar)).exists(o => o != this && o.isInstanceOf[Monster])) {
           // if tile became blocked while moving there, turn around.
           setState(MoveTo(position.clone().round()))
         } else {
@@ -135,7 +118,6 @@ class Monster(protected val map: GameMap)
           yScale = approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
           rotate = approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
 
-          mesh.lookAt(tar)
           val speed = .001 * deltaTime
           val newX = approach(position.x, tar.x, speed)
           val newY = approach(position.y, 0, speed)
@@ -191,24 +173,43 @@ class Monster(protected val map: GameMap)
           setPosition(newX, 0, newZ)
         }
     }
-    //sprite.position.set(position.x, position.y + .2, position.z + .3)
-    sprite.scale.set(1.4 - yScale * .5, 1.4 + yScale, 1)
-    sprite.material.asInstanceOf[SpriteMaterial].rotation = rotate
 
     Monster.monsterMesh.foreach { m =>
       if (mesh.children.isEmpty) {
         m.children.foreach(c => mesh.add(c.clone()))
+        val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
+        val matMap = mat.map.clone()
+        matMap.offset = new Vector2(Math.random(), 0)
+        mat.color = new Color(.75 + .25 * Math.random(), .75 + .25 * Math.random(), .5 + .5 * Math.random())
+        mat.map = matMap
+        mesh.getChildByName("Body").asInstanceOf[Mesh].material = mat
+        matMap.needsUpdate = true
+        mat.needsUpdate = true
+        eyeMesh = Some(mesh.getObjectByName("Eyes"))
       }
     }
-    mesh.position.set(position.x, position.y + .2, position.z + .3)
+    mesh.position.set(position.x, position.y + .2, position.z)
+    mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
+    mesh.rotation.y = approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
+    mesh.rotation.z = rotate
     updateShadow()
   }
   
-  def approach(src: Double, tar: Double, speed: Double) =
-    if (Math.abs(tar - src) <= speed) tar else src + speed * Math.signum(tar - src)
-  
+  def approach(src: Double, tar: Double, speed: Double, wraparound: Double = 0.0) = {
+    var diff = tar - src
+    if (wraparound != 0 && diff > wraparound * .5) diff -= wraparound
+    if (wraparound != 0 && diff < -wraparound * .5) diff += wraparound
+    if (Math.abs(diff) <= speed) tar else src + speed * Math.signum(diff)
+  }
+
   def setState(newState: State): Unit = {
     state = newState match {
+      case s @ JumpTo(tar, from, ySpeed) =>
+        viewDirection = Direction.fromVec(tar.clone().sub(position))
+        s
+      case s @ ChargeJumpTo(tar, progress) =>
+        viewDirection = Direction.fromVec(tar.clone().sub(position))
+        s
       case s => s
     }
   }

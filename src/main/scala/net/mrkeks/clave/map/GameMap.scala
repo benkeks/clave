@@ -84,7 +84,7 @@ class GameMap(val width: Int, val height: Int)
   groundMaterial.map = groundShadowTexture
   
   DrawingContext.textureLoader.load("gfx/grass.png", { tex: Texture =>
-    tex.repeat.set(4.0, 4.0)
+    tex.repeat.set(2.0, 2.0)
     tex.wrapS = THREE.RepeatWrapping
     tex.wrapT = THREE.RepeatWrapping
     groundMaterial.lightMap = tex

@@ -8,7 +8,7 @@ import net.mrkeks.clave.map.MapData
 object PositionedObjectData {
   object Direction extends Enumeration {
     val Up, Down, Left, Right = Value
-    
+
     /** converts vector to four-way direction (in x-z-plane)
      *  prioritizes up-down movement; defaults to Down */
     def fromVec(v: Vector3) = {
@@ -22,12 +22,19 @@ object PositionedObjectData {
         Down
       }
     }
-    
+
     def toVec(d: Direction.Value) = d match {
       case Up    => new Vector3( 0, 0,-1)
       case Down  => new Vector3( 0, 0, 1)
       case Left  => new Vector3(-1, 0, 0)
       case Right => new Vector3( 1, 0, 0)
+    }
+
+    def toRadians(d: Direction.Value) = d match {
+      case Up    => 0
+      case Down  => Math.PI
+      case Left  => Math.PI * .5
+      case Right => Math.PI * 1.5
     }
 //    
 //    def fromRnd(rnd: Double) = {
@@ -75,4 +82,8 @@ trait PositionedObjectData  {
       None
     }
   }
+
+  import PositionedObjectData.Direction
+
+  var viewDirection = Direction.Down
 }

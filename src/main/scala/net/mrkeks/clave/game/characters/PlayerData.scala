@@ -25,11 +25,8 @@ object PlayerData extends PositionedObjectData {
 trait PlayerData extends GameObjectData with PositionedObjectData {
   
   import PlayerData._
-  import PositionedObjectData.Direction
   
   val direction = new Vector3()
-  
-  var viewDirection = Direction.Down
   
   var state: State = Idle()
   

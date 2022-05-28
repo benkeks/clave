@@ -10,6 +10,7 @@ class GLTFLoader extends Loader {
 }
 
 @js.native
+@JSGlobal("THREE.GLTF")
 class GLTF extends js.Object {
   def scene: Scene  = js.native
 }
