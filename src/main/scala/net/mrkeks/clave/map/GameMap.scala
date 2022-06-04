@@ -263,9 +263,9 @@ class GameMap(val width: Int, val height: Int)
       if (isTileBlocked(x, z))
         0x021f | overlay
       else if (x > 0 && isTileBlocked(x-1, z))
-        0x191f | overlay 
+        0x181f | overlay 
       else
-        0x1d2f | overlay
+        0x1c2f | overlay
     )
     groundShadowTexture.needsUpdate = true
   }
