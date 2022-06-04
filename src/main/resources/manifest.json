@@ -1,7 +1,7 @@
 {
     "short_name": "Clave",
     "name": "Clave",
-    "start_url": "index-dev.html",
+    "start_url": "index.html",
     "display": "standalone",
     "orientation": "landscape"
 }
