@@ -10,6 +10,7 @@ import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.map.LevelDownloader
+import net.mrkeks.clave.game.objects.CrateData
 
 trait GameLevelLoader {
   self: GameObjectManagement =>
@@ -54,38 +55,50 @@ trait GameLevelLoader {
     // for now add all triggers and gates to one big group for the whole level.
     val triggerGroup = new TriggerGroup
     add(triggerGroup)
-    
+
+    def objKindsFromTile(tileType: MapData.Tile) = tileType match {
+      case MapData.Tile.Crate => List("crate")
+      case MapData.Tile.Monster => List("monster")
+      case MapData.Tile.GateOpen => List("gate_open")
+      case MapData.Tile.GateClosed => List("gate_closed")
+      case MapData.Tile.Trigger => List("trigger")
+      case MapData.Tile.TriggerWithCrate => List("trigger", "crate")
+      case _ => List()
+    }
+
     // add level elements
-    def factoryConstruct(tileType: MapData.Tile) = tileType match {
-      case MapData.Tile.Crate =>
+    def factoryConstruct(objKind: String) = objKind match {
+      case "crate" =>
         List(new Crate(map))
-      case MapData.Tile.Monster =>
+      case "crate_player" =>
+        List(new Crate(map, kind = CrateData.PlayerLikeKind))
+      case "monster" =>
         List(new Monster(map))
-      case MapData.Tile.GateOpen | MapData.Tile.GateClosed =>
+      case "gate_open" | "gate_closed" =>
         val gate = new Gate(map)
         triggerGroup.addGate(gate)
         List(gate)
-      case MapData.Tile.Trigger =>
+      case "trigger" =>
         val trigger = new Trigger(map)
         triggerGroup.addTrigger(trigger)
         List(trigger)
-      case MapData.Tile.TriggerWithCrate =>
-        val trigger = new Trigger(map)
-        triggerGroup.addTrigger(trigger)
-        val crate = new Crate(map)
-        List(trigger, crate)
       case _ =>
         List()
     }
-    
-    positions.foreach { case (tileType: MapData.Tile, pos: List[(Int,Int)]) =>
-      pos.foreach { case (x,z) =>
-        factoryConstruct(tileType).foreach { obj =>
-          obj.setPosition(x, 0, z)
-          obj match {case c: Crate => c.place(x, z) case _ => }
-          add(obj)
-        }
-      }
+
+    val tileObjects = for {
+      (tileType: MapData.Tile, pos: List[(Int,Int)]) <- positions
+      (x,z) <- pos
+      kind <- objKindsFromTile(tileType)
+    } yield Level.ObjectInfo(kind, x, z)
+
+    for {
+      Level.ObjectInfo(kind, x, z) <- tileObjects ++ level.objects
+      obj <- factoryConstruct(kind)
+    } {
+      obj.setPosition(x, 0, z)
+      obj match {case c: Crate => c.place(x, z) case _ => }
+      add(obj)
     }
   }
 }
