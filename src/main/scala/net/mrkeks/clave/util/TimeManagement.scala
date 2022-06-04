@@ -39,7 +39,11 @@ trait TimeManagement {
   }
 
   def schedule(time: Double)(action: () => Unit) = {
-    val pos = if (scheduledActions.isEmpty) 0 else scheduledActions.indexWhere(_._1 > time)
-    scheduledActions.insert(pos, (time, action))
+    val pos = if (scheduledActions.isEmpty) 0 else scheduledActions.indexWhere(_._1 >= time)
+    if (pos == -1) {
+      scheduledActions.append((time, action))
+    } else {
+      scheduledActions.insert(pos, (time, action))
+    }
   }
 }

@@ -29,14 +29,16 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     
   var map: GameMap = null
   
-  var player: Player = null
+  var player: Option[Player] = None
   
   var playerControl: PlayerControl = null
+
+  val levelScores = collection.mutable.Map[String, Int]()
 
   gui.registerGame(this)
 
   def getPlayerPositions = {
-    player.getPositionOnMap.toList
+    player.flatMap(_.getPositionOnMap).toList
   }
   
   def update(timeStamp: Double): Unit = {
@@ -64,7 +66,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           removeAllMarkedForDeletion()
         }
         
-        if (player.state.isInstanceOf[PlayerData.Dead]) {
+        if (player.isDefined && player.get.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost())
         } else {
           checkVictory()
@@ -72,7 +74,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Paused() =>
         //
       case s @ Won(score, victoryDrawX, victoryDrawZ) =>
-        val (x, z) = player.getPositionOnMap.getOrElse((0,0))
+        val (x, z) = getPlayerPositions.headOption.getOrElse((0,0))
         for (i <- (0 to (deltaTime / 4).toInt)) {
           map.victoryLighting(x+s.victoryDrawX, z+s.victoryDrawZ)
           map.victoryLighting(x+s.victoryDrawX, z-s.victoryDrawZ)
@@ -90,16 +92,19 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Lost() =>
         gameObjects.foreach(_.update(deltaTime))
       case Continuing() =>
-        player.update(deltaTime)
-        if (player.getPosition.y > 50) {
-          unloadLevel()
-          loadLevel(levelId)
-          setState(Running())
+        player.foreach { p => 
+          p.update(deltaTime)
+          if (p.getPosition.y > 50) {
+            switchLevelById(nextLevelId)
+            setState(Running())
+          }
         }
     }
 
-    val y = player.getPosition.y
-    context.cameraUpdatePosition(new Vector3(14 * Math.sin(.03 * y), 2.0 * y, 10 - 10 * Math.cos(.03 * y)))
+    player.foreach { p => 
+      val y = p.getPosition.y
+      context.cameraUpdatePosition(new Vector3(14 * Math.sin(.03 * y), 2.0 * y, 10 - 10 * Math.cos(.03 * y)))
+    }
   }
   
   def setState(newState: State): Unit = {
@@ -151,17 +156,22 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
       input.keyPressListener.subtractOne(" ", continueLevel _)
       gui.setPopup("")
-      levelId += (if (state.isInstanceOf[Won]) 1 else 0)
-      player.setState(PlayerData.Spawning(ySpeed = 0.07))
+      currentLevelNum += (if (state.isInstanceOf[Won]) 1 else 0)
+      nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
+      player.foreach(_.setState(PlayerData.Spawning(ySpeed = 0.07)))
       setState(Continuing())
     }
   }
   
-  override def loadLevel(id: Int): Unit = {
-    super.loadLevel(id)
-    for (l <- currentLevel) gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
-    playerControl = new PlayerControl(player, input)
-    player.setState(PlayerData.Spawning(ySpeed = -.06))
+  def switchLevelById(id: String): Unit = {
+    unloadLevel()
+    loadLevelById(id)
+    for (l <- currentLevel) {
+      if (!levelScores.isDefinedAt(l.name)) levelScores(l.name) = 0
+      gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
+    }
+    playerControl = new PlayerControl(player.get, input)
+    player.get.setState(PlayerData.Spawning(ySpeed = -.06))
   }
 
   def togglePause() = {

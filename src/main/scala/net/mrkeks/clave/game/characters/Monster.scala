@@ -184,7 +184,7 @@ class Monster(protected val map: GameMap)
         matMap.offset = new Vector2(Math.random(), 0)
         mat.color = new Color(.75 + .25 * Math.random(), .75 + .25 * Math.random(), .5 + .5 * Math.random())
         mat.map = matMap
-        mesh.getChildByName("Body").asInstanceOf[Mesh].material = mat
+        mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
         matMap.needsUpdate = true
         mat.needsUpdate = true
         eyeMesh = Some(mesh.getObjectByName("Eyes"))

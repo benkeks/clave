@@ -14,25 +14,26 @@ import net.mrkeks.clave.game.objects.CrateData
 
 trait GameLevelLoader {
   self: GameObjectManagement =>
-    
-  var levelId: Int
-  var player: Player
+
+  var nextLevelId: String = ""
+  var player: Option[Player]
   var map: GameMap
   val levelDownloader: LevelDownloader
+  var currentLevelNum: Int = 0
   var currentLevel: Option[Level] = None
 
   def unloadLevel(): Unit = {
     clear()
   }
-  
-  def loadLevel(id: Int): Unit = {
-    levelId = id
-    for (level <- levelDownloader.getLevelByNum(levelId)) {
+
+  def loadLevelById(levelId: String): Unit = {
+    for (level <- levelDownloader.getLevelById(levelId)) {
+      currentLevelNum = levelDownloader.getNumById(levelId)
       loadLevel(level)
     }
   }
-  
-  def loadLevel(level: Level): Unit = {
+
+  private def loadLevel(level: Level): Unit = {
     currentLevel = Some(level)
     map = new GameMap(level.width, level.height)
 
@@ -41,15 +42,16 @@ trait GameLevelLoader {
     val positions = map.loadFromString(level.mapCsv)
     map.updateView()
     add(map)
-    
-    player = new Player(map)
-    add(player)
+
+    val newPlayer = new Player(map)
+    add(newPlayer)
+    player = Some(newPlayer)
     
     for {
       playerPositions <- positions.get(MapData.Tile.Player)
       (x, z) <- playerPositions.headOption
     } {
-      player.setPosition(x, 400, z)
+      newPlayer.setPosition(x, 400, z)
     }
     
     // for now add all triggers and gates to one big group for the whole level.

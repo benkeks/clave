@@ -19,7 +19,7 @@ class Editor(val context: DrawingContext, val input: Input, val gui: EditorGUI, 
   
   var levelId: Int = 0
   
-  var player: characters.Player = null
+  var player: Option[characters.Player] = None
 
   var map: GameMap = null
 

@@ -13,6 +13,14 @@ class LevelDownloader {
     if (num >= levelList.length) None else levelStash.get(levelList(num))
   }
 
+  def getLevelIdByNum(num: Int): String = {
+    levelList.lift(num).getOrElse(levelList(0))
+  }
+
+  def getLevelById(id: String): Option[Level] = levelStash.get(id)
+
+  def getNumById(id: String): Int = levelList.indexOf(id)
+
   def downloadWorld(url: String)(continuation: => Any) = {
     val (urlDir, fileName) = url.splitAt(url.lastIndexOf('/') + 1)
     for {

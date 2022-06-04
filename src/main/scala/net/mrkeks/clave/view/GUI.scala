@@ -23,6 +23,18 @@ class GUI() extends TimeManagement {
   pauseButton.addEventListener("click", clickPause _)
   hudContainer.appendChild(pauseButton)
 
+  private val switchButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
+  switchButton.classList.add("btn")
+  switchButton.classList.add("btn-secondary")
+  switchButton.classList.add("d-none")
+  switchButton.appendChild(dom.document.createTextNode("Switch Level"))
+  switchButton.addEventListener("click", clickSwitch _)
+  hudContainer.appendChild(switchButton)
+
+  private val levelList = dom.document.createElement("div")
+  levelList.id = "level-list"
+  hudContainer.appendChild(levelList)
+
   private val overlay = dom.document.createElement("div")
   overlay.id = "overlay"
   hudContainer.appendChild(overlay)
@@ -38,6 +50,15 @@ class GUI() extends TimeManagement {
 
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
+
+    game.levelDownloader.levelList.foreach { levelName =>
+      val levelButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
+      levelButton.classList.add("btn")
+      levelButton.classList.add("btn-secondary")
+      levelButton.appendChild(dom.document.createTextNode(levelName))
+      levelButton.addEventListener("click", selectLevel(levelName) _)
+      levelList.appendChild(levelButton)
+    }
   }
 
   def setScore(score: Int): Unit = {
@@ -74,17 +95,43 @@ class GUI() extends TimeManagement {
     pauseButton.blur()
   }
 
+  def clickSwitch(ev: org.scalajs.dom.raw.Event): Unit = {
+    game foreach (_.setState(Game.LevelScreen()))
+    switchButton.blur()
+  }
+
+  def selectLevel(levelName: String)(ev: org.scalajs.dom.raw.Event): Unit = {
+    game foreach { g =>
+      g.switchLevelById(levelName)
+      g.setState(Game.Running())
+    }
+    ev.target.asInstanceOf[dom.raw.HTMLElement].blur()
+  }
+
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = "Pause"
     game map (_.state) match {
       case Some(Game.Paused()) =>
         pauseButtonText.textContent = "Continue"
+        showHide(switchButton, show = true)
       case Some(Game.Continuing()) =>
         overlay.classList.remove("scene-fadein")
         overlay.classList.add("scene-fadeout")
+        showHide(switchButton, show = false)
       case _ =>
         overlay.classList.remove("scene-fadeout")
         overlay.classList.add("scene-fadein")
+        showHide(switchButton, show = false)
+    }
+  }
+
+  private def showHide(button: dom.raw.HTMLElement, show: Boolean = true) = {
+    if (show) {
+      button.classList.remove("d-none")
+      button.classList.add("d-block")
+    } else {
+      button.classList.remove("d-block")
+      button.classList.add("d-none")
     }
   }
 }

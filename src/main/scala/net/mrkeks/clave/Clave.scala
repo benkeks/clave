@@ -36,8 +36,8 @@ object Clave {
         val gui = new EditorGUI()
 
         val editor: Editor = new Editor(context, input, gui, levelDownloader)
-
-        editor.loadLevel(configuration.startLevel)
+        val firstLevelId = levelDownloader.levelList(configuration.startLevel)
+        editor.loadLevelById(firstLevelId)
 
         def update(timeStamp: Double): Unit = {
           editor.update(timeStamp)
@@ -51,9 +51,9 @@ object Clave {
         val gui = new GUI()
 
         val game: Game = new Game(context, input, gui, levelDownloader)
-
-        game.loadLevel(configuration.startLevel)
-        game.setState(Game.Running())
+        levelDownloader.levelList.foreach(game.levelScores(_) = 0)
+        game.setState(Game.LevelScreen())
+        game.nextLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
 
         def update(timeStamp: Double): Unit = {
           game.update(timeStamp)
