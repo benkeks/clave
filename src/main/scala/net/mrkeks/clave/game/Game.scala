@@ -116,6 +116,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Continuing() =>
       case Won(levelScore, _, _) =>
         score += levelScore
+        levelScores(nextLevelId) = levelScore
         gui.setScore(score)
         gui.setPopup(s"""
           <div class='message'>
@@ -167,7 +168,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     unloadLevel()
     loadLevelById(id)
     for (l <- currentLevel) {
-      if (!levelScores.isDefinedAt(l.name)) levelScores(l.name) = 0
+      if (!levelScores.isDefinedAt(id)) levelScores(id) = 0
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
     }
     playerControl = new PlayerControl(player.get, input)

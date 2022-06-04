@@ -4,6 +4,8 @@ import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.map.LevelPreviewer
 import net.mrkeks.clave.util.TimeManagement
 
+import scala.collection.mutable.Map
+
 import org.scalajs.dom
 
 class GUI() extends TimeManagement {
@@ -36,6 +38,7 @@ class GUI() extends TimeManagement {
   private val levelList = dom.document.createElement("div")
   levelList.id = "level-list"
   hudContainer.appendChild(levelList)
+  private val levelButtons = scala.collection.mutable.Map[String, dom.raw.HTMLElement]()
 
   private val overlay = dom.document.createElement("div")
   overlay.id = "overlay"
@@ -68,8 +71,13 @@ class GUI() extends TimeManagement {
       icon.height = level.height * 3
       levelButton.appendChild(icon)
       levelButton.appendChild(dom.document.createTextNode(level.name))
+      val span = dom.document.createElement("span").asInstanceOf[dom.raw.HTMLSpanElement]
+      span.classList.add("score")
+      span.appendChild(dom.document.createTextNode("(0)"))
+      levelButton.appendChild(span)
       levelButton.addEventListener("click", selectLevel(levelId) _)
       levelList.appendChild(levelButton)
+      levelButtons(levelId) = levelButton
     }
   }
 
@@ -120,10 +128,22 @@ class GUI() extends TimeManagement {
     ev.target.asInstanceOf[dom.raw.HTMLElement].blur()
   }
 
+  def updateLevelListDisplay(game: Game) = {
+    levelButtons.foreach { case (id, btn) =>
+      if (game.levelScores.isDefinedAt(id)) {
+        btn.classList.remove("d-none")
+        btn.children(1).innerText = s"(${game.levelScores(id)})"
+      } else {
+        btn.classList.add("d-none")
+      }
+    }
+  }
+
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = "Pause"
     game map (_.state) match {
       case Some(Game.LevelScreen()) =>
+        updateLevelListDisplay(game.get)
         levelList.classList.add("visible")
         showHide(switchButton, show = false)
       case Some(Game.Paused()) =>

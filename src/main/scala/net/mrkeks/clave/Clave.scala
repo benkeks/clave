@@ -51,9 +51,9 @@ object Clave {
         val gui = new GUI()
 
         val game: Game = new Game(context, input, gui, levelDownloader)
-        levelDownloader.levelList.foreach(game.levelScores(_) = 0)
-        game.setState(Game.LevelScreen())
         game.nextLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
+        game.levelScores(game.nextLevelId) = 0
+        game.setState(Game.LevelScreen())
 
         def update(timeStamp: Double): Unit = {
           game.update(timeStamp)
