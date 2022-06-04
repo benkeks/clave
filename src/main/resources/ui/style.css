@@ -70,6 +70,10 @@ body {
   height: 130px;
   margin: 5px;
 }
+#level-list .level-sel img {
+  display: block;
+  margin: auto;
+}
 
 .scene-fadeout {
   background: rgb(40,10,40);

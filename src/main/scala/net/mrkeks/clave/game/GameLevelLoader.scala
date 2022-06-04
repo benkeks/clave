@@ -39,7 +39,7 @@ trait GameLevelLoader {
 
     context.adjustCameraForMap(level.width, level.height)
 
-    val positions = map.loadFromString(level.mapCsv)
+    val positions = map.loadFromArray(level.mapData)
     map.updateView()
     add(map)
 

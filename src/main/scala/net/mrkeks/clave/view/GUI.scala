@@ -1,8 +1,10 @@
 package net.mrkeks.clave.view
 
 import net.mrkeks.clave.game.Game
-import org.scalajs.dom
+import net.mrkeks.clave.map.LevelPreviewer
 import net.mrkeks.clave.util.TimeManagement
+
+import org.scalajs.dom
 
 class GUI() extends TimeManagement {
 
@@ -51,12 +53,20 @@ class GUI() extends TimeManagement {
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
 
+    val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.raw.HTMLCanvasElement]
+    val renderingContext = tmpDrawingCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    val levelPreviewer = new LevelPreviewer(renderingContext)
     game.levelDownloader.levelList.foreach { levelId =>
       val level = game.levelDownloader.getLevelById(levelId).get
       val levelButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
       levelButton.classList.add("btn")
       levelButton.classList.add("btn-secondary")
       levelButton.classList.add("level-sel")
+      val icon = dom.document.createElement("img").asInstanceOf[dom.raw.HTMLImageElement]
+      icon.src = levelPreviewer.getBase64(level)
+      icon.width = level.width * 3
+      icon.height = level.height * 3
+      levelButton.appendChild(icon)
       levelButton.appendChild(dom.document.createTextNode(level.name))
       levelButton.addEventListener("click", selectLevel(levelId) _)
       levelList.appendChild(levelButton)

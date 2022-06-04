@@ -27,21 +27,14 @@ trait MapData {
   /** To be implemented by class defining the dynamic level elements. */
   def isObstacleAt(xz: (Int, Int)): Boolean
   
-  /** loads a map from a CSV string representation
-   *  returns a list of special positions like starting positions of players or monsters */
-  def loadFromString(strData: String) = {
-    val rawArray = strData
-      .split("\n")              // split by lines
-      .map(_.split(","))        // split by columns
-      .map(_.map(_.trim.toInt)) // convert to int
-      
+  /** returns a list of special positions like starting positions of players or monsters */
+  def loadFromArray(mapData: Array[Array[Int]]) = {
     var specialTiles = List[(Tile, (Int, Int))]()
-      
     for (z <- 0 until height) {
       for (x <- 0 until width) {
-        val tile = Tile(rawArray(z)(x))
+        val tile = Tile(mapData(z)(x))
         tile match {
-          case Tile.Crate | Tile.Player | Tile.Monster 
+          case Tile.Crate | Tile.Player | Tile.Monster
              | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.TriggerWithCrate =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty

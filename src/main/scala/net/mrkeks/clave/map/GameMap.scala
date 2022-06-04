@@ -3,7 +3,6 @@ package net.mrkeks.clave.map
 import scala.collection.mutable.MultiDict
 import scala.scalajs.js
 import scala.scalajs.js.Any.jsArrayOps
-import scala.scalajs.js.typedarray.Uint8Array
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.DataTexture
 import org.denigma.threejs.Geometry
