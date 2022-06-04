@@ -54,6 +54,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
     state match {
       case StartUp() =>
+      case LevelScreen() =>
       case Running() =>
         playerControl.update(deltaTime)
 
@@ -104,6 +105,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   def setState(newState: State): Unit = {
     newState match {
       case StartUp() =>
+      case LevelScreen() =>
       case Running() =>
       case Paused() =>
       case Continuing() =>
@@ -120,7 +122,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           </div>""")
         input.keyPressListener.addOne(" ", continueLevel _)
       case Lost() => 
-        score -= 50
+        score = Math.max(0, score - 50)
         gui.setScore(score)
         gui.setPopup(s"""
           <div class='message'>
@@ -174,6 +176,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 object Game {
   abstract sealed class State
   case class StartUp() extends State
+  case class LevelScreen() extends State
   case class Running() extends State
   case class Paused() extends State
   case class Won(levelScore: Int, var victoryDrawX: Int, var victoryDrawZ: Int) extends State
