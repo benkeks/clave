@@ -32,7 +32,7 @@ body {
   pointer-events: none;
 }
 
-#popup {
+#popup, #level-list {
   font-size: 2.5em;
   color: white;
   text-shadow: 0 0 5px black;
@@ -44,17 +44,31 @@ body {
   display: block;
   opacity: 0;
   text-align: center;
+}
+#popup {
   pointer-events: none;
 }
+#level-list {
+  display: none;
+  top: 50%;
+  width: 90%;
+}
 
-#popup.visible {
+#popup.visible, #level-list.visible {
   transform: translateX(-50%) translateY(-40%) scale(1);
   opacity: 1;
+  display: block;
   transition: transform 800ms, opacity 800ms;
 }
 
 #popup .level-name {
   margin-top: 100%;
+}
+
+#level-list .level-sel {
+  width: 130px;
+  height: 130px;
+  margin: 5px;
 }
 
 .scene-fadeout {

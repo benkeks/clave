@@ -51,12 +51,14 @@ class GUI() extends TimeManagement {
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
 
-    game.levelDownloader.levelList.foreach { levelName =>
+    game.levelDownloader.levelList.foreach { levelId =>
+      val level = game.levelDownloader.getLevelById(levelId).get
       val levelButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
       levelButton.classList.add("btn")
       levelButton.classList.add("btn-secondary")
-      levelButton.appendChild(dom.document.createTextNode(levelName))
-      levelButton.addEventListener("click", selectLevel(levelName) _)
+      levelButton.classList.add("level-sel")
+      levelButton.appendChild(dom.document.createTextNode(level.name))
+      levelButton.addEventListener("click", selectLevel(levelId) _)
       levelList.appendChild(levelButton)
     }
   }
@@ -111,16 +113,22 @@ class GUI() extends TimeManagement {
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = "Pause"
     game map (_.state) match {
+      case Some(Game.LevelScreen()) =>
+        levelList.classList.add("visible")
+        showHide(switchButton, show = false)
       case Some(Game.Paused()) =>
         pauseButtonText.textContent = "Continue"
+        levelList.classList.remove("visible")
         showHide(switchButton, show = true)
       case Some(Game.Continuing()) =>
         overlay.classList.remove("scene-fadein")
         overlay.classList.add("scene-fadeout")
+        levelList.classList.remove("visible")
         showHide(switchButton, show = false)
       case _ =>
         overlay.classList.remove("scene-fadeout")
         overlay.classList.add("scene-fadein")
+        levelList.classList.remove("visible")
         showHide(switchButton, show = false)
     }
   }
