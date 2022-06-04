@@ -143,6 +143,7 @@ class GUI() extends TimeManagement {
     pauseButtonText.textContent = "Pause"
     game map (_.state) match {
       case Some(Game.LevelScreen()) =>
+        pauseButtonText.textContent = "Continue"
         updateLevelListDisplay(game.get)
         levelList.classList.add("visible")
         showHide(switchButton, show = false)

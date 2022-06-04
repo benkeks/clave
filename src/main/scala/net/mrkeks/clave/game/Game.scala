@@ -179,6 +179,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     state match {
       case Paused() => setState(Running())
       case Running() => setState(Paused())
+      case LevelScreen() => {
+        if (map == null) switchLevelById(nextLevelId)
+        setState(Running())
+      }
       case _ =>
     }
   }
