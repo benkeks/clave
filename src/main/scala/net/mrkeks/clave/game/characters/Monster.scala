@@ -7,6 +7,7 @@ import net.mrkeks.clave.game.ObjectShadow
 import net.mrkeks.clave.game.PositionedObject
 import net.mrkeks.clave.game.PositionedObjectData
 import net.mrkeks.clave.game.PlaceableObject
+import net.mrkeks.clave.game.objects.{Crate, CrateData}
 
 import net.mrkeks.clave.util.markovIf
 import net.mrkeks.clave.util.Mathf
@@ -83,8 +84,11 @@ class Monster(protected val map: GameMap)
       case s @ Idle(strollCoolDown) =>
         val neighboringPlayers = for {
           pos <- map.getAdjacentPositions(positionOnMap)
-          player <- map.getObjectsAt(pos).collect {case p: Player => p }
-        } yield (pos, player)
+          playerLikeObject <- map.getObjectsAt(pos).collect {
+            case p: Player if p.isAlive => p
+            case c: Crate if c.kind == CrateData.PlayerLikeKind => c
+          }
+        } yield (pos, playerLikeObject)
         
         yScale = Mathf.approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
@@ -92,9 +96,7 @@ class Monster(protected val map: GameMap)
         if (neighboringPlayers.nonEmpty) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
-             if (p.isAlive) {
-               setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
-             }
+            setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
           }
         } else markovIf (0.0035) {
           // move into an arbitrary direction
