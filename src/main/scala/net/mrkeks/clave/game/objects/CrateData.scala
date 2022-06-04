@@ -8,6 +8,10 @@ object CrateData {
   abstract sealed class State
   case class Standing() extends State
   case class Carried(by: PlayerData) extends State
+
+  abstract sealed class Kind
+  case object DefaultKind extends Kind
+  case object PlayerLikeKind extends Kind
 }
 
 trait CrateData
@@ -16,4 +20,6 @@ trait CrateData
   import CrateData._
   
   var state: State = Standing()
+
+  val kind: Kind
 }

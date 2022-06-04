@@ -12,26 +12,44 @@ import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.game.characters.Monster
 import org.denigma.threejs.BoxHelper
 import net.mrkeks.clave.game.PlaceableObject
+import org.denigma.threejs.Material
+import org.denigma.threejs.Texture
 
 object Crate {
-  private val material = new MeshLambertMaterial()
-  material.color.setHex(0xdddd99)
-  
+  private val materials = Map[CrateData.Kind, Material](
+    CrateData.DefaultKind -> {
+      val m = new MeshLambertMaterial()
+      m.color.setHex(0xdddd99)
+      m
+    },
+    CrateData.PlayerLikeKind -> {
+      val m = new MeshLambertMaterial()
+      DrawingContext.textureLoader.load("gfx/player_monster_texture.png", { tex: Texture =>
+        m.map = tex
+        m.needsUpdate = true
+      })
+      m.color.setHex(0xdddd99)
+      m
+    }
+  )
+
   private val box = new BoxGeometry(.95, .95, .95)
   
   def clear(): Unit = {
-    material.dispose()
+    materials.values.foreach(_.dispose())
     box.dispose()
   }
 }
 
-class Crate(protected val map: GameMap)
+class Crate(
+    protected val map: GameMap,
+    val kind: CrateData.Kind = CrateData.DefaultKind)
   extends GameObject with PlaceableObject with CrateData {
-  
+
   import CrateData._
-  
-  val mesh = new Mesh(Crate.box, Crate.material)
-  
+
+  val mesh = new Mesh(Crate.box, Crate.materials(kind))
+
   def init(context: DrawingContext): Unit = {
     mesh.rotateY(.1 - .2 * Math.random())
     context.scene.add(mesh)
@@ -52,7 +70,6 @@ class Crate(protected val map: GameMap)
         position.copy(dir add player.getPosition)
     }
     mesh.position.copy(position)
-    //mesh.position.lerp(position, .5)
   }
   
   def pickup(player: Player): Unit = {
