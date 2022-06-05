@@ -15,11 +15,12 @@ import net.mrkeks.clave.game.objects.CrateData
 trait GameLevelLoader {
   self: GameObjectManagement =>
 
-  var nextLevelId: String = ""
   var player: Option[Player]
   var map: GameMap
   val levelDownloader: LevelDownloader
+
   var currentLevelNum: Int = 0
+  def currentLevelId: String = levelDownloader.getLevelIdByNum(currentLevelNum)
   var currentLevel: Option[Level] = None
 
   def unloadLevel(): Unit = {

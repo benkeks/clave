@@ -51,8 +51,8 @@ object Clave {
         val gui = new GUI()
 
         val game: Game = new Game(context, input, gui, levelDownloader)
-        game.nextLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
-        game.levelScores(game.nextLevelId) = 0
+        val initialLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
+        game.unlockLevel(initialLevelId)
         game.setState(Game.LevelScreen())
 
         def update(timeStamp: Double): Unit = {

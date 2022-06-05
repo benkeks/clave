@@ -18,22 +18,17 @@ import net.mrkeks.clave.game.characters.PlayerData
 import org.denigma.threejs.Vector3
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
-  extends GameObjectManagement with GameLevelLoader with TimeManagement {
+  extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement {
 
   import Game._
 
   var state: State = StartUp()
-  
-  var score = 0
-  var levelId = 0
-    
+
   var map: GameMap = null
   
   var player: Option[Player] = None
   
   var playerControl: PlayerControl = null
-
-  val levelScores = collection.mutable.Map[String, Int]()
 
   gui.registerGame(this)
 
@@ -95,7 +90,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         player.foreach { p => 
           p.update(deltaTime)
           if (p.getPosition.y > 50) {
-            switchLevelById(nextLevelId)
+            switchLevelById(upcomingLevelId.get)
             setState(Running())
           }
         }
@@ -115,8 +110,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Paused() =>
       case Continuing() =>
       case Won(levelScore, _, _) =>
-        score += levelScore
-        levelScores(nextLevelId) = levelScore
+        bookScore(currentLevelId, levelScore)
         gui.setScore(score)
         gui.setPopup(s"""
           <div class='message'>
@@ -158,7 +152,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       input.keyPressListener.subtractOne(" ", continueLevel _)
       gui.setPopup("")
       currentLevelNum += (if (state.isInstanceOf[Won]) 1 else 0)
-      nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
+      val nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
+      unlockLevel(nextLevelId)
       player.foreach(_.setState(PlayerData.Spawning(ySpeed = 0.07)))
       setState(Continuing())
     }
@@ -168,7 +163,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     unloadLevel()
     loadLevelById(id)
     for (l <- currentLevel) {
-      if (!levelScores.isDefinedAt(id)) levelScores(id) = 0
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
     }
     playerControl = new PlayerControl(player.get, input)
@@ -180,7 +174,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Paused() => setState(Running())
       case Running() => setState(Paused())
       case LevelScreen() => {
-        if (map == null) switchLevelById(nextLevelId)
+        if (map == null) {
+          switchLevelById(upcomingLevelId.get)
+        }
         setState(Running())
       }
       case _ =>
