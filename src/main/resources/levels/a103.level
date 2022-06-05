@@ -1,0 +1,88 @@
+---
+name: "Red attraction"
+width: 16
+height: 16
+tilemap: |
+  0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 8, 0
+  0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 8, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+objects:
+  - kind: crate_player
+    x: 0
+    z: 3
+  - kind: crate_player
+    x: 1
+    z: 3
+  - kind: crate_player
+    x: 2
+    z: 3
+  - kind: crate_player
+    x: 3
+    z: 3
+  - kind: crate_player
+    x: 4
+    z: 3
+  - kind: crate_player
+    x: 5
+    z: 3
+  - kind: crate_player
+    x: 6
+    z: 3
+  - kind: crate_player
+    x: 7
+    z: 3
+  - kind: crate_player
+    x: 8
+    z: 3
+  - kind: crate_player
+    x: 9
+    z: 3
+  - kind: crate_player
+    x: 10
+    z: 3
+  - kind: crate_player
+    x: 11
+    z: 3
+  - kind: crate_player
+    x: 12
+    z: 3
+  - kind: crate_player
+    x: 13
+    z: 3
+  - kind: crate_player
+    x: 14
+    z: 3
+  - kind: crate_player
+    x: 15
+    z: 3
+  - kind: crate_player
+    x: 0
+    z: 6
+  - kind: crate_player
+    x: 3
+    z: 6
+  - kind: crate_player
+    x: 6
+    z: 6
+  - kind: crate_player
+    x: 9
+    z: 6
+  - kind: crate_player
+    x: 12
+    z: 6
+  - kind: crate_player
+    x: 15
+    z: 6
