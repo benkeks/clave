@@ -133,6 +133,8 @@ class GUI() extends TimeManagement {
       if (game.levelScores.isDefinedAt(id)) {
         btn.classList.remove("d-none")
         btn.children(1).innerText = s"(${game.levelScores(id)})"
+        if (game.scoreHasBeenUpdated(id))
+          btn.classList.add("score-updated")
       } else {
         btn.classList.add("d-none")
       }

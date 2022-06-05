@@ -11,6 +11,7 @@ trait ProgressTracking {
   var score = 0
 
   val levelScores = collection.mutable.LinkedHashMap[String, Int]()
+  var initialScores = collection.mutable.LinkedHashMap[String, Int]()
 
   var upcomingLevelId: Option[String] = None
 
@@ -24,6 +25,10 @@ trait ProgressTracking {
     score += levelScore
     levelScores.updateWith(levelId)(_.orElse(Some(0)).map(Math.max(_, levelScore)))
     saveProgress()
+  }
+
+  def scoreHasBeenUpdated(levelId: String): Boolean = {
+    levelScores.get(levelId).exists(newScore => initialScores.get(levelId).forall(newScore > _))
   }
 
   private def saveProgress(): Unit = {
@@ -40,18 +45,21 @@ trait ProgressTracking {
 
   def loadProgress(): Unit = {
     val txt = dom.window.localStorage.getItem(LocalStorageScoreKey)
-    val yaml = yamlesque.read(txt).obj
-    if ((Set("scores", "version", "hash") subsetOf yaml.keySet)
-      && yaml("version").str == ClaveVersion) {
-      val loadedScores = for {
-        yScores <- yaml.get("scores").toList
-        (lvlId, yamlesque.Num(lvlScore)) <- yScores.obj
-      } yield (lvlId, lvlScore.toInt)
-      levelScores.clear()
-      levelScores.addAll(loadedScores)
-    } else {
-      // invalid entry in local storage! discard it to be overwritten soon!
-      dom.window.localStorage.removeItem(LocalStorageScoreKey)
+    if (txt != null && txt != "") {
+      val yaml = yamlesque.read(txt).obj
+      if ((Set("scores", "version", "hash") subsetOf yaml.keySet)
+        && yaml("version").str == ClaveVersion) {
+        val loadedScores = for {
+          yScores <- yaml.get("scores").toList
+          (lvlId, yamlesque.Num(lvlScore)) <- yScores.obj
+        } yield (lvlId, lvlScore.toInt)
+        levelScores.clear()
+        levelScores.addAll(loadedScores)
+        initialScores = levelScores.clone()
+      } else {
+        // invalid entry in local storage! discard it to be overwritten soon!
+        dom.window.localStorage.removeItem(LocalStorageScoreKey)
+      }
     }
   }
 }
