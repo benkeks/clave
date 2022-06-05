@@ -52,6 +52,7 @@ object Clave {
 
         val game: Game = new Game(context, input, gui, levelDownloader)
         val initialLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
+        game.loadProgress()
         game.unlockLevel(initialLevelId)
         game.setState(Game.LevelScreen())
 
