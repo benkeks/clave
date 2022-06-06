@@ -216,7 +216,7 @@ class GameMap(val width: Int, val height: Int)
    *  if true returns how big the monster free region is. */
   private def computeVictory(playerPositions: List[(Int, Int)]): Int = {
     victoryCheck.foreach { row =>
-      for (i <- 0 until width) {
+      for (i <- 0 until height) {
         row(i) = false
       }
     }
