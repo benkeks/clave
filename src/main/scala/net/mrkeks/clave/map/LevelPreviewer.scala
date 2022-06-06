@@ -5,9 +5,14 @@ import org.scalajs.dom
 class LevelPreviewer(context: dom.CanvasRenderingContext2D) {
 
   val tileColor = Map[MapData.Tile, List[Int]](
-    MapData.Tile.Empty -> List(10,180,20,255),
+    MapData.Tile.Empty -> List(50,180,40,255),
     MapData.Tile.Crate -> List(200,200,160,255),
-    MapData.Tile.SolidWall -> List(100,100,110,255)
+    MapData.Tile.SolidWall -> List(100,100,110,255),
+    MapData.Tile.GateOpen -> List(140,140,140,255),
+    MapData.Tile.Trigger -> List(30,40,250,255),
+    MapData.Tile.TriggerWithCrate -> List(30,40,250,255),
+    MapData.Tile.Monster -> List(10,100,20,255),
+    MapData.Tile.Player -> List(230,10,20,255)
   ).withDefaultValue(List(255,255,255,255))
 
   protected def renderLevelThumbnail(level: Level): dom.ImageData  = {
