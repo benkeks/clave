@@ -89,7 +89,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Continuing() =>
         player.foreach { p => 
           p.update(deltaTime)
-          if (p.getPosition.y > 50) {
+          if (p.getPosition.y > 70) {
             switchLevelById(upcomingLevelId.get)
             setState(Running())
           }
@@ -98,7 +98,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
     player.foreach { p => 
       val y = p.getPosition.y
-      context.cameraUpdatePosition(new Vector3(14 * Math.sin(.03 * y), 2.0 * y, 10 - 10 * Math.cos(.03 * y)))
+      context.cameraUpdatePosition(p.getPosition)
     }
   }
   
@@ -154,7 +154,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       currentLevelNum += (if (state.isInstanceOf[Won]) 1 else 0)
       val nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
       unlockLevel(nextLevelId)
-      player.foreach(_.setState(PlayerData.Spawning(ySpeed = 0.07)))
+      player.foreach(_.setState(PlayerData.Spawning(ySpeed = 0.05)))
       setState(Continuing())
     }
   }

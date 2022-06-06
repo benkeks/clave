@@ -29,7 +29,8 @@ class DrawingContext() {
   renderer.setClearColor(new Color(0x604060))
 
   val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
-  val cameraOffset = new Vector3(0, 20, 14)
+  val cameraMin = new Vector3(0, 0, 0)
+  val cameraMax = new Vector3(0, 100, 28)
   val cameraLookAt = new Vector3()
   cameraUpdatePosition(new Vector3())
   adjustViewport()
@@ -56,8 +57,10 @@ class DrawingContext() {
     height = dom.window.innerHeight
     aspect = width / height
     renderer.setSize(width, height)
-    camera.left = 7 - (8 * aspect)
-    camera.right = 7 + (8 * aspect)
+    camera.top = 8
+    camera.bottom = -8
+    camera.left = - (8 * aspect)
+    camera.right = + (8 * aspect)
     camera.updateProjectionMatrix()
   }
 
@@ -65,15 +68,23 @@ class DrawingContext() {
     renderer.render(scene, camera)
   }
 
-  def adjustCameraForMap(mapWidth: Int, mapHeight: Int) = {
-    cameraOffset.set(.5 * mapWidth - 8, 20, .5 * mapHeight + 6)
-    cameraLookAt.x = .5 * mapWidth - 8
+  def adjustCameraForMap(mapWidth: Int, mapHeight: Int): Unit = {
+    val camSpace = 16
+    if (mapWidth > camSpace || mapHeight > camSpace) {
+      cameraMin.set(camSpace * .4, 0, camSpace * .4)
+      cameraMax.set(mapWidth - camSpace * .4, 0, mapHeight - camSpace * .4)
+    } else {
+      cameraMin.set(mapWidth / 2, 0, mapHeight / 2)
+      cameraMax.copy(cameraMin)
+    }
+
   }
 
-  def cameraUpdatePosition(lookFrom: Vector3) = {
-    camera.position.copy(lookFrom)
-    camera.position.add(cameraOffset)
-    cameraLookAt.y = .5 * lookFrom.y
-    camera.lookAt(cameraLookAt)
+  def cameraUpdatePosition(lookAt: Vector3): Unit = {
+    val zOff = 11
+    cameraLookAt.copy(lookAt).clamp(cameraMin, cameraMax)
+    val y = lookAt.y
+    camera.position.copy(cameraLookAt).add(new Vector3(14 * Math.sin(.02 * y),20,zOff))
+    camera.lookAt(cameraLookAt.clone().add(new Vector3(0, .5 * y, zOff * (1 - Math.cos(.02 * y)))))
   }
 }
