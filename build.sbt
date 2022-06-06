@@ -6,7 +6,7 @@ enablePlugins(WorkbenchPlugin)
 
 name := "Clave"
 
-version := "0.1.3"
+version := "0.1.4"
 
 scalaVersion := "2.13.1"
 
