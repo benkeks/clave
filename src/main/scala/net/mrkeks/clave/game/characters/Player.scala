@@ -129,6 +129,7 @@ class Player(protected val map: GameMap)
         mesh.position.set(position.x, position.y - 1.9 + s.deathAnim * 1.9, position.z)
         mesh.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim + .1)
         mesh.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
+        mesh.scale.setZ(mesh.scale.x)
       case _ =>
     }
     
