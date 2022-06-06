@@ -14,6 +14,7 @@ import org.denigma.threejs.BoxHelper
 import net.mrkeks.clave.game.PlaceableObject
 import org.denigma.threejs.Material
 import org.denigma.threejs.Texture
+import org.denigma.threejs.Vector3
 
 object Crate {
   private val materials = Map[CrateData.Kind, Material](
@@ -64,10 +65,9 @@ class Crate(
       case Standing() =>
         position.setY(if (touching.isEmpty) -.025 else .1)
       case Carried(player) =>
-        val dir = PositionedObjectData.Direction.toVec(player.viewDirection)
-          .multiplyScalar(.2)
-          .setY(.5)
-        position.copy(dir add player.getPosition)
+        val pos = player.asInstanceOf[Player].mesh.localToWorld(new Vector3(0,.5,-.3))
+        pos.y += .3
+        position.copy(pos)
     }
     mesh.position.copy(position)
   }

@@ -112,7 +112,7 @@ class Player(protected val map: GameMap)
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
-        anim += state.speed * deltaTime
+        anim += (state.speed * direction.length() + .001) * deltaTime
         if (crate.canBePlaced(nextField._1, nextField._2)) {
           dropPreview.visible = true
           dropPreview.position.copy(map.mapPosToVec(nextField))
@@ -140,7 +140,7 @@ class Player(protected val map: GameMap)
     if (dir.x != 0 || dir.z != 0) {
       viewDirection = Direction.fromVec(dir)
       val newPos = map.localSlideCast(position, dir,
-        bumpingDist = if (state.isInstanceOf[Carrying]) .8 else .4 )
+        bumpingDist = if (state.isInstanceOf[Carrying]) .6 else .4 )
       setPosition(newPos.x, position.y, newPos.z)
       nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos)
       updateTouch()
