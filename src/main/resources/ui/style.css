@@ -70,7 +70,7 @@ body {
   height: 130px;
   margin: 5px;
   background-color: rgba(120, 120, 120, 0.9);
-  box-shadow: 0 0 5px black;
+  /*box-shadow: 0 0 5px black;*/
 }
 #level-list .level-sel img {
   display: block;

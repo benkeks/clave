@@ -114,7 +114,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         gui.setScore(score)
         gui.setPopup(s"""
           <div class='message'>
-            <p>You have cleared the level!</p>
+            <p>Yay!</p>
             <p><strong>You scored $levelScore points.</strong></p>
           </div>
           <div>
