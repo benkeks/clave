@@ -40,11 +40,11 @@ class DrawingContext() {
   scene.add(ambient)
 
   val light = new PointLight(0xffffff, 1.0)
-  light.position.set(5,10.0,2)
+  light.position.set(5,10.0,5)
   scene.add(light)
 
-  val light2 = new PointLight(0x226644, 1.0)
-  light2.position.set(-10,-5.0,-3)
+  val light2 = new PointLight(0x113311, 1.0)
+  light2.position.set(-10.0,-10.0,-3)
   scene.add(light2)
 
   dom.window.onresize = (uiEv) => {

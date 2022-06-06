@@ -83,7 +83,7 @@ class GameMap(val width: Int, val height: Int)
   groundMaterial.map = groundShadowTexture
   
   DrawingContext.textureLoader.load("gfx/grass.png", { tex: Texture =>
-    tex.repeat.set(2.0, 2.0)
+    tex.repeat.set(1.2, 1.2)
     tex.wrapS = THREE.RepeatWrapping
     tex.wrapT = THREE.RepeatWrapping
     groundMaterial.lightMap = tex
@@ -130,14 +130,14 @@ class GameMap(val width: Int, val height: Int)
             drawingMatrix.makeTranslation(x, 0, z)
             newGeometry.merge(box, drawingMatrix, 1)
           case Tile.Empty =>
-            if (Math.random() > .95) {
+            if (Math.random() > .97) {
               // add occasional flowers
               drawingMatrix.makeTranslation(
-                    x - .25 + .5 * Math.random(),
+                    x - .4 + .5 * Math.random(),
                     -.5, 
-                    z - .25 + .5 * Math.random())
+                    z - .4 + .5 * Math.random())
                     .multiply(rotateUp)
-              val size = .5 + Math.random() * .7
+              val size = .8 + Math.random() * .7
               newGeometry.merge(new PlaneGeometry(size, size), drawingMatrix, 2)
             }
           case _ =>
@@ -262,9 +262,9 @@ class GameMap(val width: Int, val height: Int)
       if (isTileBlocked(x, z))
         0x021f | overlay
       else if (x > 0 && isTileBlocked(x-1, z))
-        0x181f | overlay 
+        0x1a3f | overlay 
       else
-        0x1c2f | overlay
+        0x5e4f | overlay
     )
     groundShadowTexture.needsUpdate = true
   }
