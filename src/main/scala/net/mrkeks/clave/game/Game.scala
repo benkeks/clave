@@ -110,11 +110,18 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Paused() =>
       case Continuing() =>
       case Won(levelScore, _, _) =>
+        val previousScore = levelScores.get(currentLevelId).getOrElse(0)
         bookScore(currentLevelId, levelScore)
-        gui.setScore(score)
+        val msgPart1 = if (previousScore == 0) {
+          "Yeah, a new success!"
+        } else if (previousScore < levelScore) {
+          "Wow, new high score!"
+        } else {
+          "Yay!"
+        }
         gui.setPopup(s"""
           <div class='message'>
-            <p>Yay!</p>
+            <p>$msgPart1</p>
             <p><strong>You scored $levelScore points.</strong></p>
           </div>
           <div>
@@ -123,7 +130,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         input.keyPressListener.addOne(" ", continueLevel _)
       case Lost() => 
         score = Math.max(0, score - 50)
-        gui.setScore(score)
         gui.setPopup(s"""
           <div class='message'>
             <p>Oh no!</p>
@@ -165,6 +171,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     for (l <- currentLevel) {
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
     }
+    gui.setLevelHighScore(levelScores(id))
     playerControl = new PlayerControl(player.get, input)
     player.get.setState(PlayerData.Spawning(ySpeed = -.06))
   }

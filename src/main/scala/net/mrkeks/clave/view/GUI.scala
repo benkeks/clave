@@ -16,7 +16,7 @@ class GUI() extends TimeManagement {
   private val scoreTextNode = dom.document.createElement("p")
   scoreTextNode.classList.add("score")
   hudContainer.appendChild(scoreTextNode)
-  private val scoreText = dom.document.createTextNode("Score: 0")
+  private val scoreText = dom.document.createTextNode("Welcome!")
   scoreTextNode.appendChild(scoreText)
 
   private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
@@ -81,8 +81,8 @@ class GUI() extends TimeManagement {
     }
   }
 
-  def setScore(score: Int): Unit = {
-    scoreText.textContent = "Score: "+score
+  def setLevelHighScore(score: Int): Unit = {
+    scoreText.textContent = "Level high score: "+score
   }
 
   /**
