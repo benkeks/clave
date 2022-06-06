@@ -146,8 +146,6 @@ class GameMap(val width: Int, val height: Int)
     }
     mesh.geometry.dispose()
     mesh.geometry = newGeometry
-    
-    println("Map geometry update: " + (js.Date.now - beginUpdate) + "ms.")
   }
   
   def clear(context: DrawingContext): Unit = {

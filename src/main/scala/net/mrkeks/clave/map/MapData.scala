@@ -134,15 +134,12 @@ trait MapData {
         (z - searchRadius + 1 until z + searchRadius).map((x - searchRadius, _)) ++
         // right
         (z - searchRadius + 1 until z + searchRadius).map((x + searchRadius, _))
-      println(frontier)
       val freeFrontier = frontier.filterNot(intersectsLevel)
       if (freeFrontier.nonEmpty) {
-        println("solution at "+searchRadius)
         return freeFrontier(Random.nextInt(freeFrontier.size))
       }
       searchRadius += 1
     }
-    println("no solution")
     xz
   }
   
