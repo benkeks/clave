@@ -27,6 +27,11 @@ body {
   color: white;
   text-shadow: 0 0 5px black;
 }
+#level-info {
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+}
 
 #overlay {
   pointer-events: none;
@@ -54,6 +59,10 @@ body {
   top: 50%;
   width: 90%;
   overflow-y: auto;
+  scroll-margin: 0;
+}
+#level-list::-webkit-scrollbar {
+  display: none;
 }
 
 #popup.visible, #level-list.visible {

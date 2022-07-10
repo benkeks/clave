@@ -14,6 +14,7 @@ class GUI() extends TimeManagement {
   hudContainer.id = "hud"
 
   private val scoreTextNode = dom.document.createElement("p")
+  scoreTextNode.id = "level-info"
   scoreTextNode.classList.add("score")
   hudContainer.appendChild(scoreTextNode)
   private val scoreText = dom.document.createTextNode("Welcome!")
