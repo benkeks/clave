@@ -23,6 +23,9 @@ class DrawingContext() {
   var height: Double = 0.0
   var aspect: Double = 1.0
 
+  /** how many game space units does the camera height cover?*/
+  var cameraSpace: Double = 16.0
+
   var renderer: WebGLRenderer = new WebGLRenderer()
   dom.document.body.appendChild(renderer.domElement)
 
@@ -56,11 +59,14 @@ class DrawingContext() {
     width = dom.window.innerWidth
     height = dom.window.innerHeight
     aspect = width / height
+    renderer.devicePixelRatio = dom.window.devicePixelRatio
     renderer.setSize(width, height)
-    camera.top = 8
-    camera.bottom = -8
-    camera.left = - (8 * aspect)
-    camera.right = + (8 * aspect)
+    val minSide = Math.min(width, height)
+    cameraSpace = if (minSide < 600) 2 + 14.0 * minSide / 600.0 else 16.0
+    camera.top = cameraSpace * .5
+    camera.bottom = cameraSpace * -.5
+    camera.left = cameraSpace * -.5 * aspect
+    camera.right = cameraSpace * .5 * aspect
     camera.updateProjectionMatrix()
   }
 
@@ -69,7 +75,7 @@ class DrawingContext() {
   }
 
   def adjustCameraForMap(mapWidth: Int, mapHeight: Int): Unit = {
-    val camSpace = 16
+    val camSpace = cameraSpace
     if (mapWidth > camSpace || mapHeight > camSpace) {
       cameraMin.set(camSpace * .4, 0, camSpace * .4)
       cameraMax.set(mapWidth - camSpace * .4, 0, mapHeight - camSpace * .4)
@@ -84,7 +90,7 @@ class DrawingContext() {
     val zOff = 11
     cameraLookAt.copy(lookAt).clamp(cameraMin, cameraMax)
     val y = lookAt.y
-    camera.position.copy(cameraLookAt).add(new Vector3(14 * Math.sin(.02 * y),20,zOff))
+    camera.position.copy(cameraLookAt).add(new Vector3((cameraSpace * .85) * Math.sin(.02 * y),20,zOff))
     camera.lookAt(cameraLookAt.clone().add(new Vector3(0, .5 * y, zOff * (1 - Math.cos(.02 * y)))))
   }
 }
