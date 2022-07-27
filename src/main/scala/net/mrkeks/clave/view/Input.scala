@@ -98,13 +98,42 @@ class Input {
         keysDown.remove(PlayerControl.DownCode)
       }
       if (!t.changedDirection && e.timeStamp - t.start < 500) {
-        keyPressListener.get(PlayerControl.ActionCharStr)
-          .foreach(cb => cb())
+        fakeAction(PlayerControl.ActionCharStr)
       }
     }
   })
 
+  private def fakeAction(keyStr: String) = {
+    keyPressListener.get(keyStr)
+      .foreach(cb => cb())
+  }
 
+  var gamepadsActive = false
+  var gamepad: Option[dom.experimental.gamepad.Gamepad] = None
+
+  def updateGamepads() = {
+    if (gamepadsActive) {
+      val gamepadNavigator = dom.experimental.gamepad.toGamepad(dom.window.navigator)
+      val gamepads = gamepadNavigator.getGamepads()
+      val oldGamepad = gamepad
+      gamepad = gamepads.headOption
+      if (gamepad == Some(null)) gamepad = None
+
+      if (oldGamepad.exists(gp => !gp.buttons(0).pressed) && gamepad.exists(_.buttons(0).pressed)) {
+        fakeAction(PlayerControl.ActionCharStr)
+      }
+    } else {
+      gamepad = None
+    }
+  }
+
+  private def toggleGamepads(ev: dom.Event) = {
+    val gamepadNavigator = dom.experimental.gamepad.toGamepad(dom.window.navigator)
+    gamepadsActive = gamepadNavigator.getGamepads().nonEmpty
+  }
+
+  dom.window.addEventListener("gamepadconnected", toggleGamepads(_))
+  dom.window.addEventListener("gamepaddisconnected", toggleGamepads(_))
 
   private def toKeyCodeInt(e: dom.KeyboardEvent) = {
     if (e.charCode == PlayerControl.ActionChar.toInt) {
@@ -125,6 +154,7 @@ class Input {
       keysDown.remove(PlayerControl.UpCode)
       keysDown.remove(PlayerControl.DownCode)
     }
+    updateGamepads()
   }
 }
 

@@ -8,12 +8,12 @@ class PlayerControl(val player: Player, val input: Input) {
   
   def update(deltaTime: Double): Unit = {
     player.direction.set(0,0,0)
-    
-    if (input.keysDown(PlayerControl.LeftCode)) player.direction.x -= 1
-    if (input.keysDown(PlayerControl.RightCode)) player.direction.x += 1
-    if (input.keysDown(PlayerControl.UpCode)) player.direction.z -= 1
-    if (input.keysDown(PlayerControl.DownCode)) player.direction.z += 1
-    
+
+    if (input.keysDown(PlayerControl.LeftCode) || input.gamepad.exists(_.axes(0) <= -.5)) player.direction.x -= 1
+    if (input.keysDown(PlayerControl.RightCode) || input.gamepad.exists(_.axes(0) >= .5)) player.direction.x += 1
+    if (input.keysDown(PlayerControl.UpCode) || input.gamepad.exists(_.axes(1) <= -.5)) player.direction.z -= 1
+    if (input.keysDown(PlayerControl.DownCode) || input.gamepad.exists(_.axes(1) >= .5)) player.direction.z += 1
+
   }
   
   def actionKey(): Unit = {
