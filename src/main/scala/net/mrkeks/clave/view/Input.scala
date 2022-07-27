@@ -6,10 +6,11 @@ import scala.scalajs.js.Any.fromFunction1
 
 /** centrally manages the key board input */
 class Input {
+
   val keysDown = collection.mutable.Set.empty[Int]
-  
+
   val keyPressListener = MultiDict[String, (() => Unit)]()
-  
+
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     keysDown.add(toKeyCodeInt(e))
   }
@@ -37,9 +38,9 @@ class Input {
     val domTouch = e.changedTouches(0)
     touches += ((domTouch.identifier, new Touch(e.timeStamp, e.timeStamp, domTouch.clientX, domTouch.clientY)))
   })
-  
+
   dom.window.addEventListener("touchmove", { (e: dom.TouchEvent) => 
-    
+
     for {
       i <- (0 to e.touches.length - 1)
       domTouch = e.changedTouches(i)
@@ -53,31 +54,31 @@ class Input {
       if (diffTime > Input.MovementTouchTime && (touch.changedDirection || length >  Input.MovementTouchLengthThreshold)) {
         
         if (diffX < -Input.MovementTouchDirectionThreshold * length) {
-          keysDown.add(37)
+          keysDown.add(PlayerControl.LeftCode)
           touch.changedDirection = true
         } else {
-          keysDown.remove(37)
+          keysDown.remove(PlayerControl.LeftCode)
         }
 
         if (diffX > Input.MovementTouchDirectionThreshold * length) {
-          keysDown.add(39)
+          keysDown.add(PlayerControl.RightCode)
           touch.changedDirection = true
         } else {
-          keysDown.remove(39)
+          keysDown.remove(PlayerControl.RightCode)
         }
 
         if (diffY < -Input.MovementTouchDirectionThreshold * length) {
-          keysDown.add(38)
+          keysDown.add(PlayerControl.UpCode)
           touch.changedDirection = true
         } else {
-          keysDown.remove(38)
+          keysDown.remove(PlayerControl.UpCode)
         }
 
         if (diffY > Input.MovementTouchDirectionThreshold * length) {
           keysDown.add(40)
           touch.changedDirection = true
         } else {
-          keysDown.remove(40)
+          keysDown.remove(PlayerControl.DownCode)
         }
 
         touch.lastX = domTouch.clientX
@@ -91,20 +92,22 @@ class Input {
   dom.window.addEventListener("touchend", { (e: dom.TouchEvent) => 
     for (t <- touches.remove(e.changedTouches(0).identifier)) {
       if (t.changedDirection) {
-        keysDown.remove(37)
-        keysDown.remove(39)
-        keysDown.remove(38)
-        keysDown.remove(40)
+        keysDown.remove(PlayerControl.LeftCode)
+        keysDown.remove(PlayerControl.RightCode)
+        keysDown.remove(PlayerControl.UpCode)
+        keysDown.remove(PlayerControl.DownCode)
       }
       if (!t.changedDirection && e.timeStamp - t.start < 500) {
-        keyPressListener.get(" ")
+        keyPressListener.get(PlayerControl.ActionCharStr)
           .foreach(cb => cb())
       }
     }
   })
 
+
+
   private def toKeyCodeInt(e: dom.KeyboardEvent) = {
-    if (e.charCode == ' '.toInt) {
+    if (e.charCode == PlayerControl.ActionChar.toInt) {
       32
     } else {
       e.keyCode.toInt
@@ -117,10 +120,10 @@ class Input {
       if touch.changedDirection
       if timeStamp - touch.lastTime > 10 * Input.MovementTouchTime
     } {
-      keysDown.remove(37)
-      keysDown.remove(39)
-      keysDown.remove(38)
-      keysDown.remove(40)
+      keysDown.remove(PlayerControl.LeftCode)
+      keysDown.remove(PlayerControl.RightCode)
+      keysDown.remove(PlayerControl.UpCode)
+      keysDown.remove(PlayerControl.DownCode)
     }
   }
 }

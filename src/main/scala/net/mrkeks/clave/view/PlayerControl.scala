@@ -4,15 +4,15 @@ import net.mrkeks.clave.game.characters.Player
 
 class PlayerControl(val player: Player, val input: Input) {
   
-  input.keyPressListener.addOne(" ", actionKey _)
+  input.keyPressListener.addOne(PlayerControl.ActionCharStr, actionKey _)
   
   def update(deltaTime: Double): Unit = {
     player.direction.set(0,0,0)
     
-    if (input.keysDown(37)) player.direction.x -= 1
-    if (input.keysDown(39)) player.direction.x += 1
-    if (input.keysDown(38)) player.direction.z -= 1
-    if (input.keysDown(40)) player.direction.z += 1
+    if (input.keysDown(PlayerControl.LeftCode)) player.direction.x -= 1
+    if (input.keysDown(PlayerControl.RightCode)) player.direction.x += 1
+    if (input.keysDown(PlayerControl.UpCode)) player.direction.z -= 1
+    if (input.keysDown(PlayerControl.DownCode)) player.direction.z += 1
     
   }
   
@@ -21,7 +21,19 @@ class PlayerControl(val player: Player, val input: Input) {
   }
   
   def clear(): Unit = {
-    input.keyPressListener.subtractOne(" ", actionKey _)
+    input.keyPressListener.subtractOne(PlayerControl.ActionCharStr, actionKey _)
   }
   
+}
+
+object PlayerControl {
+  val LeftCode = 37
+  val RightCode = 39
+  val UpCode = 38
+  val DownCode = 40
+  
+  val ActionCode = 32
+  val ActionChar = ' '
+  val ActionCharStr = ActionChar.toString
+
 }
