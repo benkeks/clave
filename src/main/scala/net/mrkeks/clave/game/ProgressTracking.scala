@@ -5,7 +5,7 @@ import org.scalajs.dom
 trait ProgressTracking {
 
   val ClavePrefix = "clave."
-  val ClaveVersion = "0.1.4"
+  val ClaveVersion = "0.1.5"
   val LocalStorageScoreKey = ClavePrefix + "scores"
 
   var score = 0
