@@ -10,6 +10,9 @@ env:
 jobs:
   build:
     uses: ./.github/workflows/scala-main-build.yml
+    secrets:
+      CI_USER: ${{ secrets.CI_USER }}
+      CI_PRIVKEY: ${{ secrets.CI_PRIVKEY }}
   deploy:
     name: Upload to Itch
     needs: build
