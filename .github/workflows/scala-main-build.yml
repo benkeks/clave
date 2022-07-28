@@ -30,6 +30,15 @@ jobs:
         name: clave
         path: |
           target/scala-2.13/classes
+    - name: Deploy CI
+      uses: burnett01/rsync-deployments@5.2
+      with:
+        switches: -avzr --delete
+        path: target/scala-2.13/classes/
+        remote_path: /www/htdocs/${{ secrets.CI_USER }}/clave.keks.in/
+        remote_host: code.keks.in
+        remote_user: ssh-${{ secrets.CI_USER }}
+        remote_key: ${{ secrets.CI_PRIVKEY }}
     - name: Cleanup before cache
       shell: bash
       run: |
