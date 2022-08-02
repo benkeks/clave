@@ -68,7 +68,7 @@ class GameMap(val width: Int, val height: Int)
   private val mesh = new Mesh(new Geometry(), materials.asInstanceOf[MeshFaceMaterial])
   
   private var victoryCheckNeeded = false
-  protected val victoryCheck = Array.ofDim[Boolean](width, height)
+  protected val victoryCheck = Array.ofDim[Int](width, height)
   
   // underground presentation
   
@@ -213,32 +213,32 @@ class GameMap(val width: Int, val height: Int)
   /** computes whether there are no monsters reachable from a position
    *  if true returns how big the monster free region is. */
   private def computeVictory(playerPositions: List[(Int, Int)]): Int = {
+    val Infinity = -1
     victoryCheck.foreach { row =>
       for (i <- 0 until height) {
-        row(i) = false
+        row(i) = Infinity
       }
     }
     val discovered = collection.mutable.Stack().pushAll(playerPositions.filter(isOnMapTupled))
     var score = 0
     playerPositions.foreach {
-      case (x, z) => if (isOnMap(x, z)) victoryCheck(x)(z) = true
+      case (x, z) => if (isOnMap(x, z)) victoryCheck(x)(z) = 0
     }
-    
     while(discovered.nonEmpty) {
       val xz @ (x, z) = discovered.pop()
-      data(x)(z) match {
-        case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
-          // stop recursion
-        case _ if isMonsterOn(xz) =>
-          // stop victory check
-          return -1
-        case _ =>
-          score += 1
-          getAdjacentPositions(x, z).foreach {
-            case xz @ (x, z) =>
-              if (!victoryCheck(x)(z)) {
-                victoryCheck(x)(z) = true
-                discovered.push(xz)
+      score += 1
+      getAdjacentPositions(x, z).foreach {
+        case x1z1 @ (x1, z1) =>
+          data(x1)(z1) match {
+            case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
+              // stop recursion
+            case _ if isMonsterOn(xz) =>
+              // stop victory check
+              return -1
+            case _ =>
+              if (victoryCheck(x1)(z1) == Infinity) {
+                victoryCheck(x1)(z1) = victoryCheck(x)(z) + 1
+                discovered.push(x1z1)
               }
           }
       }
@@ -277,7 +277,7 @@ class GameMap(val width: Int, val height: Int)
   
   def victoryLighting(x: Int, z: Int): Unit = {
     if (isOnMap(x, z)) {
-      updateLighting(x, z, if (victoryCheck(x)(z)) 0xee3f else 0x0000)
+      updateLighting(x, z, if (victoryCheck(x)(z) >= 0) 0xee3f else 0x0000)
     }
   }
 }
