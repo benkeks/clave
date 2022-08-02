@@ -68,21 +68,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         }
       case Paused() =>
         //
-      case s @ Won(score, victoryDrawX, victoryDrawZ) =>
-        val (x, z) = getPlayerPositions.headOption.getOrElse((0,0))
-        for (i <- (0 to (deltaTime / 4).toInt)) {
-          map.victoryLighting(x+s.victoryDrawX, z+s.victoryDrawZ)
-          map.victoryLighting(x+s.victoryDrawX, z-s.victoryDrawZ)
-          map.victoryLighting(x-s.victoryDrawX, z+s.victoryDrawZ)
-          map.victoryLighting(x-s.victoryDrawX, z-s.victoryDrawZ)
-          val radius = s.victoryDrawX + s.victoryDrawZ
-          if (s.victoryDrawX == radius && s.victoryDrawZ == 0) {
-            s.victoryDrawX = 0
-            s.victoryDrawZ = radius + 1
-          } else {
-            s.victoryDrawX += 1
-            s.victoryDrawZ -= 1
-          }
+      case s @ Won(score, victoryRegion, victoryDrawProgress) =>
+        s.victoryDrawProgress += deltaTime * .025
+        s.victoryRegion = victoryRegion.dropWhile { case (x, z) =>
+          map.victoryLighting(x, z) < s.victoryDrawProgress
         }
       case Lost() =>
         gameObjects.foreach(_.update(deltaTime))
@@ -146,9 +135,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   
   def checkVictory(): Unit = {
     if (state.isInstanceOf[Running]) {
-      val levelScore = map.checkVictory(getPlayerPositions)
-      if (levelScore >= 0) {
-        setState(Won(levelScore, 0, 0))
+      val victoryRegion = map.checkVictory(getPlayerPositions)
+      val levelScore = victoryRegion.length
+      if (levelScore > 0) {
+        setState(Won(levelScore, victoryRegion, 0))
       }
     }
   }
@@ -197,7 +187,7 @@ object Game {
   case class LevelScreen() extends State
   case class Running() extends State
   case class Paused() extends State
-  case class Won(levelScore: Int, var victoryDrawX: Int, var victoryDrawZ: Int) extends State
+  case class Won(levelScore: Int, var victoryRegion: List[(Int, Int)], var victoryDrawProgress: Double) extends State
   case class Lost() extends State
   case class Continuing() extends State
 }

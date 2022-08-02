@@ -201,31 +201,31 @@ class GameMap(val width: Int, val height: Int)
     }
   }
   
-  def checkVictory(playerPositions: List[(Int, Int)]): Int = {
+  def checkVictory(playerPositions: List[(Int, Int)]): List[(Int, Int)] = {
     if (victoryCheckNeeded && playerPositions.exists(xz => !intersectsLevel(xz))) {
       victoryCheckNeeded = false
       computeVictory(playerPositions)
     } else {
-      -1
+      List()
     }
   }
   
   /** computes whether there are no monsters reachable from a position
-   *  if true returns how big the monster free region is. */
-  private def computeVictory(playerPositions: List[(Int, Int)]): Int = {
+   *  if true returns a list representing the monster free region. */
+  private def computeVictory(playerPositions: List[(Int, Int)]): List[(Int, Int)] = {
     val Infinity = -1
     victoryCheck.foreach { row =>
       for (i <- 0 until height) {
         row(i) = Infinity
       }
     }
-    val discovered = collection.mutable.Stack().pushAll(playerPositions.filter(isOnMapTupled))
+    val todo = collection.mutable.Queue().appendAll(playerPositions.filter(isOnMapTupled))
     var score = 0
     playerPositions.foreach {
       case (x, z) => if (isOnMap(x, z)) victoryCheck(x)(z) = 0
     }
-    while(discovered.nonEmpty) {
-      val xz @ (x, z) = discovered.pop()
+    while(todo.nonEmpty) {
+      val xz @ (x, z) = todo.dequeue()
       score += 1
       getAdjacentPositions(x, z).foreach {
         case x1z1 @ (x1, z1) =>
@@ -234,16 +234,22 @@ class GameMap(val width: Int, val height: Int)
               // stop recursion
             case _ if isMonsterOn(xz) =>
               // stop victory check
-              return -1
+              return List()
             case _ =>
               if (victoryCheck(x1)(z1) == Infinity) {
                 victoryCheck(x1)(z1) = victoryCheck(x)(z) + 1
-                discovered.push(x1z1)
+                todo.append(x1z1)
               }
           }
       }
     }
-    return score
+    // it only happens once per level that we actually receive a winning region. so only then restore the order of discovered fields:
+    val victoryRegion = for {
+      z <- 0 until height
+      x <- 0 until width
+      if victoryCheck(x)(z) != Infinity
+    } yield (x,z)
+    return victoryRegion.toList.sortBy { case (x,z) => victoryCheck(x)(z) }
   }
   
   def updateTile(xz: (Int, Int), newTile: Tile) = xz match {
@@ -275,9 +281,13 @@ class GameMap(val width: Int, val height: Int)
     }
   }
   
-  def victoryLighting(x: Int, z: Int): Unit = {
+  def victoryLighting(x: Int, z: Int): Int = {
     if (isOnMap(x, z)) {
-      updateLighting(x, z, if (victoryCheck(x)(z) >= 0) 0xee3f else 0x0000)
+      val v = victoryCheck(x)(z)
+      updateLighting(x, z, if (v >= 0) 0xee3f else 0x0000)
+      return v
+    } else {
+      return 0
     }
   }
 }
