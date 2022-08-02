@@ -89,10 +89,10 @@ class DrawingContext() {
   }
 
   def cameraUpdatePosition(lookAt: Vector3): Unit = {
-    val zOff = 5 + cameraSpace / 8.0
+    val zOff = 1.0 + cameraSpace / 2.0
     cameraLookAt.copy(lookAt).clamp(cameraMin, cameraMax)
     val y = lookAt.y
-    camera.position.copy(cameraLookAt).add(new Vector3((cameraSpace * .85) * Math.sin(.02 * y),9 + cameraSpace / 4.0,zOff))
+    camera.position.copy(cameraLookAt).add(new Vector3((cameraSpace * .85) * Math.sin(.02 * y), 1.0 + cameraSpace,zOff))
     camera.lookAt(cameraLookAt.clone().add(new Vector3(0, .5 * y, zOff * (1 - Math.cos(.02 * y)))))
   }
 }
