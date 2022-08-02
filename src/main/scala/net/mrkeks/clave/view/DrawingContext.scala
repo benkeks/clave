@@ -3,7 +3,7 @@ package net.mrkeks.clave.view
 import scala.scalajs.js
 import org.scalajs.dom
 import org.denigma.threejs.WebGLRenderer
-import org.denigma.threejs.OrthographicCamera
+import org.denigma.threejs.PerspectiveCamera
 import org.denigma.threejs.Scene
 import org.denigma.threejs.Color
 import org.denigma.threejs.Vector3
@@ -31,7 +31,8 @@ class DrawingContext() {
 
   renderer.setClearColor(new Color(0x604060))
 
-  val camera = new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
+  val camera = new PerspectiveCamera(aspect = aspect)
+  //new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   val cameraMin = new Vector3(0, 0, 0)
   val cameraMax = new Vector3(0, 100, 28)
   val cameraLookAt = new Vector3()
@@ -63,10 +64,11 @@ class DrawingContext() {
     renderer.setSize(width, height)
     val minSide = Math.min(width, height)
     cameraSpace = if (minSide < 600) 2 + 14.0 * minSide / 600.0 else 16.0
-    camera.top = cameraSpace * .5
-    camera.bottom = cameraSpace * -.5
-    camera.left = cameraSpace * -.5 * aspect
-    camera.right = cameraSpace * .5 * aspect
+    camera.aspect = aspect
+    // camera.top = cameraSpace * .5
+    // camera.bottom = cameraSpace * -.5
+    // camera.left = cameraSpace * -.5 * aspect
+    // camera.right = cameraSpace * .5 * aspect
     camera.updateProjectionMatrix()
   }
 
