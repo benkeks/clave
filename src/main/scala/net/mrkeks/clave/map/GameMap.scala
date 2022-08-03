@@ -5,7 +5,7 @@ import scala.scalajs.js
 import scala.scalajs.js.Any.jsArrayOps
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.DataTexture
-import org.denigma.threejs.Geometry
+import org.denigma.threejs.BufferGeometry
 import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshFaceMaterial
@@ -63,9 +63,9 @@ class GameMap(val width: Int, val height: Int)
       Materials.flower)
   
   private val box = new BoxGeometry(1.0, 1.0, 1.0)
-  box.faces.foreach { f => f.materialIndex = 0 }
-
-  private val mesh = new Mesh(new Geometry(), materials.asInstanceOf[MeshFaceMaterial])
+  box.groups.foreach { g => g.materialIndex = 0 }
+  
+  private val mesh = new Mesh(new BufferGeometry(), materials.asInstanceOf[MeshFaceMaterial])
   
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Int](width, height)
@@ -92,9 +92,10 @@ class GameMap(val width: Int, val height: Int)
   
   val undergroundPlane = new PlaneGeometry(1, 1)
   // duplicate uv coords in order for groundMaterial.lightMap to work
-  undergroundPlane.faces.foreach { f => f.materialIndex = 0 }
-  undergroundPlane.faceVertexUvs = js.Array(undergroundPlane.faceVertexUvs(0),
-    undergroundPlane.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0))))
+  undergroundPlane.groups.foreach { f => f.materialIndex = 0 }
+  // undergroundPlane.faceVertexUvs = js.Array(
+  //   undergroundPlane.faceVertexUvs(0),
+  //   undergroundPlane.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0))))
 
   val underground = new Mesh(undergroundPlane, groundMaterial)
   underground.scale.set(width, height, 1.0)
@@ -121,14 +122,14 @@ class GameMap(val width: Int, val height: Int)
     
     val rotateUp = new Matrix4().makeRotationX(-Math.PI * .5)
     
-    val newGeometry = new Geometry()
+    val newGeometry = new BufferGeometry()
     val drawingMatrix = new Matrix4()
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         data(x)(z) match {
           case Tile.SolidWall =>
             drawingMatrix.makeTranslation(x, 0, z)
-            newGeometry.merge(box, drawingMatrix, 1)
+            //newGeometry.merge(box, drawingMatrix)//, 1)
           case Tile.Empty =>
             if (Math.random() > .97) {
               // add occasional flowers
@@ -138,7 +139,7 @@ class GameMap(val width: Int, val height: Int)
                     z - .4 + .5 * Math.random())
                     .multiply(rotateUp)
               val size = .8 + Math.random() * .7
-              newGeometry.merge(new PlaneGeometry(size, size), drawingMatrix, 2)
+              //newGeometry.merge(new PlaneGeometry(size, size), drawingMatrix)//, 2)
             }
           case _ =>
         }

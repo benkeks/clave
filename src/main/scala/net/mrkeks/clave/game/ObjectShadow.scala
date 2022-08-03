@@ -28,7 +28,7 @@ object ObjectShadow {
   })
     
   val geometry = new PlaneGeometry(1.4, 1.4, 1, 1)
-  geometry.normalsNeedUpdate = true
+  //geometry.normalsNeedUpdate = true
   
   def clear(): Unit = {
     material.dispose()
