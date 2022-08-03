@@ -85,7 +85,7 @@ class Monster(protected val map: GameMap)
         val neighboringPlayers = for {
           pos <- map.getAdjacentPositions(positionOnMap)
           playerLikeObject <- map.getObjectsAt(pos).collect {
-            case p: Player if p.isAlive => p
+            case p: Player if p.isAlive() => p
             case c: Crate if c.kind == CrateData.PlayerLikeKind => c
           }
         } yield (pos, playerLikeObject)

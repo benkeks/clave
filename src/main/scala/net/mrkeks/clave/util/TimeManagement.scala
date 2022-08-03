@@ -5,7 +5,7 @@ import scala.collection.mutable.Buffer
 
 
 trait TimeManagement {
-  var lastFrameTime = js.Date.now
+  var lastFrameTime = js.Date.now()
 
   /** Time that passed since the last frame. (in ms) */
   var deltaTime = 0.0
@@ -19,12 +19,12 @@ trait TimeManagement {
   private val scheduledActions = Buffer[(Double, () => Unit)]()
   
   def updateTime(timeStamp: Double) = {
-    deltaTime = js.Date.now - lastFrameTime
+    deltaTime = js.Date.now() - lastFrameTime
     if (deltaTime > 500) {
       // if more than half a second has passed, there is no point in trying to catch up. (probably due to switched app or tab)
       deltaTime = 0
     }
-    lastFrameTime = js.Date.now
+    lastFrameTime = js.Date.now()
     while (scheduledActions.headOption.exists(_._1 <= lastFrameTime)) {
       scheduledActions.remove(0)._2()
     }

@@ -8,7 +8,7 @@ name := "Clave"
 
 version := "0.1.5"
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.4"
 
 workbenchDefaultRootObject := Some(("target/scala-2.13/classes/index.html", "target/scala-2.13/classes/"))
 

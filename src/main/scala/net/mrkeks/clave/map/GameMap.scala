@@ -117,7 +117,7 @@ class GameMap(val width: Int, val height: Int)
   }
   
   def updateView(): Unit = {
-    val beginUpdate = js.Date.now
+    val beginUpdate = js.Date.now()
     
     val rotateUp = new Matrix4().makeRotationX(-Math.PI * .5)
     
