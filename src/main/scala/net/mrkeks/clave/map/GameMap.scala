@@ -8,7 +8,6 @@ import org.denigma.threejs.DataTexture
 import org.denigma.threejs.BufferGeometry
 import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Mesh
-import org.denigma.threejs.MeshFaceMaterial
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs
 import org.denigma.threejs.PixelFormat
@@ -30,6 +29,7 @@ import org.denigma.threejs.Texture
 import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
+import net.mrkeks.clave.util.Mathf
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
@@ -56,17 +56,13 @@ class GameMap(val width: Int, val height: Int)
       flower.needsUpdate = true
     })
   }
-  
-  private val materials = js.Array(
-      Materials.wall,
-      Materials.solidWall,
-      Materials.flower)
-  
+
   private val box = new BoxGeometry(1.0, 1.0, 1.0)
   box.groups.foreach { g => g.materialIndex = 0 }
-  
-  private val mesh = new Mesh(new BufferGeometry(), materials.asInstanceOf[MeshFaceMaterial])
-  
+
+  private val MaxWallCount: Int = 1024
+  private val walls = new threejs.InstancedMesh(box, Materials.solidWall, MaxWallCount)
+
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Int](width, height)
   
@@ -109,7 +105,7 @@ class GameMap(val width: Int, val height: Int)
       }
     }
     
-    context.scene.add(mesh)
+    context.scene.add(walls)
     context.scene.add(underground)
   }
   
@@ -121,15 +117,19 @@ class GameMap(val width: Int, val height: Int)
     val beginUpdate = js.Date.now()
     
     val rotateUp = new Matrix4().makeRotationX(-Math.PI * .5)
+    val rotationMatrix = new Matrix4()
     
     val newGeometry = new BufferGeometry()
     val drawingMatrix = new Matrix4()
+    var wallCount = 0
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         data(x)(z) match {
           case Tile.SolidWall =>
-            drawingMatrix.makeTranslation(x, 0, z)
-            //newGeometry.merge(box, drawingMatrix)//, 1)
+            rotationMatrix.makeRotationX(.1 * Math.random() - .05)
+            drawingMatrix.makeTranslation(x, -.1 + .1 * Math.random(), z).multiply(rotationMatrix).scale(new Vector3(1,Math.random()*.2+1.2,1))
+            walls.setMatrixAt(wallCount, drawingMatrix)
+            wallCount += 1
           case Tile.Empty =>
             if (Math.random() > .97) {
               // add occasional flowers
@@ -145,15 +145,14 @@ class GameMap(val width: Int, val height: Int)
         }
       }
     }
-    mesh.geometry.dispose()
-    mesh.geometry = newGeometry
+    walls.count = wallCount
   }
   
   def clear(context: DrawingContext): Unit = {
-    mesh.geometry.dispose()
+    walls.geometry.dispose()
     groundShadowTexture.dispose()
     groundMaterial.dispose()
-    context.scene.remove(mesh)
+    context.scene.remove(walls)
     context.scene.remove(underground)
   }
   
