@@ -109,7 +109,10 @@ class GameMap(val width: Int, val height: Int)
   underground.scale.set(width, height, 1.0)
   underground.rotation.x = -.5 * Math.PI
   underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
-  
+
+  val wind = new Vector3(.001,0,0)
+  val grassDrift = new threejs.Vector2(0,0)
+
   def init(context: DrawingContext): Unit = {
     context.scene.add(walls)
     context.scene.add(grass)
@@ -118,7 +121,13 @@ class GameMap(val width: Int, val height: Int)
   }
   
   def update(deltaTime: Double): Unit = {
-    
+    if (Materials.grassPatch.map != null) {
+      grassDrift.x = grassDrift.x + wind.x * deltaTime
+      Materials.grassPatch.map.offset.x = Math.sin(grassDrift.x)*.03
+      Materials.grassPatch.map.offset.y = Math.sin(grassDrift.x+2)*.01
+      Materials.grassPatch.map.repeat.y = 1.1 + Math.sin(grassDrift.x * 1.1 + 1)*.05
+      Materials.grassPatch.map.repeat.x = 1.1
+    }
   }
   
   def updateView(): Unit = {
@@ -278,7 +287,7 @@ class GameMap(val width: Int, val height: Int)
       else if (x > 0 && isTileBlocked(x-1, z))
         0x1a3f
       else
-        0x5e4f
+        0x5c4f
     groundShadow.update((x)+(height-z-1)*width, color | overlay)
     val objColor = new threejs.Color( if (x > 0 && isTileBlocked(x-1, z)) 0x999999ff else 0xffffffff)
     positionedGroundItems.get((x,z)).foreach(i => grass.setColorAt(i, objColor))
