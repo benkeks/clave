@@ -75,20 +75,25 @@ class GameMap(val width: Int, val height: Int)
     threejs.THREE.UnsignedShort4444Type.asInstanceOf[TextureDataType], magFilter = threejs.THREE.LinearFilter)
   
   val groundMaterial = new MeshLambertMaterial()
-  groundMaterial.color.setHex(0x808080)
+  groundMaterial.color.setHex(0xf0f0f0)
   groundMaterial.map = groundShadowTexture
-  
-  DrawingContext.textureLoader.load("gfx/grass.png", { tex: Texture =>
-    tex.repeat.set(1.2, 1.2)
-    tex.wrapS = THREE.RepeatWrapping
-    tex.wrapT = THREE.RepeatWrapping
-    groundMaterial.lightMap = tex
-    groundMaterial.needsUpdate = true
-  })
-  
+  groundMaterial.reflectivity = .5
+
+  // DrawingContext.textureLoader.load("gfx/grass.png", { tex: Texture =>
+  //   //tex.repeat.set(1.2, 1.2)
+  //   tex.wrapS = THREE.RepeatWrapping
+  //   tex.wrapT = THREE.RepeatWrapping
+  //   //groundMaterial.map = tex
+  //   groundMaterial.needsUpdate = true 
+  // })
+ 
   val undergroundPlane = new PlaneGeometry(1, 1)
   // duplicate uv coords in order for groundMaterial.lightMap to work
-  undergroundPlane.groups.foreach { f => f.materialIndex = 0 }
+  //undergroundPlane.groups.foreach { f => f.materialIndex = 0 }
+  //val uv = undergroundPlane.getAttribute("uv")
+  //val uv2 = undergroundPlane.getAttribute("uv2").asInstanceOf[js.Dynamic]
+  //uv2.copy(uv)
+  //undergroundPlane.setAttribute("uv2", uv)
   // undergroundPlane.faceVertexUvs = js.Array(
   //   undergroundPlane.faceVertexUvs(0),
   //   undergroundPlane.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0))))
@@ -284,7 +289,7 @@ class GameMap(val width: Int, val height: Int)
   def victoryLighting(x: Int, z: Int): Int = {
     if (isOnMap(x, z)) {
       val v = victoryCheck(x)(z)
-      updateLighting(x, z, if (v >= 0) 0xee3f else 0x0000)
+      updateLighting(x, z, if (v >= 0) 0xee7f else 0x0000)
       return v
     } else {
       return 0
