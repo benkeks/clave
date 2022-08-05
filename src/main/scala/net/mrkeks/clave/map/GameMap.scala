@@ -46,14 +46,15 @@ class GameMap(val width: Int, val height: Int)
     val solidWall = new MeshLambertMaterial()
     solidWall.color.setHex(0x888899)
     
-    val flower = new MeshBasicMaterial()
-    flower.transparent = true
-    flower.depthWrite = false
-    flower.polygonOffset = true
-    flower.polygonOffsetUnits = -3
-    DrawingContext.textureLoader.load("gfx/flowers.png", { tex: Texture =>
-      flower.map = tex
-      flower.needsUpdate = true
+    val grassPatch = new MeshBasicMaterial()
+    grassPatch.transparent = true
+    grassPatch.depthWrite = false
+    grassPatch.polygonOffset = true
+    grassPatch.polygonOffsetUnits = -.01
+    grassPatch.opacity = .8
+    DrawingContext.textureLoader.load("gfx/flowers_white.png", { tex: Texture =>
+      grassPatch.map = tex
+      grassPatch.needsUpdate = true
     })
   }
 
@@ -62,6 +63,12 @@ class GameMap(val width: Int, val height: Int)
 
   private val MaxWallCount: Int = 1024
   private val walls = new threejs.InstancedMesh(box, Materials.solidWall, MaxWallCount)
+
+  private val MaxGrassCount: Int = 1024
+  private val grass = new threejs.InstancedMesh(new PlaneGeometry(1,1), Materials.grassPatch, MaxGrassCount)
+  private val positionedGroundItems =
+      MultiDict[(Int, Int), Int]()
+
 
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Int](width, height)
@@ -104,14 +111,10 @@ class GameMap(val width: Int, val height: Int)
   underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
   
   def init(context: DrawingContext): Unit = {
-    for (x <- 0 until width) {
-      for (z <- 0 until height) {
-        updateLighting(x, z)
-      }
-    }
-    
     context.scene.add(walls)
+    context.scene.add(grass)
     context.scene.add(underground)
+    updateAllLighting()
   }
   
   def update(deltaTime: Double): Unit = {
@@ -127,6 +130,8 @@ class GameMap(val width: Int, val height: Int)
     val newGeometry = new BufferGeometry()
     val drawingMatrix = new Matrix4()
     var wallCount = 0
+    var grassCount = 0
+    positionedGroundItems.clear()
     for (x <- 0 until width) {
       for (z <- 0 until height) {
         data(x)(z) match {
@@ -135,22 +140,22 @@ class GameMap(val width: Int, val height: Int)
             drawingMatrix.makeTranslation(x, -.1 + .1 * Math.random(), z).multiply(rotationMatrix).scale(new Vector3(1,Math.random()*.2+1.2,1))
             walls.setMatrixAt(wallCount, drawingMatrix)
             wallCount += 1
-          case Tile.Empty =>
-            if (Math.random() > .97) {
-              // add occasional flowers
-              drawingMatrix.makeTranslation(
-                    x - .4 + .5 * Math.random(),
-                    -.5, 
-                    z - .4 + .5 * Math.random())
-                    .multiply(rotateUp)
-              val size = .8 + Math.random() * .7
-              //newGeometry.merge(new PlaneGeometry(size, size), drawingMatrix)//, 2)
+          case Tile.Empty if positionedObjects.get((x,z)).isEmpty =>
+            if (Math.random() > .7) {
+              rotationMatrix.makeRotationY(2 * Math.PI * Math.random()).multiply(rotateUp)
+              drawingMatrix.makeTranslation(x, -.49, z).multiply(rotationMatrix).scale(new Vector3(Math.random()*.3+1.0,1,Math.random()*.3+1.0))
+              grass.setMatrixAt(grassCount, drawingMatrix)
+              positionedGroundItems.addOne((x,z), grassCount)
+              grassCount += 1
             }
           case _ =>
         }
       }
     }
     walls.count = wallCount
+    grass.count = grassCount
+    walls.instanceMatrix.needsUpdate = true
+    grass.instanceMatrix.needsUpdate = true
   }
   
   def clear(context: DrawingContext): Unit = {
@@ -158,6 +163,7 @@ class GameMap(val width: Int, val height: Int)
     groundShadowTexture.dispose()
     groundMaterial.dispose()
     context.scene.remove(walls)
+    context.scene.remove(grass)
     context.scene.remove(underground)
   }
   
@@ -267,14 +273,16 @@ class GameMap(val width: Int, val height: Int)
   }
   
   def updateLighting(x: Int, z: Int, overlay: Int = 0): Unit = {
-    groundShadow.update ( (x)+(height-z-1)*width,
-      if (isTileBlocked(x, z))
-        0x021f | overlay
+    val color = if (isTileBlocked(x, z))
+        0x021f
       else if (x > 0 && isTileBlocked(x-1, z))
-        0x1a3f | overlay 
+        0x1a3f
       else
-        0x5e4f | overlay
-    )
+        0x5e4f
+    groundShadow.update((x)+(height-z-1)*width, color | overlay)
+    val objColor = new threejs.Color( if (x > 0 && isTileBlocked(x-1, z)) 0x999999ff else 0xffffffff)
+    positionedGroundItems.get((x,z)).foreach(i => grass.setColorAt(i, objColor))
+    if (grass.instanceColor != null) grass.instanceColor.needsUpdate = true
     groundShadowTexture.needsUpdate = true
   }
   

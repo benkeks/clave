@@ -41,8 +41,6 @@ trait GameLevelLoader {
     context.adjustCameraForMap(level.width, level.height)
 
     val positions = map.loadFromArray(level.mapData)
-    map.updateView()
-    add(map)
 
     val newPlayer = new Player(map)
     add(newPlayer)
@@ -103,5 +101,8 @@ trait GameLevelLoader {
       obj match {case c: Crate => c.place(x, z) case _ => }
       add(obj)
     }
+
+    map.updateView()
+    add(map)
   }
 }
