@@ -32,6 +32,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   gui.registerGame(this)
 
+  val dustParticles = context.particleSystem.registerParticleType("gfx/dust.png")
+
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList
   }
@@ -48,6 +50,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   }
 
   def handleState(): Unit = {
+
+    dustParticles.addParticle(50 * Math.random() - 25, 50 * Math.random() - 25, 50 * Math.random() - 25, Math.random(), Math.random(), Math.random(), .5, 10+10*Math.random())
+    dustParticles.update(deltaTime)
 
     state match {
       case StartUp() =>
