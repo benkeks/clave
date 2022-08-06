@@ -87,13 +87,23 @@ class Player(protected val map: GameMap)
       }
     }
 
-    mesh.position.set(position.x, position.y, position.z)
+    // place on map and look in direction
+    mesh.position.set(position.x, position.y - .2, position.z)
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .02 * deltaTime, wraparound = 2.0 * Math.PI)
 
     if (map.intersectsLevel(positionOnMap)) {
       val tar = map.mapPosToVec(
           map.findNextFreeField(positionOnMap))
       move(tar.sub(position).setLength(.01 * deltaTime))
+    }
+
+    val actualSpeed = state.speed * direction.length()
+
+    // walking animation
+    if (actualSpeed > 0.001) {
+      mesh.rotation.z = Mathf.approach(mesh.rotation.z, Math.sin(anim * 2) * .2, .03 * deltaTime)
+    } else {
+      mesh.rotation.z = Mathf.approach(mesh.rotation.z, 0, .002 * deltaTime)
     }
 
     state match {
@@ -104,7 +114,7 @@ class Player(protected val map: GameMap)
           setState(Idle())
         }
       case Idle()  =>
-        anim += (state.speed * direction.length() + .001) * deltaTime
+        anim += (actualSpeed + .001) * deltaTime
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
@@ -112,7 +122,7 @@ class Player(protected val map: GameMap)
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
-        anim += (state.speed * direction.length() + .001) * deltaTime
+        anim += (actualSpeed + .001) * deltaTime
         if (crate.canBePlaced(nextField._1, nextField._2)) {
           dropPreview.visible = true
           dropPreview.position.copy(map.mapPosToVec(nextField))
