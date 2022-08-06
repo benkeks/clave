@@ -52,6 +52,9 @@ class DrawingContext() {
   light2.position.set(-10.0,-10.0,-3)
   scene.add(light2)
 
+  val particleSystem = new ParticleSystem(this)
+  particleSystem.registerParticleType("gfx/dust.png")
+
   dom.window.onresize = (uiEv) => {
     adjustViewport()
   }
