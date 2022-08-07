@@ -35,7 +35,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   context.particleSystem.registerParticleType("gfx/dust.png", "dust")
     .setGravity(.000001)
     .setDecay(.0015)
-    .setGrowth(.015)
+    .setGrowth(.005)
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList

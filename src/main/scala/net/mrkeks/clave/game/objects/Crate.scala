@@ -82,7 +82,7 @@ class Crate(
 
     context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Box,
       new Vector3(position.x-.25, position.y - .4, position.z-.25), new Vector3(position.x+.25, position.y - .3, position.z+.25),
-      new Vector3(-.0025,.0,-.0025), new Vector3(.0025, .0, .0025), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .3, .5)
+      new Vector3(-.0025,.0,-.0025), new Vector3(.0025, .0, .0025), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .3, .6)
 
     // temporally move to fictional position in order to remove location from game map
     position.setZ(-10)

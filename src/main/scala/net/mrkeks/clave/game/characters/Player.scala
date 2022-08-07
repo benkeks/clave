@@ -1,6 +1,7 @@
 package net.mrkeks.clave.game.characters
 
 import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.view.ParticleSystem
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.GameObject
@@ -11,7 +12,7 @@ import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.SpriteMaterial
 import org.denigma.threejs.Sprite
-import org.denigma.threejs.Vector3
+import org.denigma.threejs.{Vector3, Vector4}
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
@@ -56,7 +57,9 @@ class Player(protected val map: GameMap)
   var nextField = (0,0)
   
   var anim = 0.0
-  
+  var movementDelta = new Vector3()
+
+  var context: DrawingContext = null
   val sprite = new Sprite(Player.material)
   val mesh: Object3D = new Object3D()
   var eyeMesh: Option[Object3D] = None
@@ -66,6 +69,7 @@ class Player(protected val map: GameMap)
   val shadowSize = 0.7
   
   def init(context: DrawingContext): Unit = {
+    this.context = context
     context.scene.add(mesh)
     context.scene.add(dropPreview)
     initShadow(context)
@@ -87,6 +91,8 @@ class Player(protected val map: GameMap)
       }
     }
 
+    val newMovementDelta = mesh.position.clone()
+
     // place on map and look in direction
     mesh.position.set(position.x, position.y - .2, position.z)
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .02 * deltaTime, wraparound = 2.0 * Math.PI)
@@ -97,14 +103,31 @@ class Player(protected val map: GameMap)
       move(tar.sub(position).setLength(.01 * deltaTime))
     }
 
-    val actualSpeed = state.speed * direction.length()
+    newMovementDelta.sub(mesh.position).multiplyScalar(-1.0)
+
+    val targetSpeed = state.speed * direction.length()
 
     // walking animation
-    if (actualSpeed > 0.001) {
+    if (targetSpeed > 0.001) {
       mesh.rotation.z = Mathf.approach(mesh.rotation.z, Math.sin(anim * 2) * .2, .03 * deltaTime)
     } else {
       mesh.rotation.z = Mathf.approach(mesh.rotation.z, 0, .002 * deltaTime)
     }
+
+    // create dust if changing direction
+    if (state.speed > 0.001 && (
+        movementDelta.x > .0001 && newMovementDelta.x <= 0 ||
+        movementDelta.x < -.0001 && newMovementDelta.x >= 0 ||
+        movementDelta.z > .0001 && newMovementDelta.z <= 0 ||
+        movementDelta.z < -.0001 && newMovementDelta.z >= 0)) {
+      movementDelta.multiplyScalar(.05)
+      val dustPos = position.clone()
+      dustPos.y = -.4
+      context.particleSystem.burst("dust", 7, ParticleSystem.BurstKind.Box,
+        dustPos, dustPos,
+        new Vector3(movementDelta.x-.002,.0,movementDelta.z-.002), new Vector3(movementDelta.x+.002, .0, movementDelta.z+.002), new Vector4(.6, .6, .6, .4), new Vector4(.8, .8, .8, .5), .1, .2)
+    }
+    movementDelta.copy(newMovementDelta)
 
     state match {
       case Spawning(ySpeed) =>
@@ -114,7 +137,7 @@ class Player(protected val map: GameMap)
           setState(Idle())
         }
       case Idle()  =>
-        anim += (actualSpeed + .001) * deltaTime
+        anim += (targetSpeed + .001) * deltaTime
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (map.isMonsterOn(positionOnMap)) {
           setState(Dead())
@@ -122,7 +145,7 @@ class Player(protected val map: GameMap)
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
-        anim += (actualSpeed + .001) * deltaTime
+        anim += (targetSpeed + .001) * deltaTime
         if (crate.canBePlaced(nextField._1, nextField._2)) {
           dropPreview.visible = true
           dropPreview.position.copy(map.mapPosToVec(nextField))
@@ -142,7 +165,7 @@ class Player(protected val map: GameMap)
         mesh.scale.setZ(mesh.scale.x)
       case _ =>
     }
-    
+
     updateShadow()
   }
   
