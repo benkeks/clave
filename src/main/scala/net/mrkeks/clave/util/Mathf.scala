@@ -25,4 +25,8 @@ object Mathf {
     if (wraparound != 0 && diff < -wraparound * .5) diff += wraparound
     if (Math.abs(diff) <= speed) tar else src + speed * Math.signum(diff)
   }
+
+  def lerp(src: Double, tar: Double, ratio: Double) = {
+    src * (1.0 - ratio) + tar * ratio
+  }
 }

@@ -1,20 +1,22 @@
 package net.mrkeks.clave.game.objects
 
+import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.view.ParticleSystem
+import net.mrkeks.clave.game.PlaceableObject
+import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.PositionedObjectData
+import net.mrkeks.clave.game.characters.Monster
+import net.mrkeks.clave.game.characters.Player
+import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.map.GameMap
+
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
-import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.characters.Player
-import net.mrkeks.clave.game.PositionedObjectData
-import net.mrkeks.clave.view.DrawingContext
-import net.mrkeks.clave.map.MapData
-import net.mrkeks.clave.game.characters.Monster
 import org.denigma.threejs.BoxHelper
-import net.mrkeks.clave.game.PlaceableObject
 import org.denigma.threejs.Material
 import org.denigma.threejs.Texture
-import org.denigma.threejs.Vector3
+import org.denigma.threejs.{Vector3, Vector4}
 
 object Crate {
   private val materials = Map[CrateData.Kind, Material](
@@ -51,9 +53,12 @@ class Crate(
 
   val mesh = new Mesh(Crate.box, Crate.materials(kind))
 
+  var context: DrawingContext = null
+
   def init(context: DrawingContext): Unit = {
     mesh.rotateY(.1 - .2 * Math.random())
     context.scene.add(mesh)
+    this.context = context
   }
   
   def clear(context: DrawingContext): Unit = {
@@ -74,7 +79,11 @@ class Crate(
   
   def pickup(player: Player): Unit = {
     state = Carried(player)
-    
+
+    context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Box,
+      new Vector3(position.x-.25, position.y - .4, position.z-.25), new Vector3(position.x+.25, position.y - .3, position.z+.25),
+      new Vector3(-.003,.0,-.003), new Vector3(.003, .0, .003), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .4, .6)
+
     // temporally move to fictional position in order to remove location from game map
     position.setZ(-10)
     updatePositionOnMap()
@@ -83,6 +92,9 @@ class Crate(
   override def place(x: Int, z: Int) = {
     if (canBePlaced(x, z)) {
       setPosition(x, 0, z)
+      context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Box,
+        new Vector3(position.x-.25, position.y - .4, position.z-.25), new Vector3(position.x+.25, position.y - .3, position.z+.25),
+        new Vector3(-.003,.0,-.003), new Vector3(.003, .0, .003), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .5, .9)
       state = Standing()
       true
     } else {

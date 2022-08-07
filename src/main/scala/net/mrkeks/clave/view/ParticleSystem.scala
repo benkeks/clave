@@ -1,6 +1,6 @@
 package net.mrkeks.clave.view
 
-import scala.collection.mutable.Queue
+import scala.collection.mutable.HashMap
 import scala.scalajs.js
 
 import org.denigma.threejs
@@ -10,17 +10,34 @@ import org.denigma.threejs.Points
 import org.denigma.threejs.BufferGeometry
 import org.denigma.threejs.Texture
 import org.denigma.threejs.{Vector3, Vector4}
+
 import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.util.Mathf
+
+object ParticleSystem {
+
+  object BurstKind extends Enumeration {
+    val Radial, Box = Value
+  }
+  type BurstKind = BurstKind.Value
+
+}
+
 
 class ParticleSystem(context: DrawingContext) {
 
   class ParticleType(material: threejs.Material, maxAmount: Int = 1000) extends GameObject {
 
-    var currentCount = 0
+    private var currentCount = 0
+
+    private var gravity = 0.0f
+    private var growth = 0.0f
+    private var decay = .0001f
 
     val geometry = new BufferGeometry()
 
     private val positions = new js.typedarray.Float32Array(maxAmount * 3)
+    private val directions = new js.typedarray.Float32Array(maxAmount * 3)
     private val colors = new js.typedarray.Float32Array(maxAmount * 4)
     private val sizes = new js.typedarray.Float32Array(maxAmount)
 
@@ -46,26 +63,31 @@ class ParticleSystem(context: DrawingContext) {
     }
 
     override def update(deltaTime: Double) = {
-      println("updating particles")
       val deltaTimeF = deltaTime.toFloat
       var writePoint = 0
       for (i <- 0 until currentCount) {
-        val x = positions(i*3 + 0)
-        val y = positions(i*3 + 1)
-        val z = positions(i*3 + 2)
+        val dx = directions(i*3 + 0)
+        val dy = directions(i*3 + 1) + gravity * deltaTimeF
+        val dz = directions(i*3 + 2)
+        val x = positions(i*3 + 0) + deltaTimeF * dx
+        val y = positions(i*3 + 1) + deltaTimeF * dy
+        val z = positions(i*3 + 2) + deltaTimeF * dz
         val r = colors(i*4 + 0)
         val g = colors(i*4 + 1)
         val b = colors(i*4 + 2)
         val a = colors(i*4 + 3)
-        val size = sizes(i)
+        val size = sizes(i) + deltaTimeF * growth
         if (a >= .001) {
           positions(writePoint*3 + 0) = x
           positions(writePoint*3 + 1) = y
           positions(writePoint*3 + 2) = z
+          directions(writePoint*3 + 0) = dx
+          directions(writePoint*3 + 1) = dy
+          directions(writePoint*3 + 2) = dz
           colors(writePoint*4 + 0) = r
           colors(writePoint*4 + 1) = g
           colors(writePoint*4 + 2) = b
-          colors(writePoint*4 + 3) = a - .0001f * deltaTimeF
+          colors(writePoint*4 + 3) = a - decay * deltaTimeF
           sizes(writePoint) = size
           writePoint += 1
         }
@@ -77,25 +99,50 @@ class ParticleSystem(context: DrawingContext) {
       positionAttribute.needsUpdate = true
       colorAttribute.needsUpdate = true
       sizeAttribute.needsUpdate = true
+      geometry.setDrawRange(0,currentCount)
     }
-    
-    def addParticle(x: Double, y: Double, z: Double, r: Double, g: Double, b: Double, a: Double, size: Double) = {
+
+    def setGravity(gravity: Double) = {
+      this.gravity = gravity.toFloat
+      this
+    }
+
+    def setGrowth(growSpeed: Double) = {
+      this.growth = growSpeed.toFloat
+      this
+    }
+
+    def setDecay(decaySpeed: Double) = {
+      this.decay = decaySpeed.toFloat
+      this
+    }
+
+    def addParticle(x: Double, y: Double, z: Double, dx: Double, dy: Double, dz: Double, r: Double, g: Double, b: Double, a: Double, size: Double) = {
       if (currentCount < maxAmount) {
-        positionAttribute.setXYZ(currentCount, x, y, z)
+
+        positions(currentCount * 3+0) = x.toFloat
+        positions(currentCount * 3+1) = y.toFloat
+        positions(currentCount * 3+2) = z.toFloat
+
+        directions(currentCount * 3+0) = dx.toFloat
+        directions(currentCount * 3+1) = dy.toFloat
+        directions(currentCount * 3+2) = dz.toFloat
+
         colors(currentCount * 4+0) = r.toFloat
         colors(currentCount * 4+1) = g.toFloat
         colors(currentCount * 4+2) = b.toFloat
         colors(currentCount * 4+3) = a.toFloat
-        //colorAttribute.setXYZW(currentCount, r, g, b, a)
-        sizeAttribute.setX(currentCount, size)
+
+        sizes(currentCount) = size.toFloat
+
         currentCount += 1
       }
     }
   }
 
-  val particleTypes = new Queue[ParticleType]()
+  val particleTypes = new HashMap[String,ParticleType]()
 
-  def registerParticleType(textureUrl: String): ParticleType = {
+  def registerParticleType(textureUrl: String, typeKey: String): ParticleType = {
 
     val material = new PointsMaterial()
     material.depthWrite = false
@@ -110,8 +157,45 @@ class ParticleSystem(context: DrawingContext) {
       material.needsUpdate = true
     })
     val particleType = new ParticleType(material)
-    particleTypes.append(particleType)
+    particleTypes(typeKey) = particleType
     particleType
+  }
+
+  def update(deltaTime: Double): Unit = {
+    particleTypes.values.foreach(_.update(deltaTime))
+  }
+
+  def emitParticle(typeKey: String, x: Double, y: Double, z: Double, dx: Double, dy: Double, dz: Double, r: Double, g: Double, b: Double, a: Double, size: Double) = {
+    particleTypes(typeKey).addParticle(x, y, z, dx, dy, dz, r, g, b, a, size)
+  }
+
+  def burst(
+      typeKey: String,
+      amount: Int,
+      burstKind: ParticleSystem.BurstKind,
+      minPos: Vector3, maxPos: Vector3,
+      baseDir: Vector3, dirVariation: Vector3,
+      minColor: Vector4, maxColor: Vector4,
+      minSize: Double, maxSize: Double) = {
+    val particleType = particleTypes(typeKey)
+    //val dirVec = new Vector3()
+    for (i <- 0 until amount) {
+      burstKind match {
+        case ParticleSystem.BurstKind.Box =>
+          val x = Mathf.lerp(minPos.x, maxPos.x, Math.random())
+          val y = Mathf.lerp(minPos.y, maxPos.y, Math.random())
+          val z = Mathf.lerp(minPos.z, maxPos.z, Math.random())
+          val dx = Mathf.lerp(baseDir.x, dirVariation.x, Math.random())
+          val dy = Mathf.lerp(baseDir.y, dirVariation.y, Math.random())
+          val dz = Mathf.lerp(baseDir.z, dirVariation.z, Math.random())
+          val r = Mathf.lerp(minColor.x, maxColor.x, Math.random())
+          val g = Mathf.lerp(minColor.y, maxColor.y, Math.random())
+          val b = Mathf.lerp(minColor.z, maxColor.z, Math.random())
+          val a = Mathf.lerp(minColor.w, maxColor.w, Math.random())
+          val size = Mathf.lerp(minSize, maxSize, Math.random())
+          particleType.addParticle(x, y, z, dx, dy, dz, r, g, b, a, size)
+      }
+    }
   }
 
 }

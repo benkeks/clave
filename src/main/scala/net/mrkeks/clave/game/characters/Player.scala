@@ -48,7 +48,7 @@ object Player {
 }
 
 class Player(protected val map: GameMap)
-  extends GameObject with PlayerData with PositionedObject with ObjectShadow {  
+  extends GameObject with PlayerData with PositionedObject with ObjectShadow {
   
   import PlayerData._
   import PositionedObjectData._
