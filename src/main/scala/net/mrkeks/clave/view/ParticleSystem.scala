@@ -178,10 +178,9 @@ class ParticleSystem(context: DrawingContext) {
       minColor: Vector4, maxColor: Vector4,
       minSize: Double, maxSize: Double) = {
     val particleType = particleTypes(typeKey)
-    //val dirVec = new Vector3()
-    for (i <- 0 until amount) {
-      burstKind match {
-        case ParticleSystem.BurstKind.Box =>
+    burstKind match {
+      case ParticleSystem.BurstKind.Box =>
+        for (i <- 0 until amount) {
           val x = Mathf.lerp(minPos.x, maxPos.x, Math.random())
           val y = Mathf.lerp(minPos.y, maxPos.y, Math.random())
           val z = Mathf.lerp(minPos.z, maxPos.z, Math.random())
@@ -194,7 +193,23 @@ class ParticleSystem(context: DrawingContext) {
           val a = Mathf.lerp(minColor.w, maxColor.w, Math.random())
           val size = Mathf.lerp(minSize, maxSize, Math.random())
           particleType.addParticle(x, y, z, dx, dy, dz, r, g, b, a, size)
-      }
+        }
+      case ParticleSystem.BurstKind.Radial =>
+        for (i <- 0 until amount) {
+          val deg = 2 * Math.PI * i / amount
+          val x = Mathf.lerp(minPos.x, maxPos.x, Math.random())
+          val y = Mathf.lerp(minPos.y, maxPos.y, Math.random())
+          val z = Mathf.lerp(minPos.z, maxPos.z, Math.random())
+          val dx = baseDir.x + Math.cos(deg) * dirVariation.x
+          val dy = Mathf.lerp(baseDir.y, dirVariation.y, Math.random())
+          val dz = baseDir.z + Math.sin(deg) * dirVariation.z
+          val r = Mathf.lerp(minColor.x, maxColor.x, Math.random())
+          val g = Mathf.lerp(minColor.y, maxColor.y, Math.random())
+          val b = Mathf.lerp(minColor.z, maxColor.z, Math.random())
+          val a = Mathf.lerp(minColor.w, maxColor.w, Math.random())
+          val size = Mathf.lerp(minSize, maxSize, Math.random())
+          particleType.addParticle(x, y, z, dx, dy, dz, r, g, b, a, size)
+        }
     }
   }
 

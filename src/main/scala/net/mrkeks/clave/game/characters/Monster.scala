@@ -2,6 +2,7 @@ package net.mrkeks.clave.game.characters
 
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.view.ParticleSystem
 import net.mrkeks.clave.game.GameObject
 import net.mrkeks.clave.game.ObjectShadow
 import net.mrkeks.clave.game.PositionedObject
@@ -14,7 +15,7 @@ import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.Sprite
 import org.denigma.threejs.SpriteMaterial
-import org.denigma.threejs.{Vector2, Vector3}
+import org.denigma.threejs.{Vector2, Vector3, Vector4}
 import org.denigma.threejs.Texture
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.Object3D
@@ -41,6 +42,7 @@ class Monster(protected val map: GameMap)
   import MonsterData._
   import PositionedObjectData._
 
+  var context: DrawingContext = null
   val mesh: Object3D = new Object3D()
   var eyeMesh: Option[Object3D] = None
 
@@ -51,6 +53,7 @@ class Monster(protected val map: GameMap)
   val shadowSize = .85
   
   def init(context: DrawingContext): Unit = {
+    this.context = context
     context.scene.add(mesh)
     initShadow(context)
     anim = 200.0 * Math.random()
@@ -176,6 +179,7 @@ class Monster(protected val map: GameMap)
         }
     }
 
+    // initialize mesh if necessary
     if (mesh.children.isEmpty) {
       Monster.monsterMesh.foreach { m =>
         m.children.foreach(c => mesh.add(c.clone()))
@@ -190,7 +194,19 @@ class Monster(protected val map: GameMap)
         eyeMesh = Some(mesh.getObjectByName("Eyes"))
       }
     }
-    mesh.position.set(position.x, position.y + .2, position.z)
+
+    // particles for landing
+    if (position.y <= .5 && mesh.position.y > .5000001) {
+      context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Radial,
+        new Vector3(position.x-.01, position.y-.7, position.z-.01), new Vector3(position.x+.01, position.y-.6, position.z+.01),
+        new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .7), .2, .4)
+    } // particles for jumping
+      else if (position.y > .01 && mesh.position.y <= 0.01) {
+      context.particleSystem.burst("dust", (5 + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
+        new Vector3(position.x-.01, position.y-.3, position.z-.01), new Vector3(position.x+.01, position.y-.4, position.z+.01),
+        new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .7), -.1, .2)
+    }
+    mesh.position.set(position.x, position.y, position.z)
     mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate

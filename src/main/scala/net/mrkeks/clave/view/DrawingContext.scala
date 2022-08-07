@@ -67,10 +67,6 @@ class DrawingContext() {
     val minSide = Math.min(width, height)
     cameraSpace = if (minSide < 600) 2 + 14.0 * minSide / 600.0 else 16.0
     camera.aspect = aspect
-    // camera.top = cameraSpace * .5
-    // camera.bottom = cameraSpace * -.5
-    // camera.left = cameraSpace * -.5 * aspect
-    // camera.right = cameraSpace * .5 * aspect
     camera.updateProjectionMatrix()
   }
 
