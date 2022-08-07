@@ -51,6 +51,7 @@ class ParticleSystem(context: DrawingContext) {
     geometry.setAttribute("size", sizeAttribute)
 
     val mesh = new Points(geometry, material)
+    mesh.frustumCulled = false
     context.scene.add(mesh)
 
     override def init(context: DrawingContext): Unit = {
