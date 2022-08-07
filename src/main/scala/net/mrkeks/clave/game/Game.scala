@@ -36,6 +36,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     .setGravity(.0000004)
     .setDecay(.0015)
     .setGrowth(.005)
+  context.particleSystem.registerParticleType("gfx/dust.png", "point")
+    .setGravity(-.025 / 1000)
+    .setDecay(1.0 / 1300)
+    .setGrowth(-1.0 / 2000)
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList
@@ -77,7 +81,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         //
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
         s.victoryDrawProgress += deltaTime * .025
+        val pointTar = player.get.getPosition
         s.victoryRegion = victoryRegion.dropWhile { case (x, z) =>
+          val flyTime = 1000 + 30 * pointTar.distanceTo(new Vector3(x,0,z))
+          context.particleSystem.emitParticle("point", x, -.4, z, (pointTar.x - x) / flyTime, .025 * flyTime / 2000, (pointTar.z - z) / flyTime, .93, .93, .47, 1.0, .8 + .5 * Math.random())
           map.victoryLighting(x, z) < s.victoryDrawProgress
         }
       case Lost() =>
@@ -118,14 +125,13 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         gui.setPopup(s"""
           <div class='message'>
             <p>$msgPart1</p>
-            <p><strong>You scored $levelScore points.</strong></p>
+            <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
           </div>
           <div>
             Hit [Space] to continue!
-          </div>""")
+          </div>""", delay = 500 + levelScore * 2)
         input.keyPressListener.addOne(" ", continueLevel _)
       case Lost() => 
-        score = Math.max(0, score - 50)
         gui.setPopup(s"""
           <div class='message'>
             <p>Oh no!</p>
@@ -133,7 +139,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           </div>
           <div>
             Hit [Space] to try again!
-          </div>""")
+          </div>""", delay = 500)
         input.keyPressListener.addOne(" ", continueLevel _)
     }
     state = newState

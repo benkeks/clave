@@ -90,14 +90,21 @@ class GUI() extends TimeManagement {
     * @param text popup text to be displayed
     * @param time if set, remove the the popup after `time` milliseconds
     */
-  def setPopup(text: String, time: Double = 0): Unit = {
+  def setPopup(text: String, time: Double = 0, delay: Double = 0): Unit = {
+    popupText = text
     if (text == "") {
       popup.classList.remove("visible")
     } else {
-      popup.innerHTML = text
-      popup.classList.add("visible")
+      if (delay > 0) {
+        schedule(lastFrameTime + delay) { () =>
+          popup.innerHTML = popupText
+          popup.classList.add("visible")
+        }
+      } else {
+        popup.innerHTML = popupText
+        popup.classList.add("visible")
+      }
     }
-    popupText = text
     if (time != 0) {
       schedule(lastFrameTime + time) { () =>
         if (popupText == text) {
