@@ -75,6 +75,7 @@ class Crate(
   }
   
   def clear(context: DrawingContext): Unit = {
+    context.scene.remove(highlightBox)
     context.scene.remove(mesh)
   }
   
