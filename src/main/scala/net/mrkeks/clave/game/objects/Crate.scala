@@ -10,10 +10,10 @@ import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.map.GameMap
 
+import org.denigma.threejs
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
-import org.denigma.threejs.BoxHelper
 import org.denigma.threejs.Material
 import org.denigma.threejs.Texture
 import org.denigma.threejs.{Vector3, Vector4}
@@ -36,6 +36,14 @@ object Crate {
     }
   )
 
+  private val highlightBox = {
+    val geometry = new BoxGeometry(.99, .99, .99)
+    val material = new MeshLambertMaterial()
+    material.emissive.setHex(0xaa3344)
+    material.side = threejs.THREE.BackSide
+    new Mesh(geometry, material)
+  }
+
   private val box = new BoxGeometry(.95, .95, .95)
   
   def clear(): Unit = {
@@ -53,11 +61,16 @@ class Crate(
 
   val mesh = new Mesh(Crate.box, Crate.materials(kind))
 
+  val highlightBox = Crate.highlightBox.clone()
+
   var context: DrawingContext = null
 
   def init(context: DrawingContext): Unit = {
     mesh.rotateY(.1 - .2 * Math.random())
     context.scene.add(mesh)
+    context.scene.add(highlightBox)
+    highlightBox.visible = false
+    highlightBox.parent = mesh
     this.context = context
   }
   
@@ -88,6 +101,7 @@ class Crate(
       case _ =>
     }
     mesh.position.copy(position)
+    highlightBox.visible = touching.nonEmpty
   }
   
   def pickup(player: Player): Unit = {
