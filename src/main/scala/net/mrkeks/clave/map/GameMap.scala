@@ -76,7 +76,6 @@ class GameMap(val width: Int, val height: Int)
   protected val victoryCheck = Array.ofDim[Int](width, height)
   
   // underground presentation
-  
   val groundShadow = new Uint16Array(width * height)
   (0 until width * height).foreach ( groundShadow.update(_, 255) )
   
@@ -88,24 +87,7 @@ class GameMap(val width: Int, val height: Int)
   groundMaterial.map = groundShadowTexture
   groundMaterial.reflectivity = .5
 
-  // DrawingContext.textureLoader.load("gfx/grass.png", { tex: Texture =>
-  //   //tex.repeat.set(1.2, 1.2)
-  //   tex.wrapS = THREE.RepeatWrapping
-  //   tex.wrapT = THREE.RepeatWrapping
-  //   //groundMaterial.map = tex
-  //   groundMaterial.needsUpdate = true 
-  // })
- 
   val undergroundPlane = new PlaneGeometry(1, 1)
-  // duplicate uv coords in order for groundMaterial.lightMap to work
-  //undergroundPlane.groups.foreach { f => f.materialIndex = 0 }
-  //val uv = undergroundPlane.getAttribute("uv")
-  //val uv2 = undergroundPlane.getAttribute("uv2").asInstanceOf[js.Dynamic]
-  //uv2.copy(uv)
-  //undergroundPlane.setAttribute("uv2", uv)
-  // undergroundPlane.faceVertexUvs = js.Array(
-  //   undergroundPlane.faceVertexUvs(0),
-  //   undergroundPlane.faceVertexUvs(0).map(_.map(_.clone().multiplyScalar(2.0))))
 
   val underground = new Mesh(undergroundPlane, groundMaterial)
   underground.scale.set(width, height, 1.0)
