@@ -156,7 +156,7 @@ trait MapData {
   /** assumes that x,z is a valid field */
   def isTilePermanentlyBlocked(x: Int, z: Int) = {
     data(x)(z) match {
-      case Tile.SolidWall =>
+      case Tile.SolidWall | Tile.GateClosed =>
         true
       case _ =>
         false
