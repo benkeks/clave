@@ -124,7 +124,7 @@ class Monster(protected val map: GameMap)
           yScale = Mathf.approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
           rotate = Mathf.approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
 
-          val speed = .001 * deltaTime
+          val speed = (.002 - 0.0005 * sizeLevel) * deltaTime
           val newX = Mathf.approach(position.x, tar.x, speed)
           val newY = Mathf.approach(position.y, 0, speed)
           val newZ = Mathf.approach(position.z, tar.z, speed)
@@ -134,7 +134,7 @@ class Monster(protected val map: GameMap)
           }
         }
       case s @ ChargeJumpTo(tar, progress) =>
-        if (progress >= 1.0) {
+        if (progress >= .5 * sizeLevel) {
           position.setY(0.0)
           setState(JumpTo(tar, 
               from = position.clone(),
