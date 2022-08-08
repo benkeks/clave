@@ -116,7 +116,7 @@ class Monster(protected val map: GameMap)
         }
       case MoveTo(tar) =>
         if (map.intersectsLevel(tar, considerObstacles = false) ||
-          map.getObjectsAt(map.vecToMapPos(tar)).exists(o => o != this && o.isInstanceOf[Monster])) {
+          map.getObjectsAt(map.vecToMapPos(tar)).exists(o => o != this && o.isInstanceOf[Monster] || o.isInstanceOf[Player])) {
           // if tile became blocked while moving there, turn around.
           setState(MoveTo(position.clone().round()))
         } else {
