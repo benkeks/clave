@@ -51,7 +51,7 @@ class Input {
       val diffTime = e.timeStamp - touch.lastTime
       val length = scala.math.sqrt(diffX * diffX + diffY * diffY)
 
-      if (diffTime > Input.MovementTouchTime && (touch.changedDirection || length >  Input.MovementTouchLengthThreshold)) {
+      if (diffTime > Input.MovementTouchTime && (touch.changedDirection || length > Input.MovementTouchLengthThreshold)) {
         
         if (diffX < -Input.MovementTouchDirectionThreshold * length) {
           keysDown.add(PlayerControl.LeftCode)
@@ -162,7 +162,7 @@ object Input {
   
   val MovementTouchTime: Double = 30
 
-  val MovementTouchDirectionThreshold: Double = .5
+  val MovementTouchDirectionThreshold: Double = .6
 
-  val MovementTouchLengthThreshold: Double = 20
+  val MovementTouchLengthThreshold: Double = 22
 }
