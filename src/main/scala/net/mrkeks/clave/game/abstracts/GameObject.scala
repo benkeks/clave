@@ -1,4 +1,4 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.game.abstracts
 
 import net.mrkeks.clave.view.DrawingContext
 

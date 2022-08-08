@@ -3,11 +3,11 @@ package net.mrkeks.clave.game.characters
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
-import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.ObjectShadow
-import net.mrkeks.clave.game.PositionedObject
-import net.mrkeks.clave.game.PositionedObjectData
-import net.mrkeks.clave.game.PlaceableObject
+import net.mrkeks.clave.game.abstracts.GameObject
+import net.mrkeks.clave.game.abstracts.ObjectShadow
+import net.mrkeks.clave.game.abstracts.PositionedObject
+import net.mrkeks.clave.game.abstracts.PositionedObjectData
+import net.mrkeks.clave.game.abstracts.PlaceableObject
 import net.mrkeks.clave.game.objects.{Crate, CrateData}
 
 import net.mrkeks.clave.util.markovIf

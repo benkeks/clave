@@ -5,8 +5,8 @@ import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshLambertMaterial
 import org.denigma.threejs.{Vector3, Vector4}
 
-import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.PositionedObject
+import net.mrkeks.clave.game.abstracts.GameObject
+import net.mrkeks.clave.game.abstracts.PositionedObject
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext

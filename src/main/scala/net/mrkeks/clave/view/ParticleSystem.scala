@@ -11,7 +11,7 @@ import org.denigma.threejs.BufferGeometry
 import org.denigma.threejs.Texture
 import org.denigma.threejs.{Vector3, Vector4}
 
-import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.abstracts.GameObject
 import net.mrkeks.clave.util.Mathf
 
 object ParticleSystem {

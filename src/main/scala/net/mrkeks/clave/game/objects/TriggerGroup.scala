@@ -1,6 +1,6 @@
 package net.mrkeks.clave.game.objects
 
-import net.mrkeks.clave.game.GameObject
+import net.mrkeks.clave.game.abstracts.GameObject
 import net.mrkeks.clave.view.DrawingContext
 
 /** A group of triggers that together opens a group of gates. */

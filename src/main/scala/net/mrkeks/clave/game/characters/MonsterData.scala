@@ -1,7 +1,7 @@
 package net.mrkeks.clave.game.characters
 
 import org.denigma.threejs.Vector3
-import net.mrkeks.clave.game.PositionedObjectData
+import net.mrkeks.clave.game.abstracts.PositionedObjectData
 
 object MonsterData {
   

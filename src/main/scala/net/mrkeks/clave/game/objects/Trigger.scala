@@ -4,8 +4,8 @@ import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshLambertMaterial
 
-import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.PositionedObject
+import net.mrkeks.clave.game.abstracts.GameObject
+import net.mrkeks.clave.game.abstracts.PositionedObject
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
 

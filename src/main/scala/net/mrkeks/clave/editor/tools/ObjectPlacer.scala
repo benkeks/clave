@@ -1,7 +1,7 @@
 package net.mrkeks.clave.editor.tools
 
-import net.mrkeks.clave.game.{GameObject, PlaceableObject}
-import net.mrkeks.clave.game.GameObjectManagement
+import net.mrkeks.clave.game.abstracts.{GameObject, PlaceableObject}
+import net.mrkeks.clave.game.abstracts.GameObjectManagement
 
 import org.denigma.threejs
 

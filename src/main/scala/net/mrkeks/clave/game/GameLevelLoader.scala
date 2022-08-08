@@ -11,6 +11,7 @@ import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.objects.CrateData
+import net.mrkeks.clave.game.abstracts.GameObjectManagement
 
 trait GameLevelLoader {
   self: GameObjectManagement =>

@@ -2,9 +2,9 @@ package net.mrkeks.clave.game.objects
 
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
-import net.mrkeks.clave.game.PlaceableObject
-import net.mrkeks.clave.game.GameObject
-import net.mrkeks.clave.game.PositionedObjectData
+import net.mrkeks.clave.game.abstracts.PlaceableObject
+import net.mrkeks.clave.game.abstracts.GameObject
+import net.mrkeks.clave.game.abstracts.PositionedObjectData
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.map.MapData

@@ -7,6 +7,7 @@ import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.map.LevelDownloader
+import net.mrkeks.clave.game.abstracts.GameObjectManagement
 import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.Trigger

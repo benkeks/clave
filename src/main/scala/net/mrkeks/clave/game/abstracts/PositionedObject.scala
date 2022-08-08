@@ -1,4 +1,4 @@
-package net.mrkeks.clave.game
+package net.mrkeks.clave.game.abstracts
 
 import net.mrkeks.clave.map.GameMap
 import org.denigma.threejs.Vector3
