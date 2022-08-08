@@ -199,7 +199,7 @@ class Player(protected val map: GameMap)
       case _ =>
     }
     
-    if (touching.isEmpty) {
+    if (touching.isEmpty && !state.isInstanceOf[Carrying]) {
       val newTouchObj = neighboringObjects.collectFirst { case c: Crate => c }
       
       newTouchObj.foreach(touch)
