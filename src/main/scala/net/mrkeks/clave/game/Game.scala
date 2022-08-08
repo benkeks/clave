@@ -15,6 +15,7 @@ import net.mrkeks.clave.game.objects.TriggerGroup
 import net.mrkeks.clave.view.PlayerControl
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.PlayerData
+import net.mrkeks.clave.game.characters.Monster
 
 import org.denigma.threejs.Vector3
 
@@ -75,13 +76,15 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         
         if (player.isDefined && player.get.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost())
+        } else if (playerIsSurrounded()) {
+          setState(Lost())
         } else {
           checkVictory()
         }
       case Paused() =>
         //
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
-        s.victoryDrawProgress += deltaTime * .025
+        s.victoryDrawProgress += deltaTime * .02
         val pointTar = player.get.getPosition
         s.victoryRegion = victoryRegion.dropWhile { case (x, z) =>
           val flyTime = 1000 + 30 * pointTar.distanceTo(new Vector3(x,0,z))
@@ -89,7 +92,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           map.victoryLighting(x, z) < s.victoryDrawProgress
         }
       case Lost() =>
-        gameObjects.foreach(_.update(deltaTime))
+        tickedTimeLoop {
+          gameObjects.foreach(_.update(tickTime))
+          removeAllMarkedForDeletion()
+        }
       case Continuing() =>
         player.foreach { p => 
           p.update(deltaTime)
@@ -153,6 +159,16 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       val levelScore = victoryRegion.length
       if (levelScore > 0) {
         setState(Won(levelScore, victoryRegion, 0))
+      }
+    }
+  }
+
+  def playerIsSurrounded(): Boolean = {
+    player.flatMap(_.getPositionOnMap).exists { playerPosition =>
+      map.getAdjacentPositions(playerPosition).forall { case xz @ (x,z) =>
+        map.isTilePermanentlyBlocked(x,z) ||
+        player.exists(_.state.isInstanceOf[PlayerData.Carrying]) && map.intersectsLevel(x,z, considerObstacles = true) ||
+        map.getObjectsAt(xz).exists(_.isInstanceOf[Monster])
       }
     }
   }
