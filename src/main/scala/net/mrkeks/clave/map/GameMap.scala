@@ -250,11 +250,11 @@ class GameMap(val width: Int, val height: Int)
       getAdjacentPositions(x, z).foreach {
         case x1z1 @ (x1, z1) =>
           data(x1)(z1) match {
-            case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
-              // stop recursion
-            case _ if isMonsterOn(xz) =>
+            case _ if isMonsterOn(x1z1) =>
               // stop victory check
               return List()
+            case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
+              // stop recursion
             case _ =>
               if (victoryCheck(x1)(z1) == Infinity) {
                 victoryCheck(x1)(z1) = victoryCheck(x)(z) + 1
