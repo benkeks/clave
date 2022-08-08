@@ -198,11 +198,11 @@ class ParticleSystem(context: DrawingContext) {
       case ParticleSystem.BurstKind.Radial =>
         for (i <- 0 until amount) {
           val deg = 2 * Math.PI * i / amount
-          val x = Mathf.lerp(minPos.x, maxPos.x, Math.random())
-          val y = Mathf.lerp(minPos.y, maxPos.y, Math.random())
-          val z = Mathf.lerp(minPos.z, maxPos.z, Math.random())
+          val x = minPos.x + Math.cos(deg) * maxPos.x
+          val y = minPos.y + maxPos.y * Math.random()
+          val z = minPos.z + Math.sin(deg) * maxPos.z
           val dx = baseDir.x + Math.cos(deg) * dirVariation.x
-          val dy = Mathf.lerp(baseDir.y, dirVariation.y, Math.random())
+          val dy = baseDir.y + dirVariation.y * Math.random()
           val dz = baseDir.z + Math.sin(deg) * dirVariation.z
           val r = Mathf.lerp(minColor.x, maxColor.x, Math.random())
           val g = Mathf.lerp(minColor.y, maxColor.y, Math.random())
