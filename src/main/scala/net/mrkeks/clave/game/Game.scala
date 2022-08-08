@@ -38,7 +38,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     .setGravity(.0000004)
     .setDecay(.0015)
     .setGrowth(.005)
-  context.particleSystem.registerParticleType("gfx/dust.png", "point")
+  context.particleSystem.registerParticleType("gfx/dust.png", "point", additive = true)
     .setGravity(-.025 / 1000)
     .setDecay(1.0 / 1300)
     .setGrowth(-1.0 / 2000)
