@@ -139,7 +139,7 @@ class Player(protected val map: GameMap)
       case Idle()  =>
         anim += (targetSpeed + .001) * deltaTime
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
-        if (map.isMonsterOn(positionOnMap)) {
+        if (isHarmedByMonster(positionOnMap)) {
           setState(Dead())
         }
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
@@ -152,7 +152,7 @@ class Player(protected val map: GameMap)
           dropPreview.position.setY(-.5)
         }
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
-        if (map.isMonsterOn(positionOnMap)) {
+        if (isHarmedByMonster(positionOnMap)) {
           setState(Dead())
         }
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
@@ -168,7 +168,15 @@ class Player(protected val map: GameMap)
 
     updateShadow()
   }
-  
+
+  private def isHarmedByMonster(xz: (Int, Int)) = {
+    map.getObjectsAt(xz).exists {
+      case monster: Monster =>
+        monster.sizeLevel > 1
+      case _ => false
+    }
+  }
+
   /** Transforms the player in the plane. (The y component of the Vec3 will be ignored!) */
   def move(dir: Vector3): Unit = {
     if (dir.x != 0 || dir.z != 0) {

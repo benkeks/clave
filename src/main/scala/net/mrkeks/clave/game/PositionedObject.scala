@@ -17,7 +17,11 @@ trait PositionedObject extends PositionedObjectData {
     position.set(x, y, z)
     if (!isPreview) updatePositionOnMap()
   }
-  
+
+  def removeFromMap() = {
+    setPosition(PositionedObjectData.OffMapPosition)
+  }
+
   def updatePositionOnMap(): Unit = {
     positionOnMap = map.updateObjectPosition(this, position)
   }

@@ -39,17 +39,17 @@ object ObjectShadow {
 trait ObjectShadow {
   self: PositionedObject =>
   
-  val shadowSize: Double
+  def shadowSize: Double
   
   private val towel = new Mesh(ObjectShadow.geometry, ObjectShadow.material)
   
   def initShadow(context: DrawingContext): Unit = {
     towel.rotateX(-Math.PI * .5)
-    towel.scale.set(shadowSize, shadowSize, shadowSize)
     context.scene.add(towel)
   }
     
   def updateShadow(): Unit = {
+    towel.scale.set(shadowSize, shadowSize, shadowSize)
     towel.position.set(position.x + position.y*.4 + 0.3, -0.45, position.z)
   }
   

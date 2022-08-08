@@ -63,6 +63,8 @@ object PositionedObjectData {
     }
   }
   type Direction = Direction.Value
+
+  val OffMapPosition = new Vector3(MapData.notOnMap._1, -1, MapData.notOnMap._2)
 }
 
 trait PositionedObjectData  {

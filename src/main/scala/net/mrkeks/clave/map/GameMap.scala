@@ -211,7 +211,7 @@ class GameMap(val width: Int, val height: Int)
   }
 
   override def isObstacleAt(xz: (Int, Int)): Boolean = isMonsterOn(xz)
-  
+
   def getAdjacentPositions(xz: (Int, Int)): List[(Int, Int)] = 
     getAdjacentPositions(xz._1, xz._2)
   

@@ -11,12 +11,15 @@ object MonsterData {
   case class ChargeJumpTo(tar: Vector3, var progress: Double = 0.0) extends State
   case class JumpTo(tar: Vector3, from: Vector3, var ySpeed: Double = 0.0) extends State
   case class PushedTo(tar: Vector3, var ySpeed: Double = 0.0) extends State
+  case class MergingWith(otherMonster: MonsterData) extends State
 }
 
 trait MonsterData
   extends PositionedObjectData {
-  
+
   import MonsterData._
-  
+
   var state: State = Idle()
+
+  var sizeLevel: Int = 1
 }

@@ -50,7 +50,7 @@ class Monster(protected val map: GameMap)
   var yScale = 0.0
   var rotate = 0.0
   
-  val shadowSize = .85
+  var shadowSize = .85
   
   def init(context: DrawingContext): Unit = {
     this.context = context
@@ -62,6 +62,7 @@ class Monster(protected val map: GameMap)
   }
   
   def clear(context: DrawingContext): Unit = {
+    removeFromMap()
     context.scene.remove(mesh)
     clearShadow(context)
   }
@@ -74,9 +75,9 @@ class Monster(protected val map: GameMap)
           map.findNextFreeField(positionOnMap))
       setState(PushedTo(tar, tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
     }
-    
+
     anim += .1 * deltaTime
-    
+
     if (anim % 200 < 20.0) {
       eyeMesh.foreach( e => e.scale.y = .2)
     } else {
@@ -147,7 +148,15 @@ class Monster(protected val map: GameMap)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
         if (map.intersectsLevel(tar, considerObstacles = true)) {
-          // if tile became blocked while moving there, turn around.
+          // if tile became blocked while moving there either merge with the monster there or turn around
+          val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect { case m: Monster if m.sizeLevel < 2 => m }
+          if (sizeLevel < 2 && touchedOtherSmallMonsters.nonEmpty) {
+            setState(MergingWith(touchedOtherSmallMonsters.head))
+          } else {
+            setState(PushedTo(from, -ySpeed))
+          }
+        } // there is a bigger player there, turn around.
+          else if (sizeLevel <= 1 && ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(_.isInstanceOf[Player])) {
           setState(PushedTo(from, -ySpeed))
         } else {
           val speed = .0025 * deltaTime
@@ -177,6 +186,9 @@ class Monster(protected val map: GameMap)
           setState(Idle(strollCoolDown = 2000))
           setPosition(newX, 0, newZ)
         }
+      case MergingWith(otherMonster) =>
+        otherMonster.sizeLevel += 1
+        markForDeletion()
     }
 
     // initialize mesh if necessary
@@ -195,25 +207,31 @@ class Monster(protected val map: GameMap)
       }
     }
 
+    val meshPositionOffset = -.4 + sizeLevel * .2
     // particles for landing
-    if (position.y <= .5 && mesh.position.y > .5000001) {
-      context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Radial,
+    if (position.y <= .5 && mesh.position.y - meshPositionOffset > .5000001) {
+      context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
         new Vector3(position.x-.01, position.y-.7, position.z-.01), new Vector3(position.x+.01, position.y-.6, position.z+.01),
-        new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .7), .2, .4)
+        new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .5 + .1 * sizeLevel), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
     } // particles for jumping
-      else if (position.y > .01 && mesh.position.y <= 0.01) {
-      context.particleSystem.burst("dust", (5 + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
+      else if (position.y > .01 && mesh.position.y - meshPositionOffset <= 0.01) {
+      context.particleSystem.burst("dust", (3 + 2 * sizeLevel + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
         new Vector3(position.x-.01, position.y-.3, position.z-.01), new Vector3(position.x+.01, position.y-.4, position.z+.01),
-        new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .7), -.1, .2)
+        new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .3 + .1 * sizeLevel), -.2 + .05 * sizeLevel, + .05 * sizeLevel)
     }
-    mesh.position.set(position.x, position.y, position.z)
-    mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
+    mesh.position.set(position.x, position.y + meshPositionOffset, position.z)
+    sizeLevel match {
+      case 1 =>
+        mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
+        shadowSize = .65
+      case _ =>
+        mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
+        shadowSize = .85
+    }
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
     updateShadow()
   }
-  
-  
 
   def setState(newState: State): Unit = {
     state = newState match {
