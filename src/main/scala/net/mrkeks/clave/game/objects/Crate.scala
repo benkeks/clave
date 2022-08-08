@@ -31,7 +31,8 @@ object Crate {
         m.map = tex
         m.needsUpdate = true
       })
-      m.color.setHex(0xdddd99)
+      m.color.setHex(0xffccbb)
+      m.emissive.setHex(0x332211)
       m
     }
   )
