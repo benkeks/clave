@@ -42,6 +42,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     .setGravity(-.025 / 1000)
     .setDecay(1.0 / 1300)
     .setGrowth(-1.0 / 2000)
+  context.particleSystem.registerParticleType("gfx/shadow.gif", "spark", maxAmount = 100, additive = true)
+    .setDecay(.001)
+    .setGrowth(.0015)
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList

@@ -52,6 +52,7 @@ class ParticleSystem(context: DrawingContext) {
 
     val mesh = new Points(geometry, material)
     mesh.frustumCulled = false
+    mesh.renderOrder = 5
     context.scene.add(mesh)
 
     override def init(context: DrawingContext): Unit = {
@@ -143,8 +144,7 @@ class ParticleSystem(context: DrawingContext) {
 
   val particleTypes = new HashMap[String,ParticleType]()
 
-  def registerParticleType(textureUrl: String, typeKey: String): ParticleType = {
-
+  def registerParticleType(textureUrl: String, typeKey: String, maxAmount: Int = 1000, additive: Boolean = false): ParticleType = {
     val material = new PointsMaterial()
     material.depthWrite = false
     material.vertexColors = true
@@ -152,12 +152,17 @@ class ParticleSystem(context: DrawingContext) {
       shader.vertexShader = shader.vertexShader.replaceFirst("uniform float size;", "attribute float size;")
     }
     DrawingContext.textureLoader.load(textureUrl, { tex: Texture =>
-      material.alphaMap = tex
-      material.opacity = .9
+      if (additive) {
+        material.blending = threejs.THREE.AdditiveBlending
+        material.map = tex
+      } else {
+        material.blending = threejs.THREE.NormalBlending
+        material.alphaMap = tex
+      }
       material.transparent = true
       material.needsUpdate = true
     })
-    val particleType = new ParticleType(material)
+    val particleType = new ParticleType(material, maxAmount)
     particleTypes(typeKey) = particleType
     particleType
   }

@@ -74,6 +74,19 @@ class Crate(
         pos.y += .3
         position.copy(pos)
     }
+    kind match { 
+      case CrateData.PlayerLikeKind =>
+        // occasional “attraction” particles 
+        if (Math.random() > .98) {
+          val offset = new Vector3(-1.5 + 3.0*Math.random(), -.5 + 1.5*Math.random(), -1.5 + 3.0*Math.random())
+          val start = position.clone().sub(offset)
+          val color = if (Math.random() > .7) new Vector4(.9, .9, .9, .5) else new Vector4(.8, .1, .1, .4)
+          offset.multiplyScalar(.0015)
+          context.particleSystem.burst("spark", 1, ParticleSystem.BurstKind.Box,
+            start, start, offset, offset, color, color, .0, .1)
+        }
+      case _ =>
+    }
     mesh.position.copy(position)
   }
   
