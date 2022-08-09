@@ -157,7 +157,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           <div>
             Hit [Space] to continue!
           </div>""", delay = 500 + levelScore * 2)
-        input.keyPressListener.addOne(" ", continueLevel _)
+        input.keyPressListener.addOne(" ", (this, continueLevel _))
       case Lost() => 
         gui.setPopup(s"""
           <div class='message'>
@@ -167,7 +167,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           <div>
             Hit [Space] to try again!
           </div>""", delay = 500)
-        input.keyPressListener.addOne(" ", continueLevel _)
+        input.keyPressListener.addOne(" ", (this, continueLevel _))
     }
     state = newState
     gui.notifyGameState()
@@ -223,7 +223,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   
   def continueLevel(): Unit = {
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
-      input.keyPressListener.subtractOne(" ", continueLevel _)
+      input.keyPressListener.filterNot {case (key, (tar, _)) => tar == this && key == " " }
       gui.setPopup("")
       currentLevelNum += (if (state.isInstanceOf[Won]) 1 else 0)
       val nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
@@ -240,6 +240,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
     }
     gui.setLevelHighScore(levelScores(id))
+    if (playerControl != null) playerControl.clear()
     playerControl = new PlayerControl(player.get, input)
     player.get.setState(PlayerData.Spawning(ySpeed = -.06))
   }

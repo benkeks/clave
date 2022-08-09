@@ -9,7 +9,7 @@ class Input {
 
   val keysDown = collection.mutable.Set.empty[Int]
 
-  val keyPressListener = MultiDict[String, (() => Unit)]()
+  val keyPressListener = MultiDict[String, (AnyRef, () => Unit)]()
 
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     keysDown.add(toKeyCodeInt(e))
@@ -20,7 +20,7 @@ class Input {
   
   dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
     keyPressListener.get(e.key)
-      .foreach(cb => cb())
+      .foreach {  case (_, cb) => cb() }
   }
 
   class Touch(
@@ -105,7 +105,7 @@ class Input {
 
   private def fakeAction(keyStr: String) = {
     keyPressListener.get(keyStr)
-      .foreach(cb => cb())
+      .foreach {  case (_, cb) => cb() }
   }
 
   var gamepadsActive = false

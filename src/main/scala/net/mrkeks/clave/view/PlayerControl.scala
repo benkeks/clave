@@ -4,7 +4,9 @@ import net.mrkeks.clave.game.characters.Player
 
 class PlayerControl(val player: Player, val input: Input) {
   
-  input.keyPressListener.addOne(PlayerControl.ActionCharStr, actionKey _)
+  input.keyPressListener.addOne(PlayerControl.ActionCharStr, (this, actionKey))
+
+  private var actionRegistered = false
   
   def update(deltaTime: Double): Unit = {
     player.direction.set(0,0,0)
@@ -14,14 +16,18 @@ class PlayerControl(val player: Player, val input: Input) {
     if (input.keysDown(PlayerControl.UpCode) || input.gamepad.exists(_.axes(1) <= -.5)) player.direction.z -= 1
     if (input.keysDown(PlayerControl.DownCode) || input.gamepad.exists(_.axes(1) >= .5)) player.direction.z += 1
 
+    if (actionRegistered) {
+      player.doAction()
+      actionRegistered = false
+    }
   }
   
   def actionKey(): Unit = {
-    player.doAction()
+    actionRegistered = true
   }
   
   def clear(): Unit = {
-    input.keyPressListener.subtractOne(PlayerControl.ActionCharStr, actionKey _)
+    input.keyPressListener.removeKey(PlayerControl.ActionCharStr)
   }
   
 }
