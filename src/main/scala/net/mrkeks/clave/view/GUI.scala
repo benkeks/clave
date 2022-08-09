@@ -10,6 +10,12 @@ import org.scalajs.dom
 
 class GUI() extends TimeManagement {
 
+  private object Texts {
+    val ContinueSymbol = "▶"
+    val PauseSymbol = "☰"
+    val LevelSelectionSymbol = "⡿"
+  }
+
   private val hudContainer = dom.document.createElement("div")
   hudContainer.id = "hud"
 
@@ -21,7 +27,7 @@ class GUI() extends TimeManagement {
   scoreTextNode.appendChild(scoreText)
 
   private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
-  private val pauseButtonText = dom.document.createTextNode("Pause")
+  private val pauseButtonText = dom.document.createTextNode(Texts.PauseSymbol)
   pauseButton.classList.add("btn")
   pauseButton.classList.add("btn-secondary")
   pauseButton.appendChild(pauseButtonText)
@@ -32,7 +38,7 @@ class GUI() extends TimeManagement {
   switchButton.classList.add("btn")
   switchButton.classList.add("btn-secondary")
   switchButton.classList.add("d-none")
-  switchButton.appendChild(dom.document.createTextNode("Switch Level"))
+  switchButton.appendChild(dom.document.createTextNode(Texts.LevelSelectionSymbol))
   switchButton.addEventListener("click", clickSwitch _)
   hudContainer.appendChild(switchButton)
 
@@ -143,6 +149,10 @@ class GUI() extends TimeManagement {
         btn.children(1).innerText = s"(${game.levelScores(id)})"
         if (game.scoreHasBeenUpdated(id))
           btn.classList.add("score-updated")
+        if (game.currentLevelId == id)
+          btn.classList.add("current-level")
+        else
+          btn.classList.remove("current-level")
       } else {
         btn.classList.add("d-none")
       }
@@ -150,27 +160,37 @@ class GUI() extends TimeManagement {
   }
 
   def notifyGameState(): Unit = {
-    pauseButtonText.textContent = "Pause"
+    pauseButtonText.textContent = Texts.PauseSymbol
     game map (_.state) match {
       case Some(Game.LevelScreen()) =>
-        pauseButtonText.textContent = "Continue"
+        pauseButtonText.textContent = Texts.ContinueSymbol
         updateLevelListDisplay(game.get)
         levelList.classList.add("visible")
         showHide(switchButton, show = false)
+        showHide(pauseButton, show = true)
       case Some(Game.Paused()) =>
-        pauseButtonText.textContent = "Continue"
+        pauseButtonText.textContent = Texts.ContinueSymbol
         levelList.classList.remove("visible")
         showHide(switchButton, show = true)
+        showHide(pauseButton, show = true)
       case Some(Game.Continuing()) =>
         overlay.classList.remove("scene-fadein")
         overlay.classList.add("scene-fadeout")
         levelList.classList.remove("visible")
         showHide(switchButton, show = false)
+        showHide(pauseButton, show = true)
+      case Some(Game.Lost()) | Some(Game.Won(_, _, _)) =>
+        overlay.classList.remove("scene-fadeout")
+        overlay.classList.add("scene-fadein")
+        levelList.classList.remove("visible")
+        showHide(switchButton, show = false)
+        showHide(pauseButton, show = false)
       case _ =>
         overlay.classList.remove("scene-fadeout")
         overlay.classList.add("scene-fadein")
         levelList.classList.remove("visible")
         showHide(switchButton, show = false)
+        showHide(pauseButton, show = true)
     }
   }
 

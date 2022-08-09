@@ -96,6 +96,13 @@ body {
   color: #ed4;
   opacity: 0.8;
 }
+#level-list .level-sel.current-level {
+  border: 3px solid white;
+}
+#level-list .level-sel:hover, #level-list .level-sel:focus {
+  transform: scale(1.05);
+  transition: transform 300ms;
+}
 .scene-fadeout {
   background: rgb(40,10,40);
   opacity: 1.0;
