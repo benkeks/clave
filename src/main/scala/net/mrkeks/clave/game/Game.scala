@@ -18,6 +18,8 @@ import net.mrkeks.clave.game.characters.PlayerData
 import net.mrkeks.clave.game.characters.Monster
 
 import org.denigma.threejs.Vector3
+import scala.scalajs.js
+import net.mrkeks.clave.util.Mathf
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
   extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement {
@@ -45,6 +47,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   context.particleSystem.registerParticleType("gfx/shadow.gif", "spark", maxAmount = 100, additive = true)
     .setDecay(.001)
     .setGrowth(.0015)
+  private val bgParticles = context.particleSystem.registerParticleType("gfx/dust.png", "bgfog")
+    .setGravity(.00000012)
+    .setDecay(.00005)
+    .setGrowth(.0008)
+  private var bgParticleTimer = 0.0
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList
@@ -64,6 +71,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   def handleState(): Unit = {
 
     context.particleSystem.update(deltaTime)
+
+    updateBackground()
 
     state match {
       case StartUp() =>
@@ -155,8 +164,36 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     state = newState
     gui.notifyGameState()
   }
-  
-  def checkVictory(): Unit = {
+
+  private def updateBackground(): Unit = {
+    val rotationDir = if (state.isInstanceOf[Won]) -1 else if (state.isInstanceOf[Paused]) .2 else 1
+    bgParticles.mesh.rotation.y += .00003 * rotationDir * deltaTime
+    if (map != null) bgParticles.mesh.position.copy(map.center) else bgParticles.mesh.position.set(8,0,8)
+    if (state.isInstanceOf[Paused] || state.isInstanceOf[LevelScreen] || state.isInstanceOf[StartUp]) {
+      bgParticles.mesh.scale.y = Mathf.approach(bgParticles.mesh.scale.y, 0.5, .003 * deltaTime)
+    } else if (state.isInstanceOf[Lost]) {
+      bgParticles.mesh.scale.y = Mathf.approach(bgParticles.mesh.scale.y, 0.4, .00002 * deltaTime)
+    } else {
+      bgParticles.mesh.scale.y = Mathf.approach(bgParticles.mesh.scale.y, 1.0, .003 * deltaTime)
+    }
+    bgParticles.mesh.scale.x = bgParticles.mesh.scale.y
+    bgParticles.mesh.scale.z = bgParticles.mesh.scale.y
+    bgParticles.mesh.position.z += (1.0 - bgParticles.mesh.scale.y) * 10.0
+    bgParticles.mesh.rotation.x = (bgParticles.mesh.scale.y - 1.0) * Math.PI * (if (state.isInstanceOf[Lost]) -1.0 else 1.0)
+    if (lastFrameTime > bgParticleTimer) {
+      val baseBrightness = if (state.isInstanceOf[Lost]) -.1 else .5
+      val deg = 2 * Math.PI * Math.random()
+      val dist = (if (map != null) map.center.asInstanceOf[js.Dynamic].manhattanLength().asInstanceOf[Double] else 14) + 4 * Math.random()
+      context.particleSystem.emitParticle("bgfog",
+        Math.cos(deg) * dist, -8 + 8 * Math.random(), Math.sin(deg) * dist,
+        -.0005 + .001 * Math.random(), -.0005 + .001 * Math.random(), -.0005 + .001 * Math.random(),
+        baseBrightness + .5 * Math.random(), baseBrightness + .5 * Math.random(), baseBrightness + .5 * Math.random(), .5 + .3 * Math.random(),
+        -.5 + 1.5 * Math.random())
+      bgParticleTimer = lastFrameTime + 150
+    }
+  }
+
+  private def checkVictory(): Unit = {
     if (state.isInstanceOf[Running]) {
       val victoryRegion = map.checkVictory(getPlayerPositions)
       val levelScore = victoryRegion.length
@@ -166,7 +203,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     }
   }
 
-  def playerIsSurrounded(): Boolean = {
+  private def playerIsSurrounded(): Boolean = {
     player.flatMap(_.getPositionOnMap).exists { playerPosition =>
       map.getAdjacentPositions(playerPosition).forall { case xz @ (x,z) =>
         map.isTilePermanentlyBlocked(x,z) ||

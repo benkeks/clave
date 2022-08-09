@@ -71,6 +71,7 @@ class GameMap(val width: Int, val height: Int)
   private val positionedGroundItems =
       MultiDict[(Int, Int), Int]()
 
+  val center = new Vector3(width / 2.0, 0, height / 2.0)
 
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Int](width, height)
