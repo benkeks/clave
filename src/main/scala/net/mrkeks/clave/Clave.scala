@@ -54,7 +54,8 @@ object Clave {
         val initialLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
         game.loadProgress()
         game.unlockLevel(initialLevelId)
-        game.setState(Game.LevelScreen())
+        game.loadLevelById("__titleScreen__")
+        game.setState(Game.StartUp())
 
         def update(timeStamp: Double): Unit = {
           game.update(timeStamp)

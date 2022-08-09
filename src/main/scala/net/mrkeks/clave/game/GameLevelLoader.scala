@@ -7,7 +7,7 @@ import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.objects.Trigger
 import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.map.MapData
-import net.mrkeks.clave.game.characters.Player
+import net.mrkeks.clave.game.characters.{Player, PlayerData}
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.objects.CrateData
@@ -29,9 +29,14 @@ trait GameLevelLoader {
   }
 
   def loadLevelById(levelId: String): Unit = {
-    for (level <- levelDownloader.getLevelById(levelId)) {
-      currentLevelNum = levelDownloader.getNumById(levelId)
-      loadLevel(level)
+    if (levelId == "__titleScreen__") {
+      loadLevel(Level.titleScreen)
+      player.foreach(_.setPosition(10,0,20))
+    } else {
+      for (level <- levelDownloader.getLevelById(levelId)) {
+        currentLevelNum = levelDownloader.getNumById(levelId)
+        loadLevel(level)
+      }
     }
   }
 

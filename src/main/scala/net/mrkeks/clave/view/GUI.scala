@@ -162,7 +162,7 @@ class GUI() extends TimeManagement {
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = Texts.PauseSymbol
     game map (_.state) match {
-      case Some(Game.LevelScreen()) =>
+      case Some(Game.LevelScreen()) | Some(Game.StartUp())=>
         pauseButtonText.textContent = Texts.ContinueSymbol
         updateLevelListDisplay(game.get)
         levelList.classList.add("visible")

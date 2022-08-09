@@ -76,6 +76,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
     state match {
       case StartUp() =>
+        tickedTimeLoop {
+          gameObjects.foreach(_.update(tickTime))
+
+          removeAllMarkedForDeletion()
+        }
       case LevelScreen() =>
       case Running() =>
         playerControl.update(deltaTime)
@@ -169,7 +174,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     val rotationDir = if (state.isInstanceOf[Won]) -1 else if (state.isInstanceOf[Paused]) .2 else 1
     bgParticles.mesh.rotation.y += .00003 * rotationDir * deltaTime
     if (map != null) bgParticles.mesh.position.copy(map.center) else bgParticles.mesh.position.set(8,0,8)
-    if (state.isInstanceOf[Paused] || state.isInstanceOf[LevelScreen] || state.isInstanceOf[StartUp]) {
+    if (state.isInstanceOf[Paused] || state.isInstanceOf[LevelScreen]) {
       bgParticles.mesh.scale.y = Mathf.approach(bgParticles.mesh.scale.y, 0.5, .003 * deltaTime)
     } else if (state.isInstanceOf[Lost]) {
       bgParticles.mesh.scale.y = Mathf.approach(bgParticles.mesh.scale.y, 0.4, .00002 * deltaTime)
@@ -240,7 +245,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     state match {
       case Paused() => setState(Running())
       case Running() => setState(Paused())
-      case LevelScreen() => {
+      case LevelScreen() | StartUp() => {
         if (map == null) {
           switchLevelById(upcomingLevelId.get)
         }
