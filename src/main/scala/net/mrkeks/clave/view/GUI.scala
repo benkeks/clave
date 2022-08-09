@@ -7,6 +7,7 @@ import net.mrkeks.clave.util.TimeManagement
 import scala.collection.mutable.Map
 
 import org.scalajs.dom
+import scala.scalajs.js.URIUtils
 
 class GUI() extends TimeManagement {
 
@@ -14,6 +15,8 @@ class GUI() extends TimeManagement {
     val ContinueSymbol = "▶"
     val PauseSymbol = "☰"
     val LevelSelectionSymbol = "⡿"
+    val GameURL = "https://benkeks.itch.io/clave"
+    val JustPlayed = "Just played Clave"
   }
 
   private val hudContainer = dom.document.createElement("div")
@@ -23,7 +26,7 @@ class GUI() extends TimeManagement {
   scoreTextNode.id = "level-info"
   scoreTextNode.classList.add("score")
   hudContainer.appendChild(scoreTextNode)
-  private val scoreText = dom.document.createTextNode("Welcome!")
+  private val scoreText = dom.document.createTextNode("")
   scoreTextNode.appendChild(scoreText)
 
   private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
@@ -86,6 +89,20 @@ class GUI() extends TimeManagement {
       levelList.appendChild(levelButton)
       levelButtons(levelId) = levelButton
     }
+    val feedbackButton = dom.document.createElement("a").asInstanceOf[dom.raw.HTMLElement]
+    val plainUrl = Texts.GameURL
+    val encodedUrl = URIUtils.encodeURI(plainUrl)
+    val encodedTweet = URIUtils.encodeURI(Texts.JustPlayed)
+    feedbackButton.classList.add("btn")
+    feedbackButton.classList.add("btn-secondary")
+    feedbackButton.classList.add("level-sel")
+    feedbackButton.classList.add("social-button")
+    feedbackButton.setAttribute("href", plainUrl)
+    feedbackButton.setAttribute("target", "_blank")
+    feedbackButton.innerHTML = s"""
+      ❤ / 🐛<br>If you like Clave or discover bugs, tell @benkeks on <a href="$plainUrl" target="_blank">itch.io</a> or on <a href="https://twitter.com/intent/tweet?text=$encodedTweet&hashtags=clave&url=$encodedUrl&via=benkeks" target="_blank">Twitter</a>!
+    """
+    levelList.appendChild(feedbackButton)
   }
 
   def setLevelHighScore(score: Int): Unit = {

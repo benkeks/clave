@@ -107,6 +107,19 @@ body {
   transform: scale(1.05);
   transition: transform 300ms;
 }
+a {
+  color: #dd33bb;
+}
+a:hover {
+  color: #aa2299;
+  text-decoration: none;
+}
+#level-list .level-sel.social-button {
+  margin-left: 20px;
+  width: 180px;
+  background-color: rgba(60, 60, 60, 0.8);
+}
+
 .scene-fadeout {
   background: rgb(40,10,40);
   opacity: 1.0;
