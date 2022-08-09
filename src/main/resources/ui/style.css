@@ -65,7 +65,11 @@ body {
   display: none;
 }
 
-#popup.visible, #level-list.visible {
+#hud.startup #level-list {
+  padding-top: calc(55vh);
+}
+
+#popup.visible, #hud.startup #level-list, #hud.levelscreen #level-list {
   transform: translateX(-50%) translateY(-50%) scale(1);
   opacity: 1;
   display: block;

@@ -161,36 +161,37 @@ class GUI() extends TimeManagement {
 
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = Texts.PauseSymbol
-    game map (_.state) match {
-      case Some(Game.LevelScreen()) | Some(Game.StartUp())=>
-        pauseButtonText.textContent = Texts.ContinueSymbol
-        updateLevelListDisplay(game.get)
-        levelList.classList.add("visible")
-        showHide(switchButton, show = false)
-        showHide(pauseButton, show = true)
-      case Some(Game.Paused()) =>
-        pauseButtonText.textContent = Texts.ContinueSymbol
-        levelList.classList.remove("visible")
-        showHide(switchButton, show = true)
-        showHide(pauseButton, show = true)
-      case Some(Game.Continuing()) =>
-        overlay.classList.remove("scene-fadein")
-        overlay.classList.add("scene-fadeout")
-        levelList.classList.remove("visible")
-        showHide(switchButton, show = false)
-        showHide(pauseButton, show = true)
-      case Some(Game.Lost()) | Some(Game.Won(_, _, _)) =>
-        overlay.classList.remove("scene-fadeout")
-        overlay.classList.add("scene-fadein")
-        levelList.classList.remove("visible")
-        showHide(switchButton, show = false)
-        showHide(pauseButton, show = false)
-      case _ =>
-        overlay.classList.remove("scene-fadeout")
-        overlay.classList.add("scene-fadein")
-        levelList.classList.remove("visible")
-        showHide(switchButton, show = false)
-        showHide(pauseButton, show = true)
+    Game.GameStateIds.foreach(hudContainer.classList.remove(_))
+    for (
+      g <- game
+    ) {
+      hudContainer.classList.add(Game.gameStateToId(g.state))
+      g.state match {
+        case Game.LevelScreen() | Game.StartUp(_) =>
+          pauseButtonText.textContent = Texts.ContinueSymbol
+          updateLevelListDisplay(game.get)
+          showHide(switchButton, show = false)
+          showHide(pauseButton, show = true)
+        case Game.Paused() =>
+          pauseButtonText.textContent = Texts.ContinueSymbol
+          showHide(switchButton, show = true)
+          showHide(pauseButton, show = true)
+        case Game.Continuing() =>
+          overlay.classList.remove("scene-fadein")
+          overlay.classList.add("scene-fadeout")
+          showHide(switchButton, show = false)
+          showHide(pauseButton, show = true)
+        case Game.Lost() | Game.Won(_, _, _) =>
+          overlay.classList.remove("scene-fadeout")
+          overlay.classList.add("scene-fadein")
+          showHide(switchButton, show = false)
+          showHide(pauseButton, show = false)
+        case _ =>
+          overlay.classList.remove("scene-fadeout")
+          overlay.classList.add("scene-fadein")
+          showHide(switchButton, show = false)
+          showHide(pauseButton, show = true)
+      }
     }
   }
 

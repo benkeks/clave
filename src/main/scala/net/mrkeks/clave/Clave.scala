@@ -55,7 +55,7 @@ object Clave {
         game.loadProgress()
         game.unlockLevel(initialLevelId)
         game.loadLevelById("__titleScreen__")
-        game.setState(Game.StartUp())
+        game.setState(Game.StartUp(0))
 
         def update(timeStamp: Double): Unit = {
           game.update(timeStamp)

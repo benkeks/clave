@@ -26,7 +26,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   import Game._
 
-  var state: State = StartUp()
+  var state: State = StartUp(0)
 
   var map: GameMap = null
   
@@ -75,12 +75,14 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     updateBackground()
 
     state match {
-      case StartUp() =>
+      case s @ StartUp(anim) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
 
           removeAllMarkedForDeletion()
         }
+        s.anim = Math.min(150, anim + .04 * deltaTime)
+        context.cameraUpdatePosition(new Vector3(map.center.x, map.center.y, map.center.z * 3), spectatorOffSet = 160.0 - anim)
       case LevelScreen() =>
       case Running() =>
         playerControl.update(deltaTime)
@@ -123,15 +125,16 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         }
     }
 
-    player.foreach { p => 
-      val y = p.getPosition.y
-      context.cameraUpdatePosition(p.getPosition)
+    if (!state.isInstanceOf[StartUp]) {
+      player.foreach { p =>
+        context.cameraUpdatePosition(p.getPosition)
+      }
     }
   }
   
   def setState(newState: State): Unit = {
     newState match {
-      case StartUp() =>
+      case StartUp(_) =>
       case LevelScreen() =>
       case Running() =>
       case Paused() =>
@@ -245,12 +248,14 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     state match {
       case Paused() => setState(Running())
       case Running() => setState(Paused())
-      case LevelScreen() | StartUp() => {
+      case StartUp(_) =>
+        switchLevelById(upcomingLevelId.get)
+        setState(Running())
+      case LevelScreen() =>
         if (map == null) {
           switchLevelById(upcomingLevelId.get)
         }
         setState(Running())
-      }
       case _ =>
     }
   }
@@ -258,11 +263,23 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
 object Game {
   abstract sealed class State
-  case class StartUp() extends State
+  case class StartUp(var anim: Double) extends State
   case class LevelScreen() extends State
   case class Running() extends State
   case class Paused() extends State
   case class Won(levelScore: Int, var victoryRegion: List[(Int, Int)], var victoryDrawProgress: Double) extends State
   case class Lost() extends State
   case class Continuing() extends State
+
+  def gameStateToId(s: State) = s match {
+    case StartUp(_) => "startup"
+    case LevelScreen() => "levelscreen"
+    case Running() => "running"
+    case Paused() => "paused"
+    case Won(_, _, _) => "won"
+    case Lost() => "lost"
+    case Continuing() => "continuing"
+  }
+
+  val GameStateIds = List("startup", "levelscreen", "running", "paused", "won", "lost", "continuing")
 }
