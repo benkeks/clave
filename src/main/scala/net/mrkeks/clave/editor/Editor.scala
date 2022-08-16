@@ -33,7 +33,11 @@ class Editor(val context: DrawingContext, val input: Input, val gui: EditorGUI, 
   gui.registerTools(editorTools, setTool _)
 
   var currentEditorTool = editorTools(1)
-  
+
+  context.particleSystem.registerParticleType("gfx/dust.png", "dust", maxAmount = 0)
+  context.particleSystem.registerParticleType("gfx/dust.png", "point", maxAmount = 0)
+  context.particleSystem.registerParticleType("gfx/shadow.gif", "spark", maxAmount = 0)
+
   def update(timeStamp: Double): Unit = {
 
     input.update(timeStamp)
