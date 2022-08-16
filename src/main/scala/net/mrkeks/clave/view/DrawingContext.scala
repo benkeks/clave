@@ -62,7 +62,7 @@ class DrawingContext() {
     width = dom.window.innerWidth
     height = dom.window.innerHeight
     aspect = width / height
-    renderer.devicePixelRatio = dom.window.devicePixelRatio
+    renderer.asInstanceOf[js.Dynamic].setPixelRatio(dom.window.devicePixelRatio)
     renderer.setSize(width, height)
     val minSide = Math.min(width, height)
     cameraSpace = if (minSide < 600) 2 + 14.0 * minSide / 600.0 else 16.0
