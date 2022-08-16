@@ -110,7 +110,7 @@ class ParticleSystem(context: DrawingContext) {
     }
 
     def setGrowth(growSpeed: Double) = {
-      this.growth = growSpeed.toFloat
+      this.growth = (growSpeed * context.devicePixelRatio).toFloat
       this
     }
 
@@ -135,7 +135,7 @@ class ParticleSystem(context: DrawingContext) {
         colors(currentCount * 4+2) = b.toFloat
         colors(currentCount * 4+3) = a.toFloat
 
-        sizes(currentCount) = size.toFloat
+        sizes(currentCount) = (size + context.devicePixelRatio).toFloat
 
         currentCount += 1
       }
