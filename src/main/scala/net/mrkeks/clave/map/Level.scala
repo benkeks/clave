@@ -60,21 +60,21 @@ object Level {
   }
 
   def levelFromYAML(txt: String): Option[Level] = {
-    val yaml = yamlesque.read(txt).obj
+    val yaml = yamlesque.read(txt.drop(3)).obj
     if (Set("name", "width", "height", "tilemap") subsetOf yaml.keySet) {
       val objects = for {
         yObj <- yaml.get("objects").toList
         node <- yObj.arr
         nObj = node.obj
-      } yield Level.ObjectInfo(nObj("kind").str, nObj("x").num.toInt, nObj("z").num.toInt)
-      Some(Level(yaml("name").str, yaml("width").num.toInt, yaml("height").num.toInt, parseCSV(yaml("tilemap").str), objects))
+      } yield Level.ObjectInfo(nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt)
+      Some(Level(yaml("name").str, yaml("width").str.toInt, yaml("height").str.toInt, parseCSV(yaml("tilemap").str), objects))
     } else {
       None
     }
   }
 
   def levelNameListFromYAML(txt: String): List[String] = {
-    val yaml = yamlesque.read(txt).obj
+    val yaml = yamlesque.read(txt.drop(3)).obj
     yaml("levels").arr.toList.map(_.str)
   }
 }

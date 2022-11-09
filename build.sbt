@@ -4,18 +4,22 @@ enablePlugins(ScalaJSPlugin)
 
 //enablePlugins(ScalaJSBundlerPlugin)
 
+enablePlugins(JSDependenciesPlugin)
+
 name := "Clave"
 
 version := "0.2.0"
 
 scalaVersion := "2.13.4"
 
+//scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+
 //workbenchDefaultRootObject := Some(("target/scala-2.13/classes/index.html", "target/scala-2.13/classes/"))
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.2.0",
-  "org.scala-js" %%% "scalajs-dom" % "0.9.8",
-  "io.crashbox" %%% "yamlesque" % "0.2.0"
+  "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.3.0",
+  "org.scala-js" %%% "scalajs-dom" % "2.1.0",
+  "io.crashbox" %%% "yamlesque" % "0.3.0"
 )
 
 jsDependencies ++= Seq(
@@ -25,11 +29,14 @@ jsDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "4.4.1" / "bootstrap.js" minified "bootstrap.min.js" dependsOn "jquery.js"
 )
 
-artifactPath in (Compile,fastOptJS) :=
-      ((classDirectory in Compile).value / "app" / ((moduleName in fastOptJS).value + ".js"))
+//Compile / fastLinkJS / scalaJSLinkerOutputDirectory :=
+//       (Compile / classDirectory).value / "app"
 
-artifactPath in (Compile,fullOptJS) := (artifactPath in (Compile,fastOptJS)).value
+Compile / fastOptJS / artifactPath :=
+      ((Compile / classDirectory).value / "app" / ((fastOptJS / moduleName).value + ".js"))
 
-Compile / packageJSDependencies / artifactPath := ((classDirectory in Compile).value / "app" / ((moduleName in fastOptJS).value + "-jsdeps.js"))
+Compile / fullOptJS / artifactPath := (Compile / fullOptJS / artifactPath).value
+
+Compile / packageJSDependencies /artifactPath := ((Compile / classDirectory).value / "app" / ((fastOptJS / moduleName).value + "-jsdeps.js"))
 
 scalacOptions ++= Seq("-deprecation")

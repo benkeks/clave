@@ -34,12 +34,12 @@ trait ProgressTracking {
   private def saveProgress(): Unit = {
     val scoresYaml = for {
       (lvlId, lvlScore) <- levelScores
-    } yield (lvlId, new yamlesque.Num(lvlScore).asInstanceOf[yamlesque.Node])
+    } yield (lvlId, new yamlesque.Str(lvlScore.toString()).asInstanceOf[yamlesque.Value])
     val scoreMap = new yamlesque.Obj(scoresYaml)
     val yamlString = yamlesque.write(yamlesque.Obj(
       "scores" -> scoreMap,
       "version" -> yamlesque.Str(ClaveVersion),
-      "hash" -> yamlesque.Num(levelScores.hashCode())))
+      "hash" -> yamlesque.Str(levelScores.hashCode().toString())))
     dom.window.localStorage.setItem(LocalStorageScoreKey, yamlString)
   }
 
@@ -51,7 +51,7 @@ trait ProgressTracking {
         && yaml("version").str == ClaveVersion) {
         val loadedScores = for {
           yScores <- yaml.get("scores").toList
-          (lvlId, yamlesque.Num(lvlScore)) <- yScores.obj
+          (lvlId, yamlesque.Str(lvlScore)) <- yScores.obj
         } yield (lvlId, lvlScore.toInt)
         levelScores.clear()
         levelScores.addAll(loadedScores)
