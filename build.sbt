@@ -1,6 +1,6 @@
 enablePlugins(ScalaJSPlugin)
 
-enablePlugins(WorkbenchPlugin)
+//enablePlugins(WorkbenchPlugin)
 
 //enablePlugins(ScalaJSBundlerPlugin)
 
@@ -10,7 +10,7 @@ version := "0.2.0"
 
 scalaVersion := "2.13.4"
 
-workbenchDefaultRootObject := Some(("target/scala-2.13/classes/index.html", "target/scala-2.13/classes/"))
+//workbenchDefaultRootObject := Some(("target/scala-2.13/classes/index.html", "target/scala-2.13/classes/"))
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.2.0",

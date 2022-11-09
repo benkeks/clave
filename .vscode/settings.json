@@ -1,0 +1,6 @@
+{
+  "files.watcherExclude": {
+    "**/target": true
+  },
+  "liveServer.settings.root": "/target/scala-2.13/classes/"
+}
