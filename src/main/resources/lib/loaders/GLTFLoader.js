@@ -1517,7 +1517,7 @@
  * changed via the `onBeforeCompile` callback
  * @pailhead
  */
-	class GLTFMeshStandardSGMaterial extends THREE.MeshStandardMaterial {
+	class GLTFMeshStandardSGMaterial extends THREE.MeshToonMaterial {
 
 		constructor( params ) {
 
@@ -1627,10 +1627,10 @@
 					}
 				}
 			} );
-			delete this.metalness;
-			delete this.roughness;
-			delete this.metalnessMap;
-			delete this.roughnessMap;
+			//delete this.metalness;
+			//delete this.roughness;
+			//delete this.metalnessMap;
+			//delete this.roughnessMap;
 			this.setValues( params );
 
 		}
@@ -1641,10 +1641,10 @@
 			this.specular.copy( source.specular );
 			this.glossinessMap = source.glossinessMap;
 			this.glossiness = source.glossiness;
-			delete this.metalness;
-			delete this.roughness;
-			delete this.metalnessMap;
-			delete this.roughnessMap;
+			//delete this.metalness;
+			//delete this.roughness;
+			//delete this.metalnessMap;
+			//delete this.roughnessMap;
 			return this;
 
 		}
@@ -1925,11 +1925,11 @@
 
 		if ( cache[ 'DefaultMaterial' ] === undefined ) {
 
-			cache[ 'DefaultMaterial' ] = new THREE.MeshStandardMaterial( {
+			cache[ 'DefaultMaterial' ] = new THREE.MeshToonMaterial( {
 				color: 0xFFFFFF,
 				emissive: 0x000000,
-				metalness: 1,
-				roughness: 1,
+				//metalness: 1,
+				//roughness: 1,
 				transparent: false,
 				depthTest: true,
 				side: THREE.FrontSide
@@ -2972,7 +2972,7 @@
 		}
 		getMaterialType() {
 
-			return THREE.MeshStandardMaterial;
+			return THREE.MeshToonMaterial;
 
 		}
 
@@ -3025,14 +3025,14 @@
 
 				}
 
-				materialParams.metalness = metallicRoughness.metallicFactor !== undefined ? metallicRoughness.metallicFactor : 1.0;
-				materialParams.roughness = metallicRoughness.roughnessFactor !== undefined ? metallicRoughness.roughnessFactor : 1.0;
-				if ( metallicRoughness.metallicRoughnessTexture !== undefined ) {
+				// materialParams.metalness = metallicRoughness.metallicFactor !== undefined ? metallicRoughness.metallicFactor : 1.0;
+				// materialParams.roughness = metallicRoughness.roughnessFactor !== undefined ? metallicRoughness.roughnessFactor : 1.0;
+				// if ( metallicRoughness.metallicRoughnessTexture !== undefined ) {
 
-					pending.push( parser.assignTexture( materialParams, 'metalnessMap', metallicRoughness.metallicRoughnessTexture ) );
-					pending.push( parser.assignTexture( materialParams, 'roughnessMap', metallicRoughness.metallicRoughnessTexture ) );
+				// 	pending.push( parser.assignTexture( materialParams, 'metalnessMap', metallicRoughness.metallicRoughnessTexture ) );
+				// 	pending.push( parser.assignTexture( materialParams, 'roughnessMap', metallicRoughness.metallicRoughnessTexture ) );
 
-				}
+				// }
 
 				materialType = this._invokeOne( function ( ext ) {
 
