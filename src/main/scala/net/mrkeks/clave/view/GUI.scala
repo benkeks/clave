@@ -29,7 +29,7 @@ class GUI() extends TimeManagement {
   private val scoreText = dom.document.createTextNode("")
   scoreTextNode.appendChild(scoreText)
 
-  private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
+  private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.HTMLElement]
   private val pauseButtonText = dom.document.createTextNode(Texts.PauseSymbol)
   pauseButton.classList.add("btn")
   pauseButton.classList.add("btn-secondary")
@@ -37,7 +37,7 @@ class GUI() extends TimeManagement {
   pauseButton.addEventListener("click", clickPause _)
   hudContainer.appendChild(pauseButton)
 
-  private val switchButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
+  private val switchButton = dom.document.createElement("button").asInstanceOf[dom.HTMLElement]
   switchButton.classList.add("btn")
   switchButton.classList.add("btn-secondary")
   switchButton.classList.add("d-none")
@@ -48,7 +48,7 @@ class GUI() extends TimeManagement {
   private val levelList = dom.document.createElement("div")
   levelList.id = "level-list"
   hudContainer.appendChild(levelList)
-  private val levelButtons = scala.collection.mutable.Map[String, dom.raw.HTMLElement]()
+  private val levelButtons = scala.collection.mutable.Map[String, dom.HTMLElement]()
 
   private val overlay = dom.document.createElement("div")
   overlay.id = "overlay"
@@ -66,22 +66,22 @@ class GUI() extends TimeManagement {
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
 
-    val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.raw.HTMLCanvasElement]
+    val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.HTMLCanvasElement]
     val renderingContext = tmpDrawingCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     val levelPreviewer = new LevelPreviewer(renderingContext)
     game.levelDownloader.levelList.foreach { levelId =>
       val level = game.levelDownloader.getLevelById(levelId).get
-      val levelButton = dom.document.createElement("button").asInstanceOf[dom.raw.HTMLElement]
+      val levelButton = dom.document.createElement("button").asInstanceOf[dom.HTMLElement]
       levelButton.classList.add("btn")
       levelButton.classList.add("btn-secondary")
       levelButton.classList.add("level-sel")
-      val icon = dom.document.createElement("img").asInstanceOf[dom.raw.HTMLImageElement]
+      val icon = dom.document.createElement("img").asInstanceOf[dom.HTMLImageElement]
       icon.src = levelPreviewer.getBase64(level)
       icon.width = level.width * 3
       icon.height = level.height * 3
       levelButton.appendChild(icon)
       levelButton.appendChild(dom.document.createTextNode(level.name))
-      val span = dom.document.createElement("span").asInstanceOf[dom.raw.HTMLSpanElement]
+      val span = dom.document.createElement("span").asInstanceOf[dom.HTMLSpanElement]
       span.classList.add("score")
       span.appendChild(dom.document.createTextNode("(0)"))
       levelButton.appendChild(span)
@@ -89,7 +89,7 @@ class GUI() extends TimeManagement {
       levelList.appendChild(levelButton)
       levelButtons(levelId) = levelButton
     }
-    val feedbackButton = dom.document.createElement("a").asInstanceOf[dom.raw.HTMLElement]
+    val feedbackButton = dom.document.createElement("a").asInstanceOf[dom.HTMLElement]
     val plainUrl = Texts.GameURL
     val encodedUrl = URIUtils.encodeURI(plainUrl)
     val encodedTweet = URIUtils.encodeURI(Texts.JustPlayed)
@@ -141,22 +141,22 @@ class GUI() extends TimeManagement {
     updateTime(timeStamp)
   }
 
-  def clickPause(ev: org.scalajs.dom.raw.Event): Unit = {
+  def clickPause(ev: org.scalajs.dom.Event): Unit = {
     game foreach (_.togglePause())
     pauseButton.blur()
   }
 
-  def clickSwitch(ev: org.scalajs.dom.raw.Event): Unit = {
+  def clickSwitch(ev: org.scalajs.dom.Event): Unit = {
     game foreach (_.setState(Game.LevelScreen()))
     switchButton.blur()
   }
 
-  def selectLevel(levelName: String)(ev: org.scalajs.dom.raw.Event): Unit = {
+  def selectLevel(levelName: String)(ev: org.scalajs.dom.Event): Unit = {
     game foreach { g =>
       g.switchLevelById(levelName)
       g.setState(Game.Running())
     }
-    ev.target.asInstanceOf[dom.raw.HTMLElement].blur()
+    ev.target.asInstanceOf[dom.HTMLElement].blur()
   }
 
   def updateLevelListDisplay(game: Game) = {
@@ -212,7 +212,7 @@ class GUI() extends TimeManagement {
     }
   }
 
-  private def showHide(button: dom.raw.HTMLElement, show: Boolean = true) = {
+  private def showHide(button: dom.HTMLElement, show: Boolean = true) = {
     if (show) {
       button.classList.remove("d-none")
       button.classList.add("d-block")

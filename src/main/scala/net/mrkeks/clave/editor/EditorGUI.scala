@@ -33,7 +33,7 @@ class EditorGUI() {
   shareDiv.classList.add("dropdown-menu")
   shareDiv.setAttribute("aria-labelledby", "share-button")
   shareButtons.appendChild(shareDiv)
-  shareButton.addEventListener("click", (ev: org.scalajs.dom.raw.Event) => renderShare())
+  shareButton.addEventListener("click", (ev: org.scalajs.dom.Event) => renderShare())
 
   def registerTools(tools: List[AbstractEditorTool], selectionCallback: String => Unit) = {
     for (t <- tools) {
@@ -42,7 +42,7 @@ class EditorGUI() {
       button.classList.add("btn-secondary")
       button.setAttribute("type", "button")
       button.innerText = t.name
-      button.addEventListener("click", (ev: org.scalajs.dom.raw.Event) => selectionCallback(t.name))
+      button.addEventListener("click", (ev: org.scalajs.dom.Event) => selectionCallback(t.name))
       toolButtons.appendChild(button)
     }
   }

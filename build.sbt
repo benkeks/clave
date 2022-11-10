@@ -10,7 +10,7 @@ name := "Clave"
 
 version := "0.2.0"
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.10"
 
 //scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
 
@@ -28,9 +28,6 @@ jsDependencies ++= Seq(
   "org.webjars" % "jquery" % "3.4.1" / "jquery.js" minified "jquery.min.js",
   "org.webjars" % "bootstrap" % "4.4.1" / "bootstrap.js" minified "bootstrap.min.js" dependsOn "jquery.js"
 )
-
-//Compile / fastLinkJS / scalaJSLinkerOutputDirectory :=
-//       (Compile / classDirectory).value / "app"
 
 Compile / fastOptJS / artifactPath :=
       ((Compile / classDirectory).value / "app" / ((fastOptJS / moduleName).value + ".js"))

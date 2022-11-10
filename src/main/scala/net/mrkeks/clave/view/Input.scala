@@ -109,12 +109,11 @@ class Input {
   }
 
   var gamepadsActive = false
-  var gamepad: Option[dom.experimental.gamepad.Gamepad] = None
+  var gamepad: Option[dom.Gamepad] = None
 
   def updateGamepads() = {
     if (gamepadsActive) {
-      val gamepadNavigator = dom.experimental.gamepad.toGamepad(dom.window.navigator)
-      val gamepads = gamepadNavigator.getGamepads()
+      val gamepads = dom.window.navigator.getGamepads()
       val oldGamepad = gamepad
       gamepad = gamepads.headOption
       if (gamepad == Some(null)) gamepad = None
@@ -128,8 +127,7 @@ class Input {
   }
 
   private def toggleGamepads(ev: dom.Event) = {
-    val gamepadNavigator = dom.experimental.gamepad.toGamepad(dom.window.navigator)
-    gamepadsActive = gamepadNavigator.getGamepads().nonEmpty
+    gamepadsActive = dom.window.navigator.getGamepads().nonEmpty
   }
 
   dom.window.addEventListener("gamepadconnected", toggleGamepads(_))

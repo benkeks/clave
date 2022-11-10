@@ -1,9 +1,12 @@
 package net.mrkeks.clave.map
 
-import org.scalajs.dom.experimental.Fetch
+import org.scalajs.dom
 import scala.scalajs.js.Thenable.Implicits._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.annotation.nowarn
 
+
+@nowarn("cat=other")
 class LevelDownloader {
   val levelStash = collection.mutable.Map[String, Level]()
   var levelList = List[String]()
@@ -24,7 +27,7 @@ class LevelDownloader {
   def downloadWorld(url: String)(continuation: => Any) = {
     val (urlDir, fileName) = url.splitAt(url.lastIndexOf('/') + 1)
     for {
-      response <- Fetch.fetch(url)
+      response <- dom.fetch(url)
       text <- response.text()
     } {
       levelList = Level.levelNameListFromYAML(text)
@@ -37,7 +40,7 @@ class LevelDownloader {
 
   def downloadLevelFile(id: String, url: String, continuation: => Any): Unit = {
     for {
-      response <- Fetch.fetch(url)
+      response <- dom.fetch(url)
       text <- response.text()
       level <- Level.levelFromYAML(text)
     } {
