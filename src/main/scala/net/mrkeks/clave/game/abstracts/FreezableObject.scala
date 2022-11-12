@@ -5,6 +5,7 @@ import net.mrkeks.clave.view.ParticleSystem
 import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.{Vector3, Vector4}
+import net.mrkeks.clave.game.objects.CrateData
 
 trait FreezableObject {
   self: PositionedObject =>
@@ -26,7 +27,15 @@ trait FreezableObject {
     }
   }
 
-  def doFreeze(time: Double) = {
-    freezeProgress += 1.5 * time
+  def doFreeze(time: Double, source: CrateData): Boolean = {
+    freezeProgress += 1.1 * time
+    if (freezeProgress > 100) {
+      freezeComplete(source)
+      true
+    } else {
+      false
+    }
   }
+
+  def freezeComplete(byCrate: CrateData): Unit
 }

@@ -2,6 +2,7 @@ package net.mrkeks.clave.game.characters
 
 import org.denigma.threejs.Vector3
 import net.mrkeks.clave.game.abstracts.PositionedObjectData
+import net.mrkeks.clave.game.objects.CrateData
 
 object MonsterData {
   
@@ -12,6 +13,7 @@ object MonsterData {
   case class JumpTo(tar: Vector3, from: Vector3, var ySpeed: Double = 0.0) extends State
   case class PushedTo(tar: Vector3, var ySpeed: Double = 0.0) extends State
   case class MergingWith(otherMonster: MonsterData, var progress: Double = 0.0) extends State
+  case class Frozen(byCrate: CrateData) extends State
 }
 
 trait MonsterData

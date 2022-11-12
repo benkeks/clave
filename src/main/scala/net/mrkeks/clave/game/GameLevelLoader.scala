@@ -79,6 +79,8 @@ trait GameLevelLoader {
         List(new Crate(map))
       case "crate_player" =>
         List(new Crate(map, kind = CrateData.PlayerLikeKind))
+      case "crate_freezer" =>
+        List(new Crate(map, kind = CrateData.FreezerKind(None)))
       case "monster" =>
         List(new Monster(map))
       case "gate_open" | "gate_closed" =>

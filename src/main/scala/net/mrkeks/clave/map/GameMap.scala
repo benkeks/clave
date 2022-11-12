@@ -33,6 +33,7 @@ import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
 import net.mrkeks.clave.game.objects.CrateData.FreezerKind
+import net.mrkeks.clave.game.characters.MonsterData
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
@@ -185,6 +186,8 @@ class GameMap(val width: Int, val height: Int)
         }
         updateTile(newPosition, tile)
         victoryCheckNeeded = true
+      case m: Monster if (m.state.isInstanceOf[MonsterData.Frozen]) =>
+        victoryCheckNeeded = true
       case _ =>
         
     }
@@ -195,8 +198,8 @@ class GameMap(val width: Int, val height: Int)
   def isMonsterOn(xz: (Int, Int)): Boolean =
     getObjectsAt(xz).exists(_.isInstanceOf[Monster])
   
-  def getObjectsAt(xz: (Int, Int)) = {
-    positionedObjects.get(xz)
+  def getObjectsAt(xz: (Int, Int)): Set[PositionedObject] = {
+    if (xz == MapData.notOnMap) Set() else positionedObjects.get(xz).toSet
   }
 
   override def isObstacleAt(xz: (Int, Int)): Boolean = isMonsterOn(xz)

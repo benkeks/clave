@@ -15,6 +15,7 @@ import org.denigma.threejs.Mesh
 import org.denigma.threejs.Material
 import org.denigma.threejs.Texture
 import org.denigma.threejs.{Vector3, Vector4}
+import net.mrkeks.clave.util.Mathf
 
 object Crate {
   private val materials = Map[CrateData.Kind, Material](
@@ -105,13 +106,18 @@ class Crate(
           context.particleSystem.burst("spark", 1, ParticleSystem.BurstKind.Box,
             start, start, offset, offset, color, color, .0, .1)
         }
-      case CrateData.FreezerKind(None) =>
+      case k: CrateData.FreezerKind if k.frozenMonster.isEmpty =>
         mesh.scale.y = .1
         position.y -= .4
         map.getObjectsAt(positionOnMap).collectFirst {
           case fm: FreezableObject =>
-            fm.doFreeze(deltaTime)
+            if (fm.doFreeze(deltaTime, this)) {
+              k.frozenMonster = Some(fm)
+              updatePositionOnMap()
+            }
         }
+      case k: CrateData.FreezerKind if k.frozenMonster.nonEmpty =>
+        mesh.scale.y = Mathf.approach(mesh.scale.y, 1.0, deltaTime * .01)
       case _ =>
     }
     mesh.position.copy(position)

@@ -68,7 +68,7 @@ class Monster(protected val map: GameMap)
     updateFreezable(deltaTime, context)
 
     // check whether something might push the monster away
-    if (!state.isInstanceOf[PushedTo]
+    if (!state.isInstanceOf[PushedTo] && !state.isInstanceOf[Frozen]
         && map.intersectsLevel(positionOnMap)) {
       val tar = map.mapPosToVec(
           map.findNextFreeField(positionOnMap))
@@ -199,6 +199,9 @@ class Monster(protected val map: GameMap)
             new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.1, .6, .1, .6), new Vector4(.2, .8, .2, .9), -.1, .0)
           markForDeletion()
         }
+      case s @ Frozen(byCrate) =>
+        removeFromMap()
+        position.copy(byCrate.getPosition)
     }
 
     // initialize mesh if necessary
@@ -241,6 +244,10 @@ class Monster(protected val map: GameMap)
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
     updateShadow()
+  }
+
+  override def freezeComplete(byCrate: CrateData): Unit = {
+    setState(Frozen(byCrate))
   }
 
   def setState(newState: State): Unit = {

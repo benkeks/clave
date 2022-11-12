@@ -17,6 +17,7 @@ import org.denigma.threejs.Object3D
 import org.denigma.threejs.Texture
 
 import scala.scalajs.js.Any.fromFunction1
+import net.mrkeks.clave.game.objects.CrateData
 
 object Player {
   val material = new SpriteMaterial()
@@ -162,7 +163,10 @@ class Player(protected val map: GameMap)
         mesh.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim + .1)
         mesh.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
         mesh.scale.setZ(mesh.scale.x)
-      case _ =>
+      case s @ Frozen(byCrate) =>
+        mesh.position.copy(byCrate.getPosition)
+      case Carrying(_) =>
+        // this cannot actually happen
     }
 
     updateShadow()
@@ -232,7 +236,11 @@ class Player(protected val map: GameMap)
       setState(Idle())
     }
   }
-  
+
+  override def freezeComplete(byCrate: CrateData): Unit = {
+    setState(Frozen(byCrate))
+  }
+
   def setState(newState: State): Unit = {
     state = newState match {
       case Dead() =>

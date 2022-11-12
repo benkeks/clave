@@ -13,7 +13,7 @@ object CrateData {
   abstract sealed class Kind
   case object DefaultKind extends Kind
   case object PlayerLikeKind extends Kind
-  case class FreezerKind(frozenMonster: Option[FreezableObject]) extends Kind
+  case class FreezerKind(var frozenMonster: Option[FreezableObject]) extends Kind
 }
 
 trait CrateData
