@@ -70,6 +70,7 @@ trait GameLevelLoader {
       case MapData.Tile.GateClosed => List("gate_closed")
       case MapData.Tile.Trigger => List("trigger")
       case MapData.Tile.TriggerWithCrate => List("trigger", "crate")
+      case MapData.Tile.Freezer => List("crate_freezer")
       case _ => List()
     }
 

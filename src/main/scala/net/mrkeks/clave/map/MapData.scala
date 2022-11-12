@@ -35,7 +35,7 @@ trait MapData {
         val tile = Tile(mapData(z)(x))
         tile match {
           case Tile.Crate | Tile.Player | Tile.Monster
-             | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.TriggerWithCrate =>
+             | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.TriggerWithCrate | Tile.Freezer =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty
           case _ =>
