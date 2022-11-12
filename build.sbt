@@ -1,9 +1,5 @@
 enablePlugins(ScalaJSPlugin)
 
-//enablePlugins(WorkbenchPlugin)
-
-//enablePlugins(ScalaJSBundlerPlugin)
-
 enablePlugins(JSDependenciesPlugin)
 
 name := "Clave"
@@ -12,9 +8,7 @@ version := "0.2.0"
 
 scalaVersion := "2.13.10"
 
-//scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
-
-//workbenchDefaultRootObject := Some(("target/scala-2.13/classes/index.html", "target/scala-2.13/classes/"))
+scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.3.0",
@@ -23,7 +17,6 @@ libraryDependencies ++= Seq(
 )
 
 jsDependencies ++= Seq(
-  // ProvidedJS / "lib/three.js" minified "lib/three.min.js" commonJSName "THREE",
   ProvidedJS / "lib/loaders/GLTFLoader.js" commonJSName "GLTFLoader"  dependsOn "facade_bundled/three.js",
   "org.webjars" % "jquery" % "3.4.1" / "jquery.js" minified "jquery.min.js",
   "org.webjars" % "bootstrap" % "4.4.1" / "bootstrap.js" minified "bootstrap.min.js" dependsOn "jquery.js"
@@ -32,8 +25,10 @@ jsDependencies ++= Seq(
 Compile / fastOptJS / artifactPath :=
       ((Compile / classDirectory).value / "app" / ((fastOptJS / moduleName).value + ".js"))
 
-Compile / fullOptJS / artifactPath := (Compile / fullOptJS / artifactPath).value
+Compile / fullOptJS / artifactPath := (Compile / fastOptJS / artifactPath).value
 
-Compile / packageJSDependencies /artifactPath := ((Compile / classDirectory).value / "app" / ((fastOptJS / moduleName).value + "-jsdeps.js"))
+Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withClosureCompiler(false) }
 
-scalacOptions ++= Seq("-deprecation")
+Global / excludeLintKeys += Compile / packageJSDependencies / artifactPath
+
+Compile / packageJSDependencies / artifactPath := ((Compile / classDirectory).value / "app" / ((fastOptJS / moduleName).value + "-jsdeps.js"))

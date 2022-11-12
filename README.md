@@ -21,7 +21,7 @@ sbt
 fastOptJS
 ```
 
-This will build the game to `target/scala-2.13/classes`. As long as sbt is running, there will be a development webserver, serving this directory to http://localhost:12345/.
+This will build the game to `target/scala-2.13/classes`.
 
 ## Background
 
