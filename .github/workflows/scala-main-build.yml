@@ -28,7 +28,7 @@ jobs:
     - name: Coursier cache
       uses: coursier/cache-action@v6
     - name: Compile game
-      run: sbt fastOptJS
+      run: sbt fullOptJS
     - name: Deploy CI
       uses: burnett01/rsync-deployments@5.2
       with:
