@@ -32,6 +32,7 @@ import org.denigma.threejs.Texture
 import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
+import net.mrkeks.clave.game.objects.CrateData.FreezerKind
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
@@ -169,9 +170,12 @@ class GameMap(val width: Int, val height: Int)
     positionedObjects.addOne(newPosition, o)
     
     o match {
-      case _: Crate =>
+      case c: Crate =>
         oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-        updateTile(newPosition, Tile.Crate)
+        c.kind match {
+          case FreezerKind(None) => updateTile(newPosition, Tile.Freezer)
+          case _ => updateTile(newPosition, Tile.Crate)
+        }
         victoryCheckNeeded = true
       case g: Gate =>
         val tile = g.state match {

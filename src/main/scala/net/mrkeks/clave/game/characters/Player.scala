@@ -4,10 +4,7 @@ import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
-import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.abstracts.ObjectShadow
-import net.mrkeks.clave.game.abstracts.PositionedObject
-import net.mrkeks.clave.game.abstracts.PositionedObjectData
+import net.mrkeks.clave.game.abstracts._
 import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.SpriteMaterial
@@ -49,7 +46,7 @@ object Player {
 }
 
 class Player(protected val map: GameMap)
-  extends GameObject with PlayerData with PositionedObject with ObjectShadow {
+  extends GameObject with PlayerData with FreezableObject with PositionedObject with ObjectShadow {
   
   import PlayerData._
   import PositionedObjectData._
@@ -83,6 +80,8 @@ class Player(protected val map: GameMap)
   
   def update(deltaTime: Double): Unit = {
     dropPreview.visible = false
+
+    updateFreezable(deltaTime, context)
 
     if (mesh.children.isEmpty) {
       Player.playerMesh.foreach { m =>

@@ -104,7 +104,7 @@ trait GameLevelLoader {
       obj <- factoryConstruct(kind)
     } {
       obj.setPosition(x, 0, z)
-      obj match {case c: Crate => c.place(x, z) case _ => }
+      obj match { case c: Crate => c.place(x, z); case _ => }
       add(obj)
     }
 

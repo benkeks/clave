@@ -6,7 +6,7 @@ import scala.util.Random
 object MapData {
   object Tile extends Enumeration {
     val Empty, Crate, SolidWall, GateClosing, GateOpen,
-        GateClosed, Trigger, TriggerWithCrate, Monster, Player = Value
+        GateClosed, Trigger, TriggerWithCrate, Monster, Player, Freezer = Value
   }
   type Tile = Tile.Value
   

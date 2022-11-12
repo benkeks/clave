@@ -3,11 +3,7 @@ package net.mrkeks.clave.game.characters
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
-import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.abstracts.ObjectShadow
-import net.mrkeks.clave.game.abstracts.PositionedObject
-import net.mrkeks.clave.game.abstracts.PositionedObjectData
-import net.mrkeks.clave.game.abstracts.PlaceableObject
+import net.mrkeks.clave.game.abstracts._
 import net.mrkeks.clave.game.objects.{Crate, CrateData}
 
 import net.mrkeks.clave.util.markovIf
@@ -24,6 +20,7 @@ import org.denigma.threejs.Color
 
 import org.scalajs.dom
 import scala.scalajs.js.Any.fromFunction1
+import net.mrkeks.clave.game.abstracts.FreezableObject
 
 object Monster {
   var monsterMesh: Option[Object3D] = None
@@ -37,7 +34,7 @@ object Monster {
 }
 
 class Monster(protected val map: GameMap)
-  extends GameObject with PlaceableObject with MonsterData with ObjectShadow {
+  extends GameObject with FreezableObject with PlaceableObject with MonsterData with ObjectShadow {
 
   import MonsterData._
   import PositionedObjectData._
@@ -68,6 +65,8 @@ class Monster(protected val map: GameMap)
   }
   
   def update(deltaTime: Double): Unit = {
+    updateFreezable(deltaTime, context)
+
     // check whether something might push the monster away
     if (!state.isInstanceOf[PushedTo]
         && map.intersectsLevel(positionOnMap)) {
