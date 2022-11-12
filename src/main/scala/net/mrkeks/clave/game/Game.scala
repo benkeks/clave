@@ -20,6 +20,7 @@ import net.mrkeks.clave.game.characters.Monster
 import org.denigma.threejs.Vector3
 import scala.scalajs.js
 import net.mrkeks.clave.util.Mathf
+import net.mrkeks.clave.util.markovIf
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
   extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement {
@@ -146,16 +147,15 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           "Yeah, a new success!"
         } else if (previousScore < levelScore) {
           "Wow, new high score!"
+        } else if (previousScore < levelScore * 1.5) {
+          markovIf(List("Great!", "Marvelous!", "Woha!", "Impressive!"))
         } else {
-          "Yay!"
+          markovIf(List("Yay!", "Nice!", "Ooookay!"))
         }
         gui.setPopup(s"""
           <div class='message'>
             <p>$msgPart1</p>
             <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
-          </div>
-          <div>
-            Hit [Space] to continue!
           </div>""", delay = 500 + levelScore * 2)
         input.keyPressListener.addOne(" ", (this, continueLevel _))
       case Lost() => 
@@ -163,9 +163,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           <div class='message'>
             <p>Oh no!</p>
             <p><strong>The monsters got you!</strong></p>
-          </div>
-          <div>
-            Hit [Space] to try again!
           </div>""", delay = 500)
         input.keyPressListener.addOne(" ", (this, continueLevel _))
     }

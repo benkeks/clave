@@ -27,4 +27,9 @@ object markovIf {
     val rnd = Math.random()
     new markovIf(rnd, cond, thenc)
   }
+
+  def apply[Return](collection: List[Return]) = {
+    val rnd = (Math.random() * collection.size).toInt
+    collection.apply(Math.min(rnd, collection.size - 1))
+  }
 }
