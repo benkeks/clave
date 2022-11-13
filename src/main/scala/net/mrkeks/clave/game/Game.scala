@@ -104,6 +104,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Paused() =>
         //
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
+        tickedTimeLoop {
+          gameObjects.foreach(_.update(tickTime))
+          removeAllMarkedForDeletion()
+        }
         s.victoryDrawProgress += deltaTime * .02
         val pointTar = player.get.getPosition
         s.victoryRegion = victoryRegion.dropWhile { case (x, z) =>
