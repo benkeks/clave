@@ -31,11 +31,11 @@ trait FreezableObject {
     freezeProgress += 1.1 * time
     if (freezeProgress > 100) {
       freezeComplete(source)
-      true
     } else {
       false
     }
   }
 
-  def freezeComplete(byCrate: CrateData): Unit
+  /** returns true if freeze could actually go through */
+  def freezeComplete(byCrate: CrateData): Boolean
 }

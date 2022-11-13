@@ -94,7 +94,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           removeAllMarkedForDeletion()
         }
         
-        if (player.isDefined && player.get.state.isInstanceOf[PlayerData.Dead]) {
+        if (player.isDefined &&
+            (player.get.state.isInstanceOf[PlayerData.Dead])
+            || player.get.state.isInstanceOf[PlayerData.Frozen]) {
           setState(Lost())
         } else if (playerIsSurrounded()) {
           setState(Lost())

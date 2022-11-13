@@ -246,8 +246,13 @@ class Monster(protected val map: GameMap)
     updateShadow()
   }
 
-  override def freezeComplete(byCrate: CrateData): Unit = {
-    setState(Frozen(byCrate))
+  override def freezeComplete(byCrate: CrateData): Boolean = {
+    if (state.isInstanceOf[Frozen]) {
+      false
+    } else {
+      setState(Frozen(byCrate))
+      true
+    }
   }
 
   def setState(newState: State): Unit = {
