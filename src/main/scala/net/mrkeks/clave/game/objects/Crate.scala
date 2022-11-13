@@ -117,7 +117,9 @@ class Crate(
             }
         }
       case k: CrateData.FreezerKind if k.frozenMonster.nonEmpty =>
-        mesh.scale.y = Mathf.approach(mesh.scale.y, 1.0, deltaTime * .01)
+        mesh.scale.y = Mathf.approach(mesh.scale.y, 1.3, deltaTime * .01)
+        mesh.scale.x = 1.15
+        mesh.scale.z = 1.15
       case _ =>
     }
     mesh.position.copy(position)
