@@ -8,7 +8,7 @@ import net.mrkeks.clave.game.objects.Trigger
 import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.game.characters.{Player, PlayerData}
-import net.mrkeks.clave.game.characters.Monster
+import net.mrkeks.clave.game.characters.{Monster, MonsterData}
 import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.objects.CrateData
 import net.mrkeks.clave.game.abstracts.GameObjectManagement
@@ -66,10 +66,11 @@ trait GameLevelLoader {
     def objKindsFromTile(tileType: MapData.Tile) = tileType match {
       case MapData.Tile.Crate => List("crate")
       case MapData.Tile.Monster => List("monster")
+      case MapData.Tile.DefensiveMonster => List("monster_defensive")
       case MapData.Tile.GateOpen => List("gate_open")
       case MapData.Tile.GateClosed => List("gate_closed")
       case MapData.Tile.Trigger => List("trigger")
-      case MapData.Tile.TriggerWithCrate => List("trigger", "crate")
+      case MapData.Tile.Freezer => List("crate_freezer")
       case _ => List()
     }
 
@@ -79,8 +80,12 @@ trait GameLevelLoader {
         List(new Crate(map))
       case "crate_player" =>
         List(new Crate(map, kind = CrateData.PlayerLikeKind))
+      case "crate_freezer" =>
+        List(new Crate(map, kind = CrateData.FreezerKind(None)))
       case "monster" =>
         List(new Monster(map))
+      case "monster_defensive" =>
+        List(new Monster(map, kind = MonsterData.FrightenedMonster))
       case "gate_open" | "gate_closed" =>
         val gate = new Gate(map)
         triggerGroup.addGate(gate)
@@ -104,7 +109,7 @@ trait GameLevelLoader {
       obj <- factoryConstruct(kind)
     } {
       obj.setPosition(x, 0, z)
-      obj match {case c: Crate => c.place(x, z) case _ => }
+      obj match { case c: Crate => c.place(x, z); case _ => }
       add(obj)
     }
 

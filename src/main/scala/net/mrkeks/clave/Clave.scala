@@ -19,6 +19,8 @@ object Clave {
   
   class Config(val startLevel: Int = 0, val editor: Boolean = false)
 
+  val DevMode: Boolean = false
+
   @JSExport
   def main(): Unit = {
 
@@ -54,6 +56,7 @@ object Clave {
         val initialLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
         game.loadProgress()
         game.unlockLevel(initialLevelId)
+        if (DevMode) levelDownloader.levelList.foreach(game.unlockLevel(_))
         game.loadLevelById("__titleScreen__")
         game.setState(Game.StartUp(0))
 

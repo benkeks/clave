@@ -21,6 +21,17 @@ body {
   height: 100%;
 }
 
+#version-info {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  pointer-events: none;
+  display: none;
+}
+#hud.startup #version-info {
+  display: block;
+}
+
 .score {
   text-align: center;
   font-size: 1.5em;
@@ -31,6 +42,19 @@ body {
   position: absolute;
   width: 100%;
   pointer-events: none;
+}
+#popup.visible .message p {
+  animation: .5s cubic-bezier(0.68, -0.55, 0.27, 1.55) 2s normal both running text-fly-in;
+}
+#popup.visible .message p:nth-child(1) {
+  animation-delay: .6s;
+}
+#popup.visible .message p:nth-child(2) {
+  animation-delay: 1.5s;
+}
+@keyframes text-fly-in {
+  0% { transform: translateX(50%); opacity: 0 }
+  100% { transform: translateX(0); opacity: 1 }
 }
 
 #overlay {
@@ -46,7 +70,7 @@ body {
   top: 50%;
   max-height: 90%;
   transform: translateX(-50%) translateY(-10%) scale(0.7);
-  transition: transform 800ms, opacity 800ms;
+  transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 800ms;
   display: block;
   opacity: 0;
   text-align: center;
@@ -73,11 +97,12 @@ body {
   transform: translateX(-50%) translateY(-50%) scale(1);
   opacity: 1;
   display: block;
-  transition: transform 800ms, opacity 800ms;
+  width: 90%;
+  transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 200ms;
 }
 
 #popup .level-name {
-  margin-top: 100%;
+  margin-top: calc(25vh);
 }
 
 #level-list .level-sel {

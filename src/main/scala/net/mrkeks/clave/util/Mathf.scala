@@ -29,4 +29,8 @@ object Mathf {
   def lerp(src: Double, tar: Double, ratio: Double) = {
     src * (1.0 - ratio) + tar * ratio
   }
+
+  def clamp(value: Double, min: Double, max: Double) = {
+    Math.min(max, Math.max(value, min))
+  }
 }

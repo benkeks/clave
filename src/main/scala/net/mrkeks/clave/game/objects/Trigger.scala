@@ -43,7 +43,7 @@ class Trigger(protected val map: GameMap)
     
     state match {
       case Idle() =>
-        // be sure to remove the `this` object from the colection...
+        // be sure to remove the `this` object from the collection...
         val objectsAbove = map.getObjectsAt(positionOnMap).diff(Set(this))
         objectsAbove.headOption.map(o => setState(Pushed(o)))
       case Pushed(by) =>

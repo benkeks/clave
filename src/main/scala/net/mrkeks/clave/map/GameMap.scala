@@ -3,6 +3,7 @@ package net.mrkeks.clave.map
 import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.game.abstracts.GameObject
+import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.game.abstracts.PositionedObject
 import net.mrkeks.clave.view.DrawingContext
@@ -32,6 +33,8 @@ import org.denigma.threejs.Texture
 import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
+import net.mrkeks.clave.game.objects.CrateData.FreezerKind
+import net.mrkeks.clave.game.characters.MonsterData
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
@@ -73,9 +76,12 @@ class GameMap(val width: Int, val height: Int)
 
   val center = new Vector3(width / 2.0, 0, height / 2.0)
 
+  protected val playerDangerousness = Array.ofDim[Int](width, height)
+  private var playerDangerousnessUpdateLine: Int = 0
+
   private var victoryCheckNeeded = false
   protected val victoryCheck = Array.ofDim[Int](width, height)
-  
+
   // underground presentation
   val groundShadow = new Uint16Array(width * height)
   (0 until width * height).foreach ( groundShadow.update(_, 255) )
@@ -106,6 +112,8 @@ class GameMap(val width: Int, val height: Int)
   }
   
   def update(deltaTime: Double): Unit = {
+
+    // wind on flowers
     if (Materials.grassPatch.map != null) {
       grassDrift.x = grassDrift.x + wind.x * deltaTime
       Materials.grassPatch.map.offset.x = Math.sin(grassDrift.x)*.03
@@ -113,6 +121,25 @@ class GameMap(val width: Int, val height: Int)
       Materials.grassPatch.map.repeat.y = 1.1 + Math.sin(grassDrift.x * 1.1 + 1)*.05
       Materials.grassPatch.map.repeat.x = 1.1
     }
+
+    // update the player dangerousness in scan lines every 100 ms
+    for (i <- 0 until (height * deltaTime / 100).toInt) {
+      for (x <- 0 until width) {
+        val pos = (x, playerDangerousnessUpdateLine)
+        playerDangerousness(x)(playerDangerousnessUpdateLine) = data(x)(playerDangerousnessUpdateLine) match {
+          case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
+            20
+          case _ if getObjectsAt(pos).exists(_.isInstanceOf[Player]) =>
+            50
+          case _ =>
+            getAdjacentPositions(pos).map {
+              case (x0,z0) => playerDangerousness(x0)(z0) / 4
+            }.sum + (if (x == 0 || x == width - 1 || playerDangerousnessUpdateLine == 0 || playerDangerousnessUpdateLine == height - 1) 3 else -1)
+          }
+      }
+      playerDangerousnessUpdateLine = (playerDangerousnessUpdateLine + 1) % height
+    }
+
   }
   
   def updateView(): Unit = {
@@ -169,9 +196,12 @@ class GameMap(val width: Int, val height: Int)
     positionedObjects.addOne(newPosition, o)
     
     o match {
-      case _: Crate =>
+      case c: Crate =>
         oldPositionOnMap.foreach(updateTile(_, Tile.Empty))
-        updateTile(newPosition, Tile.Crate)
+        c.kind match {
+          case FreezerKind(None) => updateTile(newPosition, Tile.Freezer)
+          case _ => updateTile(newPosition, Tile.Crate)
+        }
         victoryCheckNeeded = true
       case g: Gate =>
         val tile = g.state match {
@@ -180,6 +210,8 @@ class GameMap(val width: Int, val height: Int)
           case _: GateData.Closed => Tile.GateClosed
         }
         updateTile(newPosition, tile)
+        victoryCheckNeeded = true
+      case m: Monster if (m.state.isInstanceOf[MonsterData.Frozen]) =>
         victoryCheckNeeded = true
       case _ =>
         
@@ -191,8 +223,8 @@ class GameMap(val width: Int, val height: Int)
   def isMonsterOn(xz: (Int, Int)): Boolean =
     getObjectsAt(xz).exists(_.isInstanceOf[Monster])
   
-  def getObjectsAt(xz: (Int, Int)) = {
-    positionedObjects.get(xz)
+  def getObjectsAt(xz: (Int, Int)): Set[PositionedObject] = {
+    if (xz == MapData.notOnMap) Set() else positionedObjects.get(xz).toSet
   }
 
   override def isObstacleAt(xz: (Int, Int)): Boolean = isMonsterOn(xz)
@@ -206,6 +238,11 @@ class GameMap(val width: Int, val height: Int)
     }
   }
   
+  def getPlayerDangerousness(xz: (Int, Int)): Int = xz match {
+    case (x, z) if x >= 0 && x < width && z >= 0 && z < height => playerDangerousness(x)(z)
+    case _ => 0
+  }
+
   def checkVictory(playerPositions: List[(Int, Int)]): List[(Int, Int)] = {
     if (victoryCheckNeeded && playerPositions.exists(xz => !intersectsLevel(xz))) {
       victoryCheckNeeded = false

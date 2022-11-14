@@ -4,10 +4,7 @@ import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
-import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.abstracts.ObjectShadow
-import net.mrkeks.clave.game.abstracts.PositionedObject
-import net.mrkeks.clave.game.abstracts.PositionedObjectData
+import net.mrkeks.clave.game.abstracts._
 import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.SpriteMaterial
@@ -20,6 +17,7 @@ import org.denigma.threejs.Object3D
 import org.denigma.threejs.Texture
 
 import scala.scalajs.js.Any.fromFunction1
+import net.mrkeks.clave.game.objects.CrateData
 
 object Player {
   val material = new SpriteMaterial()
@@ -49,7 +47,7 @@ object Player {
 }
 
 class Player(protected val map: GameMap)
-  extends GameObject with PlayerData with PositionedObject with ObjectShadow {
+  extends GameObject with PlayerData with FreezableObject with PositionedObject with ObjectShadow {
   
   import PlayerData._
   import PositionedObjectData._
@@ -83,6 +81,8 @@ class Player(protected val map: GameMap)
   
   def update(deltaTime: Double): Unit = {
     dropPreview.visible = false
+
+    updateFreezable(deltaTime, context)
 
     if (mesh.children.isEmpty) {
       Player.playerMesh.foreach { m =>
@@ -163,7 +163,10 @@ class Player(protected val map: GameMap)
         mesh.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim + .1)
         mesh.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
         mesh.scale.setZ(mesh.scale.x)
-      case _ =>
+      case s @ Frozen(byCrate) =>
+        mesh.position.copy(byCrate.getPosition)
+      case Carrying(_) =>
+        // this cannot actually happen
     }
 
     updateShadow()
@@ -233,7 +236,16 @@ class Player(protected val map: GameMap)
       setState(Idle())
     }
   }
-  
+
+  override def freezeComplete(byCrate: CrateData): Boolean = {
+    if (state.isInstanceOf[Frozen]) {
+      false
+    } else {
+      setState(Frozen(byCrate))
+      true
+    }
+  }
+
   def setState(newState: State): Unit = {
     state = newState match {
       case Dead() =>

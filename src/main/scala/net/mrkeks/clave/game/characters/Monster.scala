@@ -3,11 +3,7 @@ package net.mrkeks.clave.game.characters
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
-import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.abstracts.ObjectShadow
-import net.mrkeks.clave.game.abstracts.PositionedObject
-import net.mrkeks.clave.game.abstracts.PositionedObjectData
-import net.mrkeks.clave.game.abstracts.PlaceableObject
+import net.mrkeks.clave.game.abstracts._
 import net.mrkeks.clave.game.objects.{Crate, CrateData}
 
 import net.mrkeks.clave.util.markovIf
@@ -24,20 +20,30 @@ import org.denigma.threejs.Color
 
 import org.scalajs.dom
 import scala.scalajs.js.Any.fromFunction1
+import net.mrkeks.clave.game.abstracts.FreezableObject
 
 object Monster {
-  var monsterMesh: Option[Object3D] = None
+  var aggroMonsterMesh: Option[Object3D] = None
   DrawingContext.gltfLoader.load("gfx/monster01.glb", {gltf =>
     val mesh = gltf.scene.children(0).asInstanceOf[Object3D]
-    monsterMesh = Some(mesh)
+    aggroMonsterMesh = Some(mesh)
+  })
+
+  var defensiveMonsterMesh: Option[Object3D] = None
+  DrawingContext.gltfLoader.load("gfx/monster02.glb", {gltf =>
+    val mesh = gltf.scene.children(0).asInstanceOf[Object3D]
+    defensiveMonsterMesh = Some(mesh)
   })
 
   def clear(): Unit = {
+
   }
 }
 
-class Monster(protected val map: GameMap)
-  extends GameObject with PlaceableObject with MonsterData with ObjectShadow {
+class Monster(
+    protected val map: GameMap,
+    override val kind: MonsterData.MonsterKind = MonsterData.AggressiveMonster)
+  extends GameObject with FreezableObject with PlaceableObject with MonsterData with ObjectShadow {
 
   import MonsterData._
   import PositionedObjectData._
@@ -68,8 +74,10 @@ class Monster(protected val map: GameMap)
   }
   
   def update(deltaTime: Double): Unit = {
+    updateFreezable(deltaTime, context)
+
     // check whether something might push the monster away
-    if (!state.isInstanceOf[PushedTo]
+    if (!state.isInstanceOf[PushedTo] && !state.isInstanceOf[Frozen]
         && map.intersectsLevel(positionOnMap)) {
       val tar = map.mapPosToVec(
           map.findNextFreeField(positionOnMap))
@@ -97,10 +105,25 @@ class Monster(protected val map: GameMap)
         yScale = Mathf.approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
         
-        if (neighboringPlayers.nonEmpty) {
+        if (neighboringPlayers.nonEmpty && kind == AggressiveMonster) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
             setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
+          }
+        } else if (map.getPlayerDangerousness(positionOnMap) > 3 && kind == FrightenedMonster) {
+          // circled in
+          val currentDanger = map.getPlayerDangerousness(positionOnMap)
+          val options = for {
+            pos <- map.getAdjacentPositions(positionOnMap)
+            if !map.intersectsLevel(pos._1, pos._2, considerObstacles = true)
+            newDanger = map.getPlayerDangerousness(pos)
+            if newDanger < currentDanger
+          } yield (newDanger, pos)
+          if (options.nonEmpty) {
+            val escapeRoute = options.minBy(_._1)._2
+            val tar = new Vector3(escapeRoute._1, 0, escapeRoute._2)
+            viewDirection = Direction.fromVec(tar.clone().sub(position))
+            setState(MoveTo(tar))
           }
         } else markovIf (0.0035) {
           // move into an arbitrary direction
@@ -149,7 +172,9 @@ class Monster(protected val map: GameMap)
       case s @ JumpTo(tar, from, ySpeed) =>
         if (map.intersectsLevel(tar, considerObstacles = true)) {
           // if tile became blocked while moving there either merge with the monster there or turn around
-          val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect { case m: Monster if m.sizeLevel < 2 => m }
+          val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect {
+            case m: Monster if m.sizeLevel < 2 && m.kind == this.kind => m
+          }
           if (sizeLevel < 2 && touchedOtherSmallMonsters.nonEmpty) {
             setState(MergingWith(touchedOtherSmallMonsters.head))
           } else {
@@ -200,21 +225,40 @@ class Monster(protected val map: GameMap)
             new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.1, .6, .1, .6), new Vector4(.2, .8, .2, .9), -.1, .0)
           markForDeletion()
         }
+      case s @ Frozen(byCrate) =>
+        removeFromMap()
+        position.copy(byCrate.getPosition)
     }
 
     // initialize mesh if necessary
     if (mesh.children.isEmpty) {
-      Monster.monsterMesh.foreach { m =>
-        m.children.foreach(c => mesh.add(c.clone()))
-        val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
-        val matMap = mat.map.clone()
-        matMap.offset = new Vector2(Math.random(), 0)
-        mat.color = new Color(.75 + .25 * Math.random(), .75 + .25 * Math.random(), .5 + .5 * Math.random())
-        mat.map = matMap
-        mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
-        matMap.needsUpdate = true
-        mat.needsUpdate = true
-        eyeMesh = Some(mesh.getObjectByName("Eyes"))
+      kind match {
+        case AggressiveMonster =>
+          Monster.aggroMonsterMesh.foreach { m =>
+            m.children.foreach(c => mesh.add(c.clone()))
+            val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
+            val matMap = mat.map.clone()
+            matMap.offset = new Vector2(Math.random(), 0)
+            mat.color = new Color(.75 + .25 * Math.random(), .75 + .25 * Math.random(), .5 + .5 * Math.random())
+            mat.map = matMap
+            mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
+            matMap.needsUpdate = true
+            mat.needsUpdate = true
+            eyeMesh = Some(mesh.getObjectByName("Eyes"))
+          }
+        case FrightenedMonster =>
+          Monster.defensiveMonsterMesh.foreach { m =>
+            m.children.foreach(c => mesh.add(c.clone()))
+            val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
+            val matMap = mat.map.clone()
+            matMap.offset = new Vector2(Math.random(), 0)
+            mat.color = new Color(.75 + .5 * Math.random(), .75 + .5 * Math.random(), .75 + .5 * Math.random())
+            mat.map = matMap
+            mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
+            matMap.needsUpdate = true
+            mat.needsUpdate = true
+            eyeMesh = Some(mesh.getObjectByName("Eyes"))
+          }
       }
     }
 
@@ -242,6 +286,15 @@ class Monster(protected val map: GameMap)
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
     updateShadow()
+  }
+
+  override def freezeComplete(byCrate: CrateData): Boolean = {
+    if (state.isInstanceOf[Frozen]) {
+      false
+    } else {
+      setState(Frozen(byCrate))
+      true
+    }
   }
 
   def setState(newState: State): Unit = {

@@ -2,9 +2,7 @@ package net.mrkeks.clave.game.objects
 
 import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
-import net.mrkeks.clave.game.abstracts.PlaceableObject
-import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.abstracts.PositionedObjectData
+import net.mrkeks.clave.game.abstracts._
 import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.game.characters.Player
 import net.mrkeks.clave.map.MapData
@@ -17,6 +15,7 @@ import org.denigma.threejs.Mesh
 import org.denigma.threejs.Material
 import org.denigma.threejs.Texture
 import org.denigma.threejs.{Vector3, Vector4}
+import net.mrkeks.clave.util.Mathf
 
 object Crate {
   private val materials = Map[CrateData.Kind, Material](
@@ -33,6 +32,13 @@ object Crate {
       })
       m.color.setHex(0xffccbb)
       m.emissive.setHex(0x332211)
+      m
+    },
+    CrateData.FreezerKind(None) -> {
+      val m = new threejs.MeshStandardMaterial()
+      m.color.setHex(0xccddff)
+      m.transparent = true
+      m.opacity = .8
       m
     }
   )
@@ -100,6 +106,20 @@ class Crate(
           context.particleSystem.burst("spark", 1, ParticleSystem.BurstKind.Box,
             start, start, offset, offset, color, color, .0, .1)
         }
+      case k: CrateData.FreezerKind if k.frozenMonster.isEmpty =>
+        mesh.scale.y = .1
+        position.y -= .4
+        map.getObjectsAt(positionOnMap).collectFirst {
+          case fm: FreezableObject =>
+            if (fm.doFreeze(deltaTime, this)) {
+              k.frozenMonster = Some(fm)
+              updatePositionOnMap()
+            }
+        }
+      case k: CrateData.FreezerKind if k.frozenMonster.nonEmpty =>
+        mesh.scale.y = Mathf.approach(mesh.scale.y, 1.3, deltaTime * .01)
+        mesh.scale.x = 1.15
+        mesh.scale.z = 1.15
       case _ =>
     }
     mesh.position.copy(position)
@@ -118,11 +138,11 @@ class Crate(
   }
   
   override def place(x: Int, z: Int) = {
-    if (canBePlaced(x, z)) {
+    if (canBePlaced(x, z) && positionOnMap != (x,z)) {
       setPosition(x, 0, z)
       context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Box,
-        new Vector3(position.x-.25, position.y - .4, position.z-.25), new Vector3(position.x+.25, position.y - .3, position.z+.25),
-        new Vector3(-.0025,.0,-.0025), new Vector3(.0025, .0, .0025), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .4, .7)
+         new Vector3(position.x-.25, position.y - .4, position.z-.25), new Vector3(position.x+.25, position.y - .3, position.z+.25),
+         new Vector3(-.0025,.0,-.0025), new Vector3(.0025, .0, .0025), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .4, .7)
       state = Standing()
       true
     } else {
@@ -133,7 +153,7 @@ class Crate(
   override def canBePlaced(x: Int, z: Int) = (
     !map.intersectsLevel(x, z, considerObstacles = false)
       && !map.getObjectsAt((x,z)).exists {
-             case _: Monster | _: Gate => true
+             case _: Monster | _: Gate | _: Crate => true
              case _ => false
     })
 }

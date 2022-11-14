@@ -6,7 +6,7 @@ import scala.util.Random
 object MapData {
   object Tile extends Enumeration {
     val Empty, Crate, SolidWall, GateClosing, GateOpen,
-        GateClosed, Trigger, TriggerWithCrate, Monster, Player = Value
+        GateClosed, Trigger, DefensiveMonster, Monster, Player, Freezer = Value
   }
   type Tile = Tile.Value
   
@@ -34,8 +34,8 @@ trait MapData {
       for (x <- 0 until width) {
         val tile = Tile(mapData(z)(x))
         tile match {
-          case Tile.Crate | Tile.Player | Tile.Monster
-             | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.TriggerWithCrate =>
+          case Tile.Crate | Tile.Player | Tile.DefensiveMonster | Tile.Monster
+             | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.Freezer =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty
           case _ =>

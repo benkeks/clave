@@ -1,6 +1,7 @@
 package net.mrkeks.clave.game.objects
 
 import net.mrkeks.clave.game.characters.PlayerData
+import net.mrkeks.clave.game.abstracts.FreezableObject
 import net.mrkeks.clave.game.abstracts.PositionedObjectData
 
 object CrateData {
@@ -12,6 +13,7 @@ object CrateData {
   abstract sealed class Kind
   case object DefaultKind extends Kind
   case object PlayerLikeKind extends Kind
+  case class FreezerKind(var frozenMonster: Option[FreezableObject]) extends Kind
 }
 
 trait CrateData

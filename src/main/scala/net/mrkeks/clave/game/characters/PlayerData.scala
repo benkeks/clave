@@ -19,6 +19,10 @@ object PlayerData extends PositionedObjectData {
     var deathAnim = 1.0
   }
 
+  case class Frozen(byCrate: CrateData) extends State {
+    override val speed = 0.0
+  }
+
   case class Spawning(var ySpeed: Double = 0) extends State
 }
 
