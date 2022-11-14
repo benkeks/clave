@@ -11,7 +11,7 @@ trait TimeManagement {
   var deltaTime = 0.0
   
   /** how many milliseconds constitute a tick of the game logic. */
-  val tickTime = 10.0
+  val tickTime = 8.33333333
   
   /** how many ticks have to be computed to catch up with the game time*/
   var tickBalance = 0.0
