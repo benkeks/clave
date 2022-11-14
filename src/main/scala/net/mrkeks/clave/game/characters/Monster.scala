@@ -42,7 +42,7 @@ object Monster {
 
 class Monster(
     protected val map: GameMap,
-    override val kind: MonsterData.MonsterKind = MonsterData.FrightenedMonster)
+    override val kind: MonsterData.MonsterKind = MonsterData.AggressiveMonster)
   extends GameObject with FreezableObject with PlaceableObject with MonsterData with ObjectShadow {
 
   import MonsterData._
