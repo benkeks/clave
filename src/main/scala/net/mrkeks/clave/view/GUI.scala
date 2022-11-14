@@ -3,6 +3,8 @@ package net.mrkeks.clave.view
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.map.LevelPreviewer
 import net.mrkeks.clave.util.TimeManagement
+import net.mrkeks.clave.game.ProgressTracking
+import net.mrkeks.clave.Clave
 
 import scala.collection.mutable.Map
 
@@ -58,6 +60,11 @@ class GUI() extends TimeManagement {
   popup.id = "popup"
   hudContainer.appendChild(popup)
   private var popupText = ""
+
+  private val versionInfo = dom.document.createElement("div")
+  versionInfo.id = "version-info"
+  versionInfo.innerHTML = ProgressTracking.ClaveVersion + (if (Clave.DevMode) " dev buiild" else "")
+  hudContainer.appendChild(versionInfo)
 
   dom.document.body.appendChild(hudContainer)
 

@@ -2,11 +2,14 @@ package net.mrkeks.clave.game
 
 import org.scalajs.dom
 
-trait ProgressTracking {
-
+object ProgressTracking {
   val ClavePrefix = "clave."
   val ClaveVersion = "0.2.0"
   val LocalStorageScoreKey = ClavePrefix + "scores"
+}
+
+trait ProgressTracking {
+  import ProgressTracking._
 
   var score = 0
 

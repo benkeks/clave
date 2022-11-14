@@ -21,6 +21,17 @@ body {
   height: 100%;
 }
 
+#version-info {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  pointer-events: none;
+  display: none;
+}
+#hud.startup #version-info {
+  display: block;
+}
+
 .score {
   text-align: center;
   font-size: 1.5em;
