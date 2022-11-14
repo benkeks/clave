@@ -21,7 +21,12 @@ class PlayerControl(val player: Player, val input: Input) {
       actionRegistered = false
     }
   }
-  
+
+  def resetState(): Unit = {
+    player.direction.set(0,0,0)
+    actionRegistered = false
+  }
+
   def actionKey(): Unit = {
     actionRegistered = true
   }

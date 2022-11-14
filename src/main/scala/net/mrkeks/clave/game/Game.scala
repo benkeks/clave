@@ -164,6 +164,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
             <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
           </div>""", delay = 500 + levelScore * 2)
         input.keyPressListener.addOne(" ", (this, continueLevel _))
+        playerControl.resetState()
       case Lost() => 
         gui.setPopup(s"""
           <div class='message'>
