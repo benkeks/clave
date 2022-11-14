@@ -15,8 +15,11 @@ class GUI() extends TimeManagement {
 
   private object Texts {
     val ContinueSymbol = "▶"
+    val ContinueDescription = "Start/continue current level"
     val PauseSymbol = "☰"
+    val PauseDescription = "Pause game and show menu"
     val LevelSelectionSymbol = "⡿"
+    val LevelSelectionDescription = "Show level selection"
     val GameURL = "https://benkeks.itch.io/clave"
     val JustPlayed = "Just played Clave"
   }
@@ -33,6 +36,7 @@ class GUI() extends TimeManagement {
 
   private val pauseButton = dom.document.createElement("button").asInstanceOf[dom.HTMLElement]
   private val pauseButtonText = dom.document.createTextNode(Texts.PauseSymbol)
+  pauseButton.title = Texts.PauseDescription
   pauseButton.classList.add("btn")
   pauseButton.classList.add("btn-secondary")
   pauseButton.appendChild(pauseButtonText)
@@ -40,6 +44,7 @@ class GUI() extends TimeManagement {
   hudContainer.appendChild(pauseButton)
 
   private val switchButton = dom.document.createElement("button").asInstanceOf[dom.HTMLElement]
+  switchButton.title = Texts.LevelSelectionDescription
   switchButton.classList.add("btn")
   switchButton.classList.add("btn-secondary")
   switchButton.classList.add("d-none")
@@ -185,6 +190,7 @@ class GUI() extends TimeManagement {
 
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = Texts.PauseSymbol
+  pauseButton.title = Texts.PauseDescription
     Game.GameStateIds.foreach(hudContainer.classList.remove(_))
     for (
       g <- game
@@ -193,11 +199,13 @@ class GUI() extends TimeManagement {
       g.state match {
         case Game.LevelScreen() | Game.StartUp(_) =>
           pauseButtonText.textContent = Texts.ContinueSymbol
+          pauseButton.title = Texts.ContinueDescription
           updateLevelListDisplay(game.get)
           showHide(switchButton, show = false)
           showHide(pauseButton, show = true)
         case Game.Paused() =>
           pauseButtonText.textContent = Texts.ContinueSymbol
+          pauseButton.title = Texts.ContinueDescription
           showHide(switchButton, show = true)
           showHide(pauseButton, show = true)
         case Game.Continuing() =>
