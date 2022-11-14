@@ -33,7 +33,9 @@ object Monster {
   }
 }
 
-class Monster(protected val map: GameMap)
+class Monster(
+    protected val map: GameMap,
+    override val kind: MonsterData.MonsterKind = MonsterData.AggressiveMonster)
   extends GameObject with FreezableObject with PlaceableObject with MonsterData with ObjectShadow {
 
   import MonsterData._
@@ -100,6 +102,21 @@ class Monster(protected val map: GameMap)
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
             setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
+          }
+        } else if (map.getPlayerDangerousness(positionOnMap) > 3) {
+          // circled in
+          val currentDanger = map.getPlayerDangerousness(positionOnMap)
+          val options = for {
+            pos <- map.getAdjacentPositions(positionOnMap)
+            if !map.intersectsLevel(pos._1, pos._2, considerObstacles = true)
+            newDanger = map.getPlayerDangerousness(pos)
+            if newDanger < currentDanger
+          } yield (newDanger, pos)
+          if (options.nonEmpty) {
+            val escapeRoute = options.minBy(_._1)._2
+            val tar = new Vector3(escapeRoute._1, 0, escapeRoute._2)
+            viewDirection = Direction.fromVec(tar.clone().sub(position))
+            setState(MoveTo(tar))
           }
         } else markovIf (0.0035) {
           // move into an arbitrary direction

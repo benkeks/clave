@@ -14,6 +14,10 @@ object MonsterData {
   case class PushedTo(tar: Vector3, var ySpeed: Double = 0.0) extends State
   case class MergingWith(otherMonster: MonsterData, var progress: Double = 0.0) extends State
   case class Frozen(byCrate: CrateData) extends State
+
+  abstract sealed class MonsterKind
+  case object AggressiveMonster extends MonsterKind
+  case object FrightenedMonster extends MonsterKind
 }
 
 trait MonsterData
@@ -24,4 +28,6 @@ trait MonsterData
   var state: State = Idle()
 
   var sizeLevel: Int = 1
+
+  val kind: MonsterKind
 }
