@@ -172,7 +172,9 @@ class Monster(
       case s @ JumpTo(tar, from, ySpeed) =>
         if (map.intersectsLevel(tar, considerObstacles = true)) {
           // if tile became blocked while moving there either merge with the monster there or turn around
-          val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect { case m: Monster if m.sizeLevel < 2 => m }
+          val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect {
+            case m: Monster if m.sizeLevel < 2 && m.kind == this.kind => m
+          }
           if (sizeLevel < 2 && touchedOtherSmallMonsters.nonEmpty) {
             setState(MergingWith(touchedOtherSmallMonsters.head))
           } else {
