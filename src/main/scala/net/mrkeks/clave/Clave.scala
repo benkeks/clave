@@ -19,7 +19,7 @@ object Clave {
   
   class Config(val startLevel: Int = 0, val editor: Boolean = false)
 
-  val DevMode: Boolean = false
+  val DevMode: Boolean = true
 
   @JSExport
   def main(): Unit = {
