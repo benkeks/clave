@@ -110,6 +110,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           gameObjects.foreach(_.update(tickTime))
           removeAllMarkedForDeletion()
         }
+        if ((victoryDrawProgress * 4).toInt % 2 == 0 && victoryRegion.nonEmpty) {
+          context.audio.play("victory-drawing")
+        }
         s.victoryDrawProgress += deltaTime * .02
         val pointTar = player.get.getPosition
         s.victoryRegion = victoryRegion.dropWhile { case (x, z) =>
@@ -144,7 +147,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case StartUp(_) =>
       case LevelScreen() =>
       case Running() =>
+        if (state.isInstanceOf[Paused] || state.isInstanceOf[StartUp])
+          context.audio.play("game-unpaused")
       case Paused() =>
+        context.audio.play("game-paused")
       case Continuing() =>
       case Won(levelScore, _, _) =>
         val previousScore = levelScores.get(currentLevelId).getOrElse(0)
@@ -164,6 +170,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
             <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
           </div>""", delay = 500 + levelScore * 2)
         input.keyPressListener.addOne(" ", (this, continueLevel _))
+        context.audio.play("level-won")
         playerControl.resetState()
       case Lost() => 
         gui.setPopup(s"""

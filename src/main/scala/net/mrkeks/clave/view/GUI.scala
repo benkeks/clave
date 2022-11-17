@@ -41,6 +41,7 @@ class GUI() extends TimeManagement {
   pauseButton.classList.add("btn-secondary")
   pauseButton.appendChild(pauseButtonText)
   pauseButton.addEventListener("click", clickPause _)
+  pauseButton.addEventListener("mouseenter", playHoverSound)
   hudContainer.appendChild(pauseButton)
 
   private val switchButton = dom.document.createElement("button").asInstanceOf[dom.HTMLElement]
@@ -50,6 +51,7 @@ class GUI() extends TimeManagement {
   switchButton.classList.add("d-none")
   switchButton.appendChild(dom.document.createTextNode(Texts.LevelSelectionSymbol))
   switchButton.addEventListener("click", clickSwitch _)
+  switchButton.addEventListener("mouseenter", playHoverSound)
   hudContainer.appendChild(switchButton)
 
   private val levelList = dom.document.createElement("div")
@@ -70,7 +72,6 @@ class GUI() extends TimeManagement {
   versionInfo.id = "version-info"
   versionInfo.innerHTML = ProgressTracking.ClaveVersion + (if (Clave.DevMode) " dev buiild" else "")
   hudContainer.appendChild(versionInfo)
-
   dom.document.body.appendChild(hudContainer)
 
   var game: Option[Game] = None
@@ -98,6 +99,7 @@ class GUI() extends TimeManagement {
       span.appendChild(dom.document.createTextNode("(0)"))
       levelButton.appendChild(span)
       levelButton.addEventListener("click", selectLevel(levelId) _)
+      levelButton.addEventListener("mouseenter", playHoverSound)
       levelList.appendChild(levelButton)
       levelButtons(levelId) = levelButton
     }
@@ -159,11 +161,21 @@ class GUI() extends TimeManagement {
   }
 
   def clickSwitch(ev: org.scalajs.dom.Event): Unit = {
+    playClickSound()
     game foreach (_.setState(Game.LevelScreen()))
     switchButton.blur()
   }
 
+  def playClickSound(): Unit = {
+    game foreach (_.context.audio.play("button-click"))
+  }
+
+  def playHoverSound(ev: org.scalajs.dom.Event = null): Unit = {
+    game foreach (_.context.audio.play("button-hover"))
+  }
+
   def selectLevel(levelName: String)(ev: org.scalajs.dom.Event): Unit = {
+    playClickSound()
     game foreach { g =>
       g.switchLevelById(levelName)
       g.setState(Game.Running())
