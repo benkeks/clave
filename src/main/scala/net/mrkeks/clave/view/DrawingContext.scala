@@ -56,6 +56,8 @@ class DrawingContext() {
 
   val particleSystem = new ParticleSystem(this)
 
+  val audio = new AudioContext(this)
+
   dom.window.onresize = (uiEv) => {
     adjustViewport()
   }
