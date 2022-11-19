@@ -76,7 +76,8 @@ class GameMap(val width: Int, val height: Int)
 
   val center = new Vector3(width / 2.0, 0, height / 2.0)
 
-  protected val playerDangerousness = Array.ofDim[Int](width, height)
+  protected var playerDangerousness = Array.ofDim[Int](width, height)
+  private var playerDangerousnessUpdate = Array.ofDim[Int](width, height)
   private var playerDangerousnessUpdateLine: Int = 0
 
   private var victoryCheckNeeded = false
@@ -123,21 +124,29 @@ class GameMap(val width: Int, val height: Int)
     }
 
     // update the player dangerousness in scan lines every 100 ms
-    for (i <- 0 until (height * deltaTime / 100).toInt) {
+    for (i <- 0 until (height * deltaTime / 100).ceil.toInt) {
       for (x <- 0 until width) {
         val pos = (x, playerDangerousnessUpdateLine)
-        playerDangerousness(x)(playerDangerousnessUpdateLine) = data(x)(playerDangerousnessUpdateLine) match {
+        playerDangerousnessUpdate(x)(playerDangerousnessUpdateLine) = data(x)(playerDangerousnessUpdateLine) match {
           case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
             20
           case _ if getObjectsAt(pos).exists(_.isInstanceOf[Player]) =>
-            50
+            60
           case _ =>
-            getAdjacentPositions(pos).map {
-              case (x0,z0) => playerDangerousness(x0)(z0) / 4
-            }.sum + (if (x == 0 || x == width - 1 || playerDangerousnessUpdateLine == 0 || playerDangerousnessUpdateLine == height - 1) 3 else -1)
+            val adjacent = getAdjacentPositions(pos) :+ pos
+            adjacent.map {
+              case (x0,z0) => playerDangerousness(x0)(z0)
+            }.sum / adjacent.length + (if (x == 0 || x == width - 1 || playerDangerousnessUpdateLine == 0 || playerDangerousnessUpdateLine == height - 1) 3 else -1)
           }
       }
-      playerDangerousnessUpdateLine = (playerDangerousnessUpdateLine + 1) % height
+      playerDangerousnessUpdateLine += 1
+      if (playerDangerousnessUpdateLine >= height) {
+        playerDangerousnessUpdateLine = 0
+        val flip = playerDangerousness
+        playerDangerousness = playerDangerousnessUpdate
+        playerDangerousnessUpdate = flip
+        println(flip)
+      }
     }
 
   }
