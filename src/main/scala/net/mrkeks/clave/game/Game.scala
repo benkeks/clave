@@ -138,11 +138,13 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       player.foreach { p =>
         context.cameraUpdatePosition(p.getPosition)
       }
-      val newZoom = Mathf.approach(context.camera.zoom, (if (state.isInstanceOf[Paused]) .7 else 1.0), .001 * deltaTime)
-      if (newZoom != context.camera.zoom) {
-        context.camera.zoom = newZoom
-        context.camera.updateProjectionMatrix()
-      }
+    }
+    val newZoom = Mathf.approach(context.camera.zoom,
+      (if (state.isInstanceOf[Paused] || state.isInstanceOf[Won]) .7 else if (state.isInstanceOf[Lost]) 1.3 else 1.0),
+      (if (state.isInstanceOf[Lost] || state.isInstanceOf[Won]) .0001 else 0.01) * deltaTime)
+    if (newZoom != context.camera.zoom) {
+      context.camera.zoom = newZoom
+      context.camera.updateProjectionMatrix()
     }
   }
   
