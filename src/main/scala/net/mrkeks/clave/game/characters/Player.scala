@@ -61,7 +61,8 @@ class Player(protected val map: GameMap)
   val sprite = new Sprite(Player.material)
   val mesh: Object3D = new Object3D()
   var eyeMesh: Option[Object3D] = None
-  
+
+  var previousCol = (false, false)
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
   val shadowSize = 0.7
@@ -193,9 +194,13 @@ class Player(protected val map: GameMap)
   def move(dir: Vector3): Unit = {
     if (dir.x != 0 || dir.z != 0) {
       viewDirection = Direction.fromVec(dir)
-      val newPos = map.localSlideCast(position, dir,
+      val (newPos, xCol, zCol) = map.localSlideCast(position, dir,
         bumpingDist = if (state.isInstanceOf[Carrying]) .6 else .4 )
       setPosition(newPos.x, position.y, newPos.z)
+      if (xCol && !previousCol._1 || zCol && !previousCol._2) {
+        context.audio.play("player-wall")
+      }
+      previousCol = (xCol, zCol)
       nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos)
       updateTouch()
     }
