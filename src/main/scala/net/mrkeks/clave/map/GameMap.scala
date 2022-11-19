@@ -145,7 +145,6 @@ class GameMap(val width: Int, val height: Int)
         val flip = playerDangerousness
         playerDangerousness = playerDangerousnessUpdate
         playerDangerousnessUpdate = flip
-        println(flip)
       }
     }
 
