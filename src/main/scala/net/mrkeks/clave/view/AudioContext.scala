@@ -1,5 +1,6 @@
 package net.mrkeks.clave.view
 
+import net.mrkeks.clave.game.ProgressTracking
 import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.Audio
@@ -12,6 +13,9 @@ import scalajs.js
 import org.scalajs.dom
 
 class AudioContext(context: DrawingContext) {
+
+  private val EffectVolumeKey = ProgressTracking.ClavePrefix+"effectVolume"
+  private var effectVolume: Double = 0.0
 
   private val SoundDirectory = "sfx/"
   private val soundEffectFiles = Map(
@@ -35,6 +39,7 @@ class AudioContext(context: DrawingContext) {
     "monster-spots" -> "Monster_Spots.wav",
     "monster-evades" -> "Monster_Evades.wav",
   )
+
   val soundEffects = new HashMap[String, AudioBuffer]()
 
   val audioListener = new AudioListener()
@@ -54,6 +59,23 @@ class AudioContext(context: DrawingContext) {
     loader.load(SoundDirectory + file, soundEffects(key) = _)
   }
   context.camera.add(audioListener)
+  
+  def loadVolumeConfig(): Double = {
+    val txt = dom.window.localStorage.getItem(EffectVolumeKey)
+    if (txt != null && txt != "") {
+      val volume = txt.toDoubleOption.getOrElse(0.0)
+      setEffectVolume(volume)
+      volume
+    } else {
+      setEffectVolume(effectVolume)
+      effectVolume
+    }
+  }
+
+  def setEffectVolumeConfig(volume: Double) = {
+    dom.window.localStorage.setItem(EffectVolumeKey, volume.toString())
+    setEffectVolume(volume)
+  }
 
   def stopAll() = {
     for (ac <- audioChannels) {
@@ -72,12 +94,14 @@ class AudioContext(context: DrawingContext) {
   }
 
   def play(key: String) = {
-    for {
-      buffer <- soundEffects.get(key)
-      channel <- audioChannels.find(f => !f.isPlaying)
-    } {
-      channel.setBuffer(buffer)
-      channel.play()
+    if (effectVolume > 0) {
+      for {
+        buffer <- soundEffects.get(key)
+        channel <- audioChannels.find(f => !f.isPlaying)
+      } {
+        channel.setBuffer(buffer)
+        channel.play()
+      }
     }
   }
 
@@ -114,7 +138,12 @@ class AudioContext(context: DrawingContext) {
   }
 
   def setEffectVolume(volume: Double) = {
-    audioListener.setMasterVolume(volume)
+    effectVolume = volume
+    audioListener.setMasterVolume(effectVolume)
+  }
+
+  def getEffectVolume(volume: Double) = {
+    effectVolume
   }
 
 }

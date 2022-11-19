@@ -94,6 +94,8 @@ class GUI() extends TimeManagement {
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
 
+    optionsVolume.value = (game.context.audio.loadVolumeConfig() * 10).toInt.toString
+
     val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.HTMLCanvasElement]
     val renderingContext = tmpDrawingCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     val levelPreviewer = new LevelPreviewer(renderingContext)
@@ -183,11 +185,10 @@ class GUI() extends TimeManagement {
 
   def changeVolume(ev: org.scalajs.dom.Event): Unit = {
     game foreach { g =>
-      g.context.audio.setEffectVolume(optionsVolume.valueAsNumber * .1)
+      g.context.audio.setEffectVolumeConfig(optionsVolume.valueAsNumber * .1)
       g.context.audio.play("player-crate")
     }
   }
-
 
   def playClickSound(): Unit = {
     game foreach (_.context.audio.play("button-click"))
