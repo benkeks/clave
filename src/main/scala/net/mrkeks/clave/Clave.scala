@@ -26,6 +26,11 @@ object Clave {
 
     val configuration = loadConfig()
 
+    val serviceWorkerManager = dom.window.navigator.serviceWorker;
+    if (serviceWorkerManager != null) {
+      serviceWorkerManager.register("/service-worker.js")
+    }
+
     val context = new DrawingContext()
 
     val input = new Input()
