@@ -134,10 +134,15 @@ class Player(protected val map: GameMap)
         setPosition(position.x, position.y + ySpeed * deltaTime, position.z)
         if (position.y <= 0) {
           setPosition(position.x, 0, position.z)
+          context.audio.play("small-lands")
           setState(Idle())
         }
-      case Idle()  =>
-        anim += (targetSpeed + .001) * deltaTime
+      case Idle() =>
+        val newAnim = anim + (targetSpeed + .001) * deltaTime
+        if (targetSpeed > .0001 && (anim * 100).toInt % 120 > (newAnim * 100).toInt % 120) {
+          context.audio.play("player-moves")
+        }
+        anim = newAnim
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (isHarmedByMonster(positionOnMap)) {
           setState(Dead())
@@ -145,7 +150,11 @@ class Player(protected val map: GameMap)
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
-        anim += (targetSpeed + .001) * deltaTime
+        val newAnim = anim + (targetSpeed + .001) * deltaTime
+        if (targetSpeed > .0001 && (anim * 100).toInt % 120 > (newAnim * 100).toInt % 120) {
+          context.audio.play("player-moves")
+        }
+        anim = newAnim
         if (crate.canBePlaced(nextField._1, nextField._2)) {
           dropPreview.visible = true
           dropPreview.position.copy(map.mapPosToVec(nextField))
@@ -204,8 +213,11 @@ class Player(protected val map: GameMap)
     
     if (touching.isEmpty && !state.isInstanceOf[Carrying]) {
       val newTouchObj = neighboringObjects.collectFirst { case c: Crate => c }
-      
-      newTouchObj.foreach(touch)
+
+      newTouchObj.foreach { c =>
+        if (!c.kind.isInstanceOf[CrateData.FreezerKind]) context.audio.play("player-crate")
+        touch(c)
+      }
     }
   }
   

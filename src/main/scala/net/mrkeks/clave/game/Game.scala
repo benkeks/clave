@@ -147,8 +147,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case StartUp(_) =>
       case LevelScreen() =>
       case Running() =>
-        if (state.isInstanceOf[Paused] || state.isInstanceOf[StartUp])
-          context.audio.play("game-unpaused")
+        context.audio.play("game-unpaused")
       case Paused() =>
         context.audio.play("game-paused")
       case Continuing() =>
@@ -173,6 +172,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         context.audio.play("level-won")
         playerControl.resetState()
       case Lost() => 
+        context.audio.play("level-lost")
         gui.setPopup(s"""
           <div class='message'>
             <p>Oh no!</p>

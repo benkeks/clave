@@ -13,12 +13,22 @@ class AudioContext(context: DrawingContext) {
 
   private val SoundDirectory = "sfx/"
   private val soundEffectFiles = Map(
+    // ui
     "button-click" -> "Button_Click.wav",
     "button-hover" -> "Button_Hover.wav",
     "game-paused" -> "Game_Paused.wav",
     "game-unpaused" -> "Game_Unpaused.wav",
     "level-won" -> "Level_Won.wav",
+    "level-lost" -> "Level_Lost.wav",
     "victory-drawing" -> "Button_Hover.wav",
+    // movement
+    "player-moves" -> "Player_Moves.wav",
+    "player-wall" -> "Player_Wall.wav",
+    "player-crate" -> "Player_Crate.wav",
+    "small-jumps" -> "Small_Jump.wav",
+    "small-lands" -> "Small_Lands.wav",
+    "big-jumps" -> "Big_Jump.wav",
+    "big-lands" -> "Big_Lands.wav",
   )
   val soundEffects = new HashMap[String, AudioBuffer]()
 
