@@ -29,6 +29,8 @@ class AudioContext(context: DrawingContext) {
     "small-lands" -> "Small_Lands.wav",
     "big-jumps" -> "Big_Jump.wav",
     "big-lands" -> "Big_Lands.wav",
+    "monster-spots" -> "Monster_Spots.wav",
+    "monster-evades" -> "Monster_Evades.wav",
   )
   val soundEffects = new HashMap[String, AudioBuffer]()
 
@@ -49,12 +51,10 @@ class AudioContext(context: DrawingContext) {
   }
 
   def play(key: String) = {
-    //dom.window.console.log(audioListener.asInstanceOf[js.Dynamic].context)
     for {
       buffer <- soundEffects.get(key)
       channel <- audioChannels.find(f => !f.isPlaying)
     } {
-      println("play "+key)
       channel.setBuffer(buffer)
       channel.play()
     }

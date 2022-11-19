@@ -108,6 +108,7 @@ class Monster(
         if (neighboringPlayers.nonEmpty && kind == AggressiveMonster) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
+            context.audio.play("monster-spots")
             setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
           }
         } else if (map.getPlayerDangerousness(positionOnMap) > 3 && kind == FrightenedMonster) {
@@ -123,6 +124,7 @@ class Monster(
             val escapeRoute = options.minBy(_._1)._2
             val tar = new Vector3(escapeRoute._1, 0, escapeRoute._2)
             viewDirection = Direction.fromVec(tar.clone().sub(position))
+            if (currentDanger > 10) context.audio.play("monster-evades")
             setState(MoveTo(tar))
           }
         } else markovIf (0.0035) {
@@ -289,7 +291,12 @@ class Monster(
     mesh.position.set(position.x, position.y + meshPositionOffset, position.z)
     sizeLevel match {
       case 1 =>
-        mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
+        if (kind == FrightenedMonster && map.getPlayerDangerousness(positionOnMap) > 3) {
+          val dangerScale = map.getPlayerDangerousness(positionOnMap) / 50.0
+          mesh.scale.set(.8 - yScale * .2 + dangerScale * .5, .8 - dangerScale - yScale * .2, .8 + yScale + dangerScale * .9)
+        } else {
+          mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
+        }
         shadowSize = .55
       case _ =>
         mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)

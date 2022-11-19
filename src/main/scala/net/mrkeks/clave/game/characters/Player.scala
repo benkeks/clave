@@ -245,6 +245,7 @@ class Player(protected val map: GameMap)
   
   def place(crate: Crate): Unit = {
     if ((crate.place _).tupled(nextField)) {
+      context.audio.play("player-crate")
       setState(Idle())
     }
   }
