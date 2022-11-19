@@ -20,6 +20,8 @@ class GUI() extends TimeManagement {
     val PauseDescription = "Pause game and show menu"
     val LevelSelectionSymbol = "⡿"
     val LevelSelectionDescription = "Show level selection"
+    val VolumeSymbol = "🔊"
+    val VolumeDescription = "Game sound volume"
     val GameURL = "https://benkeks.itch.io/clave"
     val JustPlayed = "Just played Clave"
   }
@@ -75,12 +77,13 @@ class GUI() extends TimeManagement {
 
   private val options = dom.document.createElement("form")
   options.id = "options"
-  options.classList.add("form-inline")
-  options.innerHTML = "<label for='options-volume' class='form-label'>Sound volume</label>"
-  private val optionsVolume = dom.document.createElement("input")
+  options.innerHTML = s"<span title=\"${Texts.VolumeDescription}\">${Texts.VolumeSymbol}</span>"
+  private val optionsVolume = dom.document.createElement("input").asInstanceOf[dom.HTMLInputElement]
   optionsVolume.id = "options-volume"
-  optionsVolume.classList.add("form-control-range")
+  optionsVolume.max = "10"
+  optionsVolume.classList.add("form-range")
   optionsVolume.setAttribute("type", "range")
+  optionsVolume.addEventListener("change", changeVolume _)
   options.appendChild(optionsVolume)
   hudContainer.appendChild(options)
 
@@ -177,6 +180,14 @@ class GUI() extends TimeManagement {
     game foreach (_.setState(Game.LevelScreen()))
     switchButton.blur()
   }
+
+  def changeVolume(ev: org.scalajs.dom.Event): Unit = {
+    game foreach { g =>
+      g.context.audio.setEffectVolume(optionsVolume.valueAsNumber * .1)
+      g.context.audio.play("player-crate")
+    }
+  }
+
 
   def playClickSound(): Unit = {
     game foreach (_.context.audio.play("button-click"))

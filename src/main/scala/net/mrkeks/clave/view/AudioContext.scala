@@ -113,4 +113,8 @@ class AudioContext(context: DrawingContext) {
     }
   }
 
+  def setEffectVolume(volume: Double) = {
+    audioListener.setMasterVolume(volume)
+  }
+
 }

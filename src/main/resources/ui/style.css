@@ -35,7 +35,7 @@ body {
 #options {
   vertical-align: middle;
   position: absolute;
-  max-width: 120px;
+  width: 150px;
   right: 0px;
   top: 0px;
   text-align: right;
