@@ -74,7 +74,8 @@ class DrawingContext() {
     camera.updateProjectionMatrix()
   }
 
-  def render() = {
+  def render(deltaTime: Double) = {
+    audio.update(deltaTime)
     renderer.render(scene, camera)
   }
 
@@ -87,7 +88,6 @@ class DrawingContext() {
       cameraMin.set(mapWidth / 2, 0, mapHeight / 2)
       cameraMax.copy(cameraMin)
     }
-
   }
 
   def cameraUpdatePosition(lookAt: Vector3, spectatorOffSet: Double = 0.0): Unit = {

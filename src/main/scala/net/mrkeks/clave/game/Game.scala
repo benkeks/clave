@@ -64,7 +64,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
     handleState()
 
-    context.render()
+    context.render(deltaTime)
 
     updateTime(timeStamp)
   }
@@ -104,7 +104,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           checkVictory()
         }
       case Paused() =>
-        //
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
@@ -148,8 +147,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case LevelScreen() =>
       case Running() =>
         context.audio.play("game-unpaused")
+        context.audio.setAtmosphereVolume("pause-atmosphere", 0.0)
       case Paused() =>
         context.audio.play("game-paused")
+        context.audio.playAtmosphere("pause-atmosphere", .4, .00001)
       case Continuing() =>
       case Won(levelScore, _, _) =>
         val previousScore = levelScores.get(currentLevelId).getOrElse(0)
@@ -173,6 +174,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         playerControl.resetState()
       case Lost() => 
         context.audio.play("level-lost")
+        context.audio.playAtmosphere("pause-atmosphere", .6, .00001)
         gui.setPopup(s"""
           <div class='message'>
             <p>Oh no!</p>

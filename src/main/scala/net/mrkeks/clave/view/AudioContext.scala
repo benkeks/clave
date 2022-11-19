@@ -1,5 +1,7 @@
 package net.mrkeks.clave.view
 
+import net.mrkeks.clave.util.Mathf
+
 import org.denigma.threejs.Audio
 import org.denigma.threejs.AudioBuffer
 import org.denigma.threejs.AudioLoader
@@ -18,6 +20,7 @@ class AudioContext(context: DrawingContext) {
     "button-hover" -> "Button_Hover.wav",
     "game-paused" -> "Game_Paused.wav",
     "game-unpaused" -> "Game_Unpaused.wav",
+    "pause-atmosphere" -> "Pause_Atmosphere.wav",
     "level-won" -> "Level_Won.wav",
     "level-lost" -> "Level_Lost.wav",
     "victory-drawing" -> "Button_Hover.wav",
@@ -38,6 +41,14 @@ class AudioContext(context: DrawingContext) {
 
   val audioChannels = for (i <- 0 to 31) yield new Audio(audioListener)
 
+  class AtmosphereAudio(audioListener: AudioListener) extends Audio(audioListener) {
+    var fadeToVolume = 0.0
+    var fadeSpeed = 0.0
+    var volume = 0.0
+  }
+
+  val atmosphereChannels = HashMap[String, AtmosphereAudio]()
+
   private val loader = new AudioLoader()
   for ((key, file) <- soundEffectFiles.toList) {
     loader.load(SoundDirectory + file, soundEffects(key) = _)
@@ -50,6 +61,16 @@ class AudioContext(context: DrawingContext) {
     }
   }
 
+  def update(deltaTime: Double) = {
+    for {
+      a <- atmosphereChannels.valuesIterator
+      if a.isPlaying
+    } {
+      a.volume = Mathf.approach(a.volume, a.fadeToVolume, a.fadeSpeed * deltaTime)
+      a.setVolume(a.volume)
+    }
+  }
+
   def play(key: String) = {
     for {
       buffer <- soundEffects.get(key)
@@ -57,6 +78,38 @@ class AudioContext(context: DrawingContext) {
     } {
       channel.setBuffer(buffer)
       channel.play()
+    }
+  }
+
+  def playAtmosphere(key: String, targetVolume: Double = 1.0, fadeSpeed: Double = 1.0) = {
+    for {
+      buffer <- soundEffects.get(key)
+      channel = atmosphereChannels.getOrElseUpdate(key, {
+        val newChannel = new AtmosphereAudio(audioListener)
+        newChannel.setBuffer(buffer)
+        newChannel.setLoop(true)
+        newChannel.setVolume(0.0)
+        newChannel
+      })
+    } {
+      if (!channel.isPlaying) {
+        channel.play()
+        if (fadeSpeed < .9) channel.setVolume(0.0)
+      }
+      channel.fadeToVolume = targetVolume
+      channel.fadeSpeed = fadeSpeed
+    }
+  }
+
+  def setAtmosphereVolume(key: String, volume: Double) = {
+    for {
+      channel <- atmosphereChannels.get(key)
+    } {
+      channel.volume = volume
+      channel.fadeToVolume = volume
+      if (volume <= 0) {
+        channel.stop()
+      }
     }
   }
 
