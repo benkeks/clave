@@ -72,6 +72,18 @@ class GUI() extends TimeManagement {
   versionInfo.id = "version-info"
   versionInfo.innerHTML = ProgressTracking.ClaveVersion + (if (Clave.DevMode) " dev buiild" else "")
   hudContainer.appendChild(versionInfo)
+
+  private val options = dom.document.createElement("form")
+  options.id = "options"
+  options.classList.add("form-inline")
+  options.innerHTML = "<label for='options-volume' class='form-label'>Sound volume</label>"
+  private val optionsVolume = dom.document.createElement("input")
+  optionsVolume.id = "options-volume"
+  optionsVolume.classList.add("form-control-range")
+  optionsVolume.setAttribute("type", "range")
+  options.appendChild(optionsVolume)
+  hudContainer.appendChild(options)
+
   dom.document.body.appendChild(hudContainer)
 
   var game: Option[Game] = None

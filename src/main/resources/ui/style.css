@@ -32,6 +32,19 @@ body {
   display: block;
 }
 
+#options {
+  vertical-align: middle;
+  position: absolute;
+  max-width: 120px;
+  right: 0px;
+  top: 0px;
+  text-align: right;
+  display: none;
+}
+#hud.startup #options, #hud.levelscreen #options, #hud.paused #options {
+  display: block;
+}
+
 .score {
   text-align: center;
   font-size: 1.5em;
