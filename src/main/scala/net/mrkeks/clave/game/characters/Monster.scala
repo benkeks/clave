@@ -264,7 +264,7 @@ class Monster(
       }
     }
 
-    val meshPositionOffset = -.4 + sizeLevel * .2
+    val meshPositionOffset = -.45 + sizeLevel * .25
     if (!state.isInstanceOf[Frozen]) {
       // particles for landing
       if (position.y < .5 && mesh.position.y - meshPositionOffset >= .5) {
@@ -293,12 +293,12 @@ class Monster(
       case 1 =>
         if (kind == FrightenedMonster && map.getPlayerDangerousness(positionOnMap) > 3) {
           val dangerScale = map.getPlayerDangerousness(positionOnMap) / 50.0
-          mesh.scale.set(.8 - yScale * .2 + dangerScale * .5, .8 - dangerScale - yScale * .2, .8 + yScale + dangerScale * .9)
+          mesh.scale.set(.9 - yScale * .2 + dangerScale * .5, 1.1 - dangerScale - yScale * .2, .9 + yScale + dangerScale * .9)
         } else {
-          mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
+          mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
         }
       case _ =>
-        mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
+        mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
     }
     shadowSize = mesh.scale.y * .25 + .5
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
