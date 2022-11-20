@@ -265,7 +265,7 @@ class GUI() extends TimeManagement {
           overlay.classList.add("scene-fadeout")
           showHide(switchButton, show = false)
           showHide(pauseButton, show = true)
-        case Game.Lost() | Game.Won(_, _, _) =>
+        case Game.Lost(_) | Game.Won(_, _, _) =>
           overlay.classList.remove("scene-fadeout")
           overlay.classList.add("scene-fadein")
           showHide(switchButton, show = false)

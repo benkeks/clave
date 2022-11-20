@@ -96,11 +96,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         }
         
         if (player.isDefined &&
-            (player.get.state.isInstanceOf[PlayerData.Dead])
-            || player.get.state.isInstanceOf[PlayerData.Frozen]) {
-          setState(Lost())
+            player.get.state.isInstanceOf[PlayerData.Dead]) {
+          setState(Lost("The monsters crushed you!"))
+        } else if (player.isDefined && player.get.state.isInstanceOf[PlayerData.Frozen]) {
+          setState(Lost("You've been deep-frozen."))
         } else if (playerIsSurrounded()) {
-          setState(Lost())
+          setState(Lost("The monsters got you surrounded!"))
         } else {
           checkVictory()
         }
@@ -120,7 +121,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           context.particleSystem.emitParticle("point", x, -.4, z, (pointTar.x - x) / flyTime, .025 * flyTime / 2000, (pointTar.z - z) / flyTime, .93, .93, .47, 1.0, .8 + .5 * Math.random())
           map.victoryLighting(x, z) < s.victoryDrawProgress
         }
-      case Lost() =>
+      case Lost(_) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
           removeAllMarkedForDeletion()
@@ -180,13 +181,13 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         input.keyPressListener.addOne(" ", (this, continueLevel _))
         context.audio.play("level-won")
         playerControl.resetState()
-      case Lost() => 
+      case Lost(reason) => 
         context.audio.play("level-lost")
         context.audio.playAtmosphere("pause-atmosphere", .6, .00001)
         gui.setPopup(s"""
           <div class='message'>
             <p>Oh no!</p>
-            <p><strong>The monsters got you!</strong></p>
+            <p><strong>${reason}</strong></p>
           </div>""", delay = 500)
         input.keyPressListener.addOne(" ", (this, continueLevel _))
     }
@@ -290,7 +291,7 @@ object Game {
   case class Running() extends State
   case class Paused() extends State
   case class Won(levelScore: Int, var victoryRegion: List[(Int, Int)], var victoryDrawProgress: Double) extends State
-  case class Lost() extends State
+  case class Lost(reason: String) extends State
   case class Continuing() extends State
 
   def gameStateToId(s: State) = s match {
@@ -299,7 +300,7 @@ object Game {
     case Running() => "running"
     case Paused() => "paused"
     case Won(_, _, _) => "won"
-    case Lost() => "lost"
+    case Lost(_) => "lost"
     case Continuing() => "continuing"
   }
 
