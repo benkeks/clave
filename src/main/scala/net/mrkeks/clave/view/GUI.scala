@@ -22,6 +22,10 @@ class GUI() extends TimeManagement {
     val LevelSelectionDescription = "Show level selection"
     val VolumeSymbol = "🔊"
     val VolumeDescription = "Game sound volume"
+    val GfxDetailSymbol = "📺 HD graphics"
+    val GfxDetailDescription = "Deactivate for better performance! (Requires reload)"
+    val HardModeSymbol = "☠ Hard mode"
+    val HardModeDescription = "Play levels with bigger monsters"
     val GameURL = "https://benkeks.itch.io/clave"
     val JustPlayed = "Just played Clave"
   }
@@ -77,14 +81,26 @@ class GUI() extends TimeManagement {
 
   private val options = dom.document.createElement("form")
   options.id = "options"
-  options.innerHTML = s"<span title=\"${Texts.VolumeDescription}\">${Texts.VolumeSymbol}</span>"
-  private val optionsVolume = dom.document.createElement("input").asInstanceOf[dom.HTMLInputElement]
-  optionsVolume.id = "options-volume"
-  optionsVolume.max = "10"
-  optionsVolume.classList.add("form-range")
-  optionsVolume.setAttribute("type", "range")
+  options.innerHTML = s"""
+    <div class="form-inline">
+      <label title="${Texts.VolumeDescription}" for="options-volume">${Texts.VolumeSymbol}</label>
+      <input id="options-volume" type="range" max="10" class="form-range-input" title="${Texts.VolumeDescription}" />
+    </div>
+    <div class="form-check">
+      <input id="options-gfx-detail" type="checkbox" class="form-check-input" title="${Texts.GfxDetailDescription}" />
+      <label class="form-check-label" for="options-gfx-detail" title="${Texts.GfxDetailDescription}">${Texts.GfxDetailSymbol}</label>
+    </div>
+    <div class="form-check">
+      <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
+      <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
+    </div>
+    """
+  
+  private val optionsVolume = options.querySelector("#options-volume").asInstanceOf[dom.HTMLInputElement]
   optionsVolume.addEventListener("change", changeVolume _)
-  options.appendChild(optionsVolume)
+  private val optionsGfxDetail = options.querySelector("#options-gfx-detail").asInstanceOf[dom.HTMLInputElement]
+  private val optionsHardMode = options.querySelector("#options-hard-mode").asInstanceOf[dom.HTMLInputElement]
+
   hudContainer.appendChild(options)
 
   dom.document.body.appendChild(hudContainer)

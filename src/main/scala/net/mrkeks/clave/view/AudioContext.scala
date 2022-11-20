@@ -1,6 +1,5 @@
 package net.mrkeks.clave.view
 
-import net.mrkeks.clave.game.ProgressTracking
 import net.mrkeks.clave.util.Mathf
 
 import org.denigma.threejs.Audio
@@ -14,7 +13,7 @@ import org.scalajs.dom
 
 class AudioContext(context: DrawingContext) {
 
-  private val EffectVolumeKey = ProgressTracking.ClavePrefix+"effectVolume"
+  private val EffectVolumeKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "effectVolume"
   private var effectVolume: Double = 0.0
 
   private val SoundDirectory = "sfx/"
