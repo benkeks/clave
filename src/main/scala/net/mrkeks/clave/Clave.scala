@@ -12,6 +12,7 @@ import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.view.Input
 import net.mrkeks.clave.editor.Editor
 import net.mrkeks.clave.editor.EditorGUI
+import net.mrkeks.clave.game.abstracts.ObjectShadow
 
 
 @JSExportTopLevel("Clave")
@@ -32,6 +33,7 @@ object Clave {
     }
 
     val context = new DrawingContext()
+    ObjectShadow.init(context)
 
     val input = new Input()
 

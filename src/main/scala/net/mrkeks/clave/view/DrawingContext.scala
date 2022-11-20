@@ -11,10 +11,14 @@ import org.denigma.threejs.PointLight
 import org.denigma.threejs.AmbientLight
 import org.denigma.threejs.TextureLoader
 import org.denigma.threejs.GLTFLoader
+import org.denigma.threejs.Fog
+import net.mrkeks.clave.game.abstracts.ObjectShadow
 
 object DrawingContext {
   val textureLoader = new TextureLoader()
   val gltfLoader = new GLTFLoader()
+
+  val bgColor = new Color(0x604060)
 }
 
 class DrawingContext() {
@@ -31,10 +35,9 @@ class DrawingContext() {
   var renderer: WebGLRenderer = new WebGLRenderer()
   dom.document.body.appendChild(renderer.domElement)
 
-  renderer.setClearColor(new Color(0x604060))
+  renderer.setClearColor(DrawingContext.bgColor)
 
   val camera = new PerspectiveCamera(aspect = aspect)
-  //new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   val cameraMin = new Vector3(0, 0, 0)
   val cameraMax = new Vector3(0, 100, 28)
   val cameraLookAt = new Vector3()
@@ -42,6 +45,7 @@ class DrawingContext() {
   adjustViewport()
 
   val scene = new Scene()
+  scene.fog = new Fog(DrawingContext.bgColor.getHex(), cameraMax.y, cameraMax.y * 2)
 
   val ambient = new AmbientLight(0x606266)
   scene.add(ambient)
@@ -75,6 +79,7 @@ class DrawingContext() {
   }
 
   def render(deltaTime: Double) = {
+    ObjectShadow.updateAllShadows()
     audio.update(deltaTime)
     renderer.render(scene, camera)
   }

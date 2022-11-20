@@ -297,14 +297,12 @@ class Monster(
         } else {
           mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
         }
-        shadowSize = .55
       case _ =>
         mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
-        shadowSize = .85
     }
+    shadowSize = mesh.scale.y * .25 + .5
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
-    updateShadow()
   }
 
   override def freezeComplete(byCrate: CrateData): Boolean = {

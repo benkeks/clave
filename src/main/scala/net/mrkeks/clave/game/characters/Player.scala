@@ -65,7 +65,7 @@ class Player(protected val map: GameMap)
   var previousCol = (false, false)
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
-  val shadowSize = 0.7
+  var shadowSize = 0.7
   
   def init(context: DrawingContext): Unit = {
     this.context = context
@@ -179,7 +179,7 @@ class Player(protected val map: GameMap)
         // this cannot actually happen
     }
 
-    updateShadow()
+    shadowSize = mesh.scale.y * .1 + .5
   }
 
   private def isHarmedByMonster(xz: (Int, Int)) = {
