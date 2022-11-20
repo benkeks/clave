@@ -15,6 +15,8 @@ class AudioContext(context: DrawingContext) {
 
   private val EffectVolumeKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "effectVolume"
   private var effectVolume: Double = 0.0
+  private val MusicVolumeKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "musicVolume"
+  private var musicVolume: Double = 0.0
 
   private val SoundDirectory = "sfx/"
   private val soundEffectFiles = Map(
@@ -37,11 +39,14 @@ class AudioContext(context: DrawingContext) {
     "big-lands" -> "Big_Lands.wav",
     "monster-spots" -> "Monster_Spots.wav",
     "monster-evades" -> "Monster_Evades.wav",
+    // music
+    "music-boxin-monsters" -> "boxin-monsters.ogg",
   )
 
   val soundEffects = new HashMap[String, AudioBuffer]()
 
   val audioListener = new AudioListener()
+  val musicListener = new AudioListener()
 
   val audioChannels = for (i <- 0 to 31) yield new Audio(audioListener)
 
@@ -70,10 +75,27 @@ class AudioContext(context: DrawingContext) {
       effectVolume
     }
   }
+  
+  def loadMusicConfig(): Double = {
+    val txt = dom.window.localStorage.getItem(MusicVolumeKey)
+    if (txt != null && txt != "") {
+      val volume = txt.toDoubleOption.getOrElse(0.0)
+      setMusicVolume(volume)
+      volume
+    } else {
+      setMusicVolume(musicVolume)
+      musicVolume
+    }
+  }
 
   def setEffectVolumeConfig(volume: Double) = {
     dom.window.localStorage.setItem(EffectVolumeKey, volume.toString())
     setEffectVolume(volume)
+  }
+
+  def setMusicVolumeConfig(volume: Double) = {
+    dom.window.localStorage.setItem(MusicVolumeKey, volume.toString())
+    setMusicVolume(volume)
   }
 
   def stopAll() = {
@@ -104,11 +126,11 @@ class AudioContext(context: DrawingContext) {
     }
   }
 
-  def playAtmosphere(key: String, targetVolume: Double = 1.0, fadeSpeed: Double = 1.0) = {
+  def playAtmosphere(key: String, targetVolume: Double = 1.0, fadeSpeed: Double = 1.0, listener: Option[AudioListener] = None ) = {
     for {
       buffer <- soundEffects.get(key)
       channel = atmosphereChannels.getOrElseUpdate(key, {
-        val newChannel = new AtmosphereAudio(audioListener)
+        val newChannel = new AtmosphereAudio(listener.getOrElse(audioListener))
         newChannel.setBuffer(buffer)
         newChannel.setLoop(true)
         newChannel.setVolume(0.0)
@@ -141,7 +163,12 @@ class AudioContext(context: DrawingContext) {
     audioListener.setMasterVolume(effectVolume)
   }
 
-  def getEffectVolume(volume: Double) = {
+  def setMusicVolume(volume: Double) = {
+    musicVolume = volume
+    musicListener.setMasterVolume(musicVolume)
+  }
+
+  def getEffectVolume() = {
     effectVolume
   }
 

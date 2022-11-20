@@ -1,14 +1,15 @@
 package net.mrkeks.clave.map
 
-import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.characters.Player
-import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.game.abstracts.PositionedObject
-import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.game.characters.Player
+import net.mrkeks.clave.game.characters.{Monster, MonsterData}
+import net.mrkeks.clave.game.objects.Crate
+import net.mrkeks.clave.game.objects.CrateData.FreezerKind
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.GateData
+import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.util.Mathf
 
 import scala.scalajs.js
@@ -17,13 +18,13 @@ import scala.scalajs.js.typedarray.Uint32Array
 import scala.scalajs.js.typedarray.Uint16Array
 import scala.collection.mutable.MultiDict
 
+import org.denigma.threejs
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.DataTexture
 import org.denigma.threejs.BufferGeometry
 import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshLambertMaterial
-import org.denigma.threejs
 import org.denigma.threejs.PixelFormat
 import org.denigma.threejs.TextureDataType
 import org.denigma.threejs.TextureFilter
@@ -33,8 +34,6 @@ import org.denigma.threejs.Texture
 import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
-import net.mrkeks.clave.game.objects.CrateData.FreezerKind
-import net.mrkeks.clave.game.characters.MonsterData
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {

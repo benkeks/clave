@@ -153,8 +153,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   def setState(newState: State): Unit = {
     newState match {
       case StartUp(_) =>
+        context.audio.playAtmosphere("music-boxin-monsters", 1.0, .001, Some(context.audio.musicListener))
       case LevelScreen() =>
       case Running() =>
+        context.audio.playAtmosphere("music-boxin-monsters", 1.0, .001, Some(context.audio.musicListener))
         context.audio.play("game-unpaused")
         context.audio.setAtmosphereVolume("pause-atmosphere", 0.0)
       case Paused() =>
@@ -163,6 +165,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Continuing() =>
       case Won(levelScore, _, _) =>
         val previousScore = levelScores.get(currentLevelId).getOrElse(0)
+        context.audio.setAtmosphereVolume("music-boxin-monsters", .3)
         bookScore(currentLevelId, levelScore)
         val msgPart1 = if (previousScore == 0) {
           "Yeah, a new success!"
@@ -183,6 +186,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         playerControl.resetState()
       case Lost(reason) => 
         context.audio.play("level-lost")
+        context.audio.setAtmosphereVolume("music-boxin-monsters", .2)
         context.audio.playAtmosphere("pause-atmosphere", .6, .00001)
         gui.setPopup(s"""
           <div class='message'>
