@@ -82,8 +82,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
           removeAllMarkedForDeletion()
         }
-        s.anim = Math.min(150, anim + .04 * deltaTime)
-        context.cameraUpdatePosition(new Vector3(map.center.x, map.center.y, map.center.z * 3), spectatorOffSet = 160.0 - anim)
+        s.anim = Math.min(1.0, anim + .0004 * deltaTime)
+        val animProgress = 160.0 - 150.0 * Mathf.quadTo(.8, s.anim)
+        context.cameraUpdatePosition(new Vector3(map.center.x, map.center.y, map.center.z * 3), spectatorOffSet = animProgress)
       case LevelScreen() =>
       case Running() =>
         playerControl.update(deltaTime)
