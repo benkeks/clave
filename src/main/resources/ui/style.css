@@ -32,6 +32,21 @@ body {
   display: block;
 }
 
+#options {
+  position: absolute;
+  width: 150px;
+  right: -160px;
+  top: 10px;
+  text-align: right;
+  transition: right 400ms cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  pointer-events: none;
+}
+#hud.startup #options, #hud.paused #options {
+  right: 10px;
+  transition: right 600ms cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  pointer-events: all;
+}
+
 .score {
   text-align: center;
   font-size: 1.5em;

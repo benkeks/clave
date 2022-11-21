@@ -61,10 +61,11 @@ class Player(protected val map: GameMap)
   val sprite = new Sprite(Player.material)
   val mesh: Object3D = new Object3D()
   var eyeMesh: Option[Object3D] = None
-  
+
+  var previousCol = (false, false)
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
-  val shadowSize = 0.7
+  var shadowSize = 0.7
   
   def init(context: DrawingContext): Unit = {
     this.context = context
@@ -134,10 +135,15 @@ class Player(protected val map: GameMap)
         setPosition(position.x, position.y + ySpeed * deltaTime, position.z)
         if (position.y <= 0) {
           setPosition(position.x, 0, position.z)
+          context.audio.play("small-lands")
           setState(Idle())
         }
-      case Idle()  =>
-        anim += (targetSpeed + .001) * deltaTime
+      case Idle() =>
+        val newAnim = anim + (targetSpeed + .001) * deltaTime
+        if (targetSpeed > .0001 && (anim * 100).toInt % 120 > (newAnim * 100).toInt % 120) {
+          context.audio.play("player-moves")
+        }
+        anim = newAnim
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (isHarmedByMonster(positionOnMap)) {
           setState(Dead())
@@ -145,7 +151,11 @@ class Player(protected val map: GameMap)
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
-        anim += (targetSpeed + .001) * deltaTime
+        val newAnim = anim + (targetSpeed + .001) * deltaTime
+        if (targetSpeed > .0001 && (anim * 100).toInt % 120 > (newAnim * 100).toInt % 120) {
+          context.audio.play("player-moves")
+        }
+        anim = newAnim
         if (crate.canBePlaced(nextField._1, nextField._2)) {
           dropPreview.visible = true
           dropPreview.position.copy(map.mapPosToVec(nextField))
@@ -169,7 +179,7 @@ class Player(protected val map: GameMap)
         // this cannot actually happen
     }
 
-    updateShadow()
+    shadowSize = mesh.scale.y * .1 + .5
   }
 
   private def isHarmedByMonster(xz: (Int, Int)) = {
@@ -184,9 +194,13 @@ class Player(protected val map: GameMap)
   def move(dir: Vector3): Unit = {
     if (dir.x != 0 || dir.z != 0) {
       viewDirection = Direction.fromVec(dir)
-      val newPos = map.localSlideCast(position, dir,
+      val (newPos, xCol, zCol) = map.localSlideCast(position, dir,
         bumpingDist = if (state.isInstanceOf[Carrying]) .6 else .4 )
       setPosition(newPos.x, position.y, newPos.z)
+      if (xCol && !previousCol._1 || zCol && !previousCol._2) {
+        context.audio.play("player-wall")
+      }
+      previousCol = (xCol, zCol)
       nextField = map.vecToMapPos(Direction.toVec(viewDirection) add newPos)
       updateTouch()
     }
@@ -204,8 +218,11 @@ class Player(protected val map: GameMap)
     
     if (touching.isEmpty && !state.isInstanceOf[Carrying]) {
       val newTouchObj = neighboringObjects.collectFirst { case c: Crate => c }
-      
-      newTouchObj.foreach(touch)
+
+      newTouchObj.foreach { c =>
+        if (!c.kind.isInstanceOf[CrateData.FreezerKind]) context.audio.play("player-crate")
+        touch(c)
+      }
     }
   }
   
@@ -233,6 +250,7 @@ class Player(protected val map: GameMap)
   
   def place(crate: Crate): Unit = {
     if ((crate.place _).tupled(nextField)) {
+      context.audio.play("player-crate")
       setState(Idle())
     }
   }

@@ -12,6 +12,7 @@ import net.mrkeks.clave.game.characters.{Monster, MonsterData}
 import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.objects.CrateData
 import net.mrkeks.clave.game.abstracts.GameObjectManagement
+import net.mrkeks.clave.game.objects.Meta
 
 trait GameLevelLoader {
   self: GameObjectManagement =>
@@ -94,6 +95,8 @@ trait GameLevelLoader {
         val trigger = new Trigger(map)
         triggerGroup.addTrigger(trigger)
         List(trigger)
+      case "meta" =>
+        List(new Meta(map))
       case _ =>
         List()
     }
@@ -102,13 +105,14 @@ trait GameLevelLoader {
       (tileType: MapData.Tile, pos: List[(Int,Int)]) <- positions
       (x,z) <- pos
       kind <- objKindsFromTile(tileType)
-    } yield Level.ObjectInfo(kind, x, z)
+    } yield Level.ObjectInfo(kind, x, z, "")
 
     for {
-      Level.ObjectInfo(kind, x, z) <- tileObjects ++ level.objects
+      Level.ObjectInfo(kind, x, z, info) <- tileObjects ++ level.objects
       obj <- factoryConstruct(kind)
     } {
       obj.setPosition(x, 0, z)
+      obj.setInfo(info)
       obj match { case c: Crate => c.place(x, z); case _ => }
       add(obj)
     }

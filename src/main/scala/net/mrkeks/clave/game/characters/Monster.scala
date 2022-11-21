@@ -108,6 +108,7 @@ class Monster(
         if (neighboringPlayers.nonEmpty && kind == AggressiveMonster) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
+            context.audio.play("monster-spots")
             setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
           }
         } else if (map.getPlayerDangerousness(positionOnMap) > 3 && kind == FrightenedMonster) {
@@ -123,6 +124,7 @@ class Monster(
             val escapeRoute = options.minBy(_._1)._2
             val tar = new Vector3(escapeRoute._1, 0, escapeRoute._2)
             viewDirection = Direction.fromVec(tar.clone().sub(position))
+            if (currentDanger > 10) context.audio.play("monster-evades")
             setState(MoveTo(tar))
           }
         } else markovIf (0.0035) {
@@ -262,30 +264,45 @@ class Monster(
       }
     }
 
-    val meshPositionOffset = -.4 + sizeLevel * .2
-    // particles for landing
-    if (position.y <= .5 && mesh.position.y - meshPositionOffset > .5000001) {
-      context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
-        new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
-        new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .5 + .1 * sizeLevel), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
-    } // particles for jumping
-      else if (position.y > .01 && mesh.position.y - meshPositionOffset <= 0.01) {
-      context.particleSystem.burst("dust", (3 + 2 * sizeLevel + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
-        new Vector3(position.x, position.y-.3, position.z), new Vector3(-.01, .1, -.01),
-        new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .3 + .1 * sizeLevel), -.2 + .05 * sizeLevel, + .05 * sizeLevel)
+    val meshPositionOffset = -.45 + sizeLevel * .25
+    if (!state.isInstanceOf[Frozen]) {
+      // particles for landing
+      if (position.y < .5 && mesh.position.y - meshPositionOffset >= .5) {
+        context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
+          new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
+          new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .5 + .1 * sizeLevel), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
+        if (sizeLevel <= 1) {
+          context.audio.play("small-lands")
+        } else {
+          context.audio.play("big-lands")
+        }
+      } // particles for jumping
+        else if (position.y > .01 && mesh.position.y - meshPositionOffset <= 0.01) {
+        context.particleSystem.burst("dust", (3 + 2 * sizeLevel + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
+          new Vector3(position.x, position.y-.3, position.z), new Vector3(-.01, .1, -.01),
+          new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .3 + .1 * sizeLevel), -.2 + .05 * sizeLevel, + .05 * sizeLevel)
+        if (sizeLevel <= 1) {
+          context.audio.play("small-jumps")
+        } else {
+          context.audio.play("big-jumps")
+        }
+      }
     }
     mesh.position.set(position.x, position.y + meshPositionOffset, position.z)
     sizeLevel match {
       case 1 =>
-        mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
-        shadowSize = .55
+        if (kind == FrightenedMonster && map.getPlayerDangerousness(positionOnMap) > 3) {
+          val dangerScale = map.getPlayerDangerousness(positionOnMap) / 50.0
+          mesh.scale.set(.9 - yScale * .2 + dangerScale * .5, 1.1 - dangerScale - yScale * .2, .9 + yScale + dangerScale * .9)
+        } else {
+          mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
+        }
       case _ =>
-        mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
-        shadowSize = .85
+        mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
     }
+    shadowSize = mesh.scale.y * .25 + .5
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
-    updateShadow()
   }
 
   override def freezeComplete(byCrate: CrateData): Boolean = {

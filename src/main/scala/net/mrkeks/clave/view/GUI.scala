@@ -20,6 +20,14 @@ class GUI() extends TimeManagement {
     val PauseDescription = "Pause game and show menu"
     val LevelSelectionSymbol = "⡿"
     val LevelSelectionDescription = "Show level selection"
+    val VolumeSymbol = "🔊"
+    val VolumeDescription = "Game sound volume"
+    val MusicSymbol = "🎵"
+    val MusicDescription = "Game music volume"
+    val GfxDetailSymbol = "📺 HD graphics"
+    val GfxDetailDescription = "Deactivate for better performance! (Requires reload)"
+    val HardModeSymbol = "☠ Hard mode"
+    val HardModeDescription = "Play levels with bigger monsters"
     val GameURL = "https://benkeks.itch.io/clave"
     val JustPlayed = "Just played Clave"
   }
@@ -72,12 +80,50 @@ class GUI() extends TimeManagement {
   versionInfo.id = "version-info"
   versionInfo.innerHTML = ProgressTracking.ClaveVersion + (if (Clave.DevMode) " dev buiild" else "")
   hudContainer.appendChild(versionInfo)
+
+  private val options = dom.document.createElement("form")
+  options.id = "options"
+  options.innerHTML = s"""
+    <div class="form-inline">
+      <label title="${Texts.VolumeDescription}" for="options-volume">${Texts.VolumeSymbol}</label>
+      <input id="options-volume" type="range" max="10" class="form-range-input" title="${Texts.VolumeDescription}" />
+    </div>
+    <div id="options-music-form" class="form-inline">
+      <label title="${Texts.MusicDescription}" for="options-music">${Texts.MusicSymbol}</label>
+      <input id="options-music" type="range" max="10" class="form-range-input" title="${Texts.MusicDescription}" />
+    </div>
+    <div class="form-check">
+      <input id="options-gfx-detail" type="checkbox" class="form-check-input" title="${Texts.GfxDetailDescription}" />
+      <label class="form-check-label" for="options-gfx-detail" title="${Texts.GfxDetailDescription}">${Texts.GfxDetailSymbol}</label>
+    </div>
+    <div class="form-check">
+      <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
+      <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
+    </div>
+    """
+  
+  private val optionsVolume = options.querySelector("#options-volume").asInstanceOf[dom.HTMLInputElement]
+  optionsVolume.addEventListener("change", changeVolume _)
+  private val optionsMusic = options.querySelector("#options-music").asInstanceOf[dom.HTMLInputElement]
+  optionsMusic.addEventListener("change", changeMusicVolume _)
+  private val optionsGfxDetail = options.querySelector("#options-gfx-detail").asInstanceOf[dom.HTMLInputElement]
+  private val optionsHardMode = options.querySelector("#options-hard-mode").asInstanceOf[dom.HTMLInputElement]
+
+  hudContainer.appendChild(options)
+
   dom.document.body.appendChild(hudContainer)
 
   var game: Option[Game] = None
 
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
+
+    optionsVolume.value = (game.context.audio.loadVolumeConfig() * 10).toInt.toString
+    if (optionsVolume.value == 0) {
+      optionsMusic.value = "0"
+    } else {
+      optionsMusic.value = (game.context.audio.loadMusicConfig() * 10).toInt.toString
+    }
 
     val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.HTMLCanvasElement]
     val renderingContext = tmpDrawingCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -166,6 +212,29 @@ class GUI() extends TimeManagement {
     switchButton.blur()
   }
 
+  def changeVolume(ev: org.scalajs.dom.Event): Unit = {
+    game foreach { g =>
+      val oldVolume = g.context.audio.getEffectVolume()
+      g.context.audio.setEffectVolumeConfig(optionsVolume.valueAsNumber * .1)
+      g.context.audio.play("player-crate")
+      if (oldVolume == 0 && g.context.audio.getEffectVolume() > 0) {
+        optionsMusic.value = "5"
+        changeMusicVolume(ev)
+      } else if (g.context.audio.getEffectVolume() == 0) {
+        optionsMusic.value = "0"
+        changeMusicVolume(ev)
+      }
+    }
+    
+  }
+
+  def changeMusicVolume(ev: org.scalajs.dom.Event): Unit = {
+    game foreach { g =>
+      g.context.audio.setMusicVolumeConfig(optionsMusic.valueAsNumber * .1)
+      g.context.audio.playAtmosphere("music-boxin-monsters", 1.0, .01, Some(g.context.audio.musicListener))
+    }
+  }
+
   def playClickSound(): Unit = {
     game foreach (_.context.audio.play("button-click"))
   }
@@ -225,7 +294,7 @@ class GUI() extends TimeManagement {
           overlay.classList.add("scene-fadeout")
           showHide(switchButton, show = false)
           showHide(pauseButton, show = true)
-        case Game.Lost() | Game.Won(_, _, _) =>
+        case Game.Lost(_) | Game.Won(_, _, _) =>
           overlay.classList.remove("scene-fadeout")
           overlay.classList.add("scene-fadein")
           showHide(switchButton, show = false)

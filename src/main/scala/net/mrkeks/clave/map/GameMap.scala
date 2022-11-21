@@ -1,14 +1,15 @@
 package net.mrkeks.clave.map
 
-import net.mrkeks.clave.game.objects.Crate
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.game.abstracts.GameObject
-import net.mrkeks.clave.game.characters.Player
-import net.mrkeks.clave.game.characters.Monster
 import net.mrkeks.clave.game.abstracts.PositionedObject
-import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.game.characters.Player
+import net.mrkeks.clave.game.characters.{Monster, MonsterData}
+import net.mrkeks.clave.game.objects.Crate
+import net.mrkeks.clave.game.objects.CrateData.FreezerKind
 import net.mrkeks.clave.game.objects.Gate
 import net.mrkeks.clave.game.objects.GateData
+import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.util.Mathf
 
 import scala.scalajs.js
@@ -17,13 +18,13 @@ import scala.scalajs.js.typedarray.Uint32Array
 import scala.scalajs.js.typedarray.Uint16Array
 import scala.collection.mutable.MultiDict
 
+import org.denigma.threejs
 import org.denigma.threejs.BoxGeometry
 import org.denigma.threejs.DataTexture
 import org.denigma.threejs.BufferGeometry
 import org.denigma.threejs.Matrix4
 import org.denigma.threejs.Mesh
 import org.denigma.threejs.MeshLambertMaterial
-import org.denigma.threejs
 import org.denigma.threejs.PixelFormat
 import org.denigma.threejs.TextureDataType
 import org.denigma.threejs.TextureFilter
@@ -33,8 +34,6 @@ import org.denigma.threejs.Texture
 import org.denigma.threejs.THREE
 import org.denigma.threejs.PlaneGeometry
 import org.denigma.threejs.MeshBasicMaterial
-import net.mrkeks.clave.game.objects.CrateData.FreezerKind
-import net.mrkeks.clave.game.characters.MonsterData
 
 class GameMap(val width: Int, val height: Int)
   extends GameObject with MapData {
@@ -76,7 +75,8 @@ class GameMap(val width: Int, val height: Int)
 
   val center = new Vector3(width / 2.0, 0, height / 2.0)
 
-  protected val playerDangerousness = Array.ofDim[Int](width, height)
+  protected var playerDangerousness = Array.ofDim[Int](width, height)
+  private var playerDangerousnessUpdate = Array.ofDim[Int](width, height)
   private var playerDangerousnessUpdateLine: Int = 0
 
   private var victoryCheckNeeded = false
@@ -123,21 +123,28 @@ class GameMap(val width: Int, val height: Int)
     }
 
     // update the player dangerousness in scan lines every 100 ms
-    for (i <- 0 until (height * deltaTime / 100).toInt) {
+    for (i <- 0 until (height * deltaTime / 100).ceil.toInt) {
       for (x <- 0 until width) {
         val pos = (x, playerDangerousnessUpdateLine)
-        playerDangerousness(x)(playerDangerousnessUpdateLine) = data(x)(playerDangerousnessUpdateLine) match {
+        playerDangerousnessUpdate(x)(playerDangerousnessUpdateLine) = data(x)(playerDangerousnessUpdateLine) match {
           case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
             20
           case _ if getObjectsAt(pos).exists(_.isInstanceOf[Player]) =>
-            50
+            60
           case _ =>
-            getAdjacentPositions(pos).map {
-              case (x0,z0) => playerDangerousness(x0)(z0) / 4
-            }.sum + (if (x == 0 || x == width - 1 || playerDangerousnessUpdateLine == 0 || playerDangerousnessUpdateLine == height - 1) 3 else -1)
+            val adjacent = getAdjacentPositions(pos) :+ pos
+            adjacent.map {
+              case (x0,z0) => playerDangerousness(x0)(z0)
+            }.sum / adjacent.length + (if (x == 0 || x == width - 1 || playerDangerousnessUpdateLine == 0 || playerDangerousnessUpdateLine == height - 1) 3 else -1)
           }
       }
-      playerDangerousnessUpdateLine = (playerDangerousnessUpdateLine + 1) % height
+      playerDangerousnessUpdateLine += 1
+      if (playerDangerousnessUpdateLine >= height) {
+        playerDangerousnessUpdateLine = 0
+        val flip = playerDangerousness
+        playerDangerousness = playerDangerousnessUpdate
+        playerDangerousnessUpdate = flip
+      }
     }
 
   }
