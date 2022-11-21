@@ -1,7 +1,7 @@
 package net.mrkeks.clave.view
 
 import org.scalajs.dom
-import scala.collection.mutable.MultiDict
+import scala.collection.mutable.Queue
 import scala.scalajs.js.Any.fromFunction1
 
 /** centrally manages the key board input */
@@ -9,7 +9,7 @@ class Input {
 
   val keysDown = collection.mutable.Set.empty[Int]
 
-  val keyPressListener = MultiDict[String, (AnyRef, () => Unit)]()
+  var actionKeyListeners = new Queue[Input.ActionKeyListener]()
 
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     keysDown.add(toKeyCodeInt(e))
@@ -19,8 +19,9 @@ class Input {
   }
   
   dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
-    keyPressListener.get(e.key)
-      .foreach {  case (_, cb) => cb() }
+    if (e.key == PlayerControl.ActionCharStr) {
+      triggerAction()
+    }
   }
 
   class Touch(
@@ -98,14 +99,13 @@ class Input {
         keysDown.remove(PlayerControl.DownCode)
       }
       if (!t.changedDirection && e.timeStamp - t.start < 500) {
-        fakeAction(PlayerControl.ActionCharStr)
+        triggerAction()
       }
     }
   })
 
-  private def fakeAction(keyStr: String) = {
-    keyPressListener.get(keyStr)
-      .foreach {  case (_, cb) => cb() }
+  private def triggerAction() = {
+    actionKeyListeners.foreach(_.handleActionKey())
   }
 
   var gamepadsActive = false
@@ -119,7 +119,7 @@ class Input {
       if (gamepad == Some(null)) gamepad = None
 
       if (oldGamepad.exists(gp => !gp.buttons(0).pressed) && gamepad.exists(_.buttons(0).pressed)) {
-        fakeAction(PlayerControl.ActionCharStr)
+        triggerAction()
       }
     } else {
       gamepad = None
@@ -163,4 +163,8 @@ object Input {
   val MovementTouchDirectionThreshold: Double = .6
 
   val MovementTouchLengthThreshold: Double = 22
+
+  trait ActionKeyListener {
+    def handleActionKey(): Unit
+  }
 }

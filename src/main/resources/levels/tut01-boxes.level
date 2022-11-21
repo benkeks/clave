@@ -17,6 +17,6 @@ objects:
     x: -10
     z: -1
     info: |
-      <div>Hi, I'm Clave!</div>
-      <div>I'm great at carrying crates.</div>
-      <div>I need to wall in the dangerous monsters!</div>
+      <p>Hi, I'm Clave!</p>
+      <p>I'm great at carrying crates.</p>
+      <p>I need to wall in the dangerous monsters!</p>

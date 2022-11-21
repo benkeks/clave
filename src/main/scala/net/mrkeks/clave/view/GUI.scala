@@ -76,6 +76,11 @@ class GUI() extends TimeManagement {
   hudContainer.appendChild(popup)
   private var popupText = ""
 
+  private val narration = dom.document.createElement("div")
+  narration.id = "narration"
+  hudContainer.appendChild(narration)
+  private var narrationText = ""
+
   private val versionInfo = dom.document.createElement("div")
   versionInfo.id = "version-info"
   versionInfo.innerHTML = ProgressTracking.ClaveVersion + (if (Clave.DevMode) " dev buiild" else "")
@@ -196,6 +201,16 @@ class GUI() extends TimeManagement {
           setPopup("")
         }
       }
+    }
+  }
+
+  def setNarration(text: String): Unit = {
+    narrationText = text
+    if (text == "") {
+      narration.classList.remove("visible")
+    } else {
+      narration.innerHTML = narrationText
+      narration.classList.add("visible")
     }
   }
 

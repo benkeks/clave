@@ -8,14 +8,9 @@ import net.mrkeks.clave.map.MapData
 import net.mrkeks.clave.view.GUI
 import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.abstracts.GameObjectManagement
-import net.mrkeks.clave.game.objects.Crate
-import net.mrkeks.clave.game.objects.Gate
-import net.mrkeks.clave.game.objects.Trigger
-import net.mrkeks.clave.game.objects.TriggerGroup
+import net.mrkeks.clave.game.objects._
+import net.mrkeks.clave.game.characters._
 import net.mrkeks.clave.view.PlayerControl
-import net.mrkeks.clave.game.characters.Player
-import net.mrkeks.clave.game.characters.PlayerData
-import net.mrkeks.clave.game.characters.Monster
 
 import org.denigma.threejs.Vector3
 import scala.scalajs.js
@@ -23,7 +18,7 @@ import net.mrkeks.clave.util.Mathf
 import net.mrkeks.clave.util.markovIf
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
-  extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement {
+  extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement with Input.ActionKeyListener {
 
   import Game._
 
@@ -53,6 +48,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     .setDecay(.00005)
     .setGrowth(.0008)
   private var bgParticleTimer = 0.0
+
+  input.actionKeyListeners.addOne(this)
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList
@@ -86,6 +83,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         val animProgress = 160.0 - 150.0 * Mathf.quadTo(.8, s.anim)
         context.cameraUpdatePosition(new Vector3(map.center.x, map.center.y, map.center.z * 3), spectatorOffSet = animProgress)
       case LevelScreen() =>
+      case Narration(_) =>
+        tickedTimeLoop {
+          gameObjects.foreach(_.update(tickTime * .5))
+
+          removeAllMarkedForDeletion()
+        }
       case Running() =>
         playerControl.update(deltaTime)
 
@@ -151,10 +154,20 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   }
   
   def setState(newState: State): Unit = {
+    state match {
+      case Narration(_) =>
+        timeSpeed = 1.0
+        gui.setNarration("")
+      case _ =>
+    }
+
     newState match {
       case StartUp(_) =>
         context.audio.playAtmosphere("music-boxin-monsters", 1.0, .001, Some(context.audio.musicListener))
       case LevelScreen() =>
+      case Narration(message) =>
+        gui.setNarration(message)
+        timeSpeed = .2
       case Running() =>
         context.audio.playAtmosphere("music-boxin-monsters", 1.0, .001, Some(context.audio.musicListener))
         context.audio.play("game-unpaused")
@@ -181,7 +194,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
             <p>$msgPart1</p>
             <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
           </div>""", delay = 500 + levelScore * 2)
-        input.keyPressListener.addOne(" ", (this, continueLevel _))
         context.audio.play("level-won")
         playerControl.resetState()
       case Lost(reason) => 
@@ -193,10 +205,17 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
             <p>Oh no!</p>
             <p><strong>${reason}</strong></p>
           </div>""", delay = 500)
-        input.keyPressListener.addOne(" ", (this, continueLevel _))
     }
     state = newState
     gui.notifyGameState()
+  }
+
+  def handleActionKey(): Unit = {
+    state match {
+      case Narration(message) => setState(Running())
+      case Won(_, _, _) | Lost(_) => continueLevel()
+      case _ =>
+    }
   }
 
   private def updateBackground(): Unit = {
@@ -249,7 +268,6 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   
   def continueLevel(): Unit = {
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
-      input.keyPressListener.filterNot {case (key, (tar, _)) => tar == this && key == " " }
       gui.setPopup("")
       currentLevelNum += (if (state.isInstanceOf[Won]) 1 else 0)
       val nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
@@ -269,12 +287,16 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     if (playerControl != null) playerControl.clear()
     playerControl = new PlayerControl(player.get, input)
     player.get.setState(PlayerData.Spawning(ySpeed = -.06))
+    gameObjects.foreach {
+      case m: Meta => m.registerGame(this)
+      case _ =>
+    } 
   }
 
   def togglePause() = {
     state match {
       case Paused() => setState(Running())
-      case Running() => setState(Paused())
+      case Narration(_) | Running() => setState(Paused())
       case StartUp(_) =>
         switchLevelById(upcomingLevelId.get)
         setState(Running())
@@ -286,12 +308,17 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case _ =>
     }
   }
+
+  def showMeta(message: String) = {
+    setState(Narration(message))
+  }
 }
 
 object Game {
   abstract sealed class State
   case class StartUp(var anim: Double) extends State
   case class LevelScreen() extends State
+  case class Narration(message: String) extends State
   case class Running() extends State
   case class Paused() extends State
   case class Won(levelScore: Int, var victoryRegion: List[(Int, Int)], var victoryDrawProgress: Double) extends State
@@ -301,6 +328,7 @@ object Game {
   def gameStateToId(s: State) = s match {
     case StartUp(_) => "startup"
     case LevelScreen() => "levelscreen"
+    case Narration(_) => "narration"
     case Running() => "running"
     case Paused() => "paused"
     case Won(_, _, _) => "won"
@@ -308,5 +336,5 @@ object Game {
     case Continuing() => "continuing"
   }
 
-  val GameStateIds = List("startup", "levelscreen", "running", "paused", "won", "lost", "continuing")
+  val GameStateIds = List("startup", "levelscreen", "narration", "running", "paused", "won", "lost", "continuing")
 }
