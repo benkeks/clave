@@ -2,7 +2,7 @@ package net.mrkeks.clave.view
 
 import scala.scalajs.js
 import org.scalajs.dom
-import org.denigma.threejs.WebGLRenderer
+import org.denigma.threejs.{WebGLRenderer, WebGLRendererParameters}
 import org.denigma.threejs.PerspectiveCamera
 import org.denigma.threejs.Scene
 import org.denigma.threejs.Color
@@ -19,6 +19,8 @@ object DrawingContext {
   val gltfLoader = new GLTFLoader()
 
   val bgColor = new Color(0x604060)
+
+  private val QualityKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "quality"
 }
 
 class DrawingContext() {
@@ -32,7 +34,9 @@ class DrawingContext() {
   /** how many game space units does the camera height cover?*/
   var cameraSpace: Double = 16.0
 
-  var renderer: WebGLRenderer = new WebGLRenderer()
+  private var gfxDetail = loadGfxDetail()
+  private val gfxConfig = makeGfxConfig()
+  var renderer: WebGLRenderer = new WebGLRenderer(gfxConfig)
   dom.document.body.appendChild(renderer.domElement)
 
   renderer.setClearColor(DrawingContext.bgColor)
@@ -65,6 +69,31 @@ class DrawingContext() {
   dom.window.onresize = (uiEv) => {
     adjustViewport()
   }
+
+  def makeGfxConfig(): WebGLRendererParameters = {
+    if (gfxDetail) {
+      js.Dynamic.literal(
+        antialias = true
+      ).asInstanceOf[WebGLRendererParameters]
+    } else {
+      js.Dynamic.literal(
+        antialias = false
+      ).asInstanceOf[WebGLRendererParameters]
+    }
+  }
+
+  def loadGfxDetail(): Boolean = {
+    val txt = dom.window.localStorage.getItem(DrawingContext.QualityKey)
+    gfxDetail = (txt != "low")
+    gfxDetail
+  }
+
+  def setGfxDetail(highRes: Boolean) = {
+    gfxDetail = highRes
+    dom.window.localStorage.setItem(DrawingContext.QualityKey, if (highRes) "high" else "low")
+  }
+
+  def getGfxDetail(): Boolean = gfxDetail
 
   def adjustViewport() = {
     width = dom.window.innerWidth

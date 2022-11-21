@@ -107,6 +107,7 @@ class GUI() extends TimeManagement {
   private val optionsMusic = options.querySelector("#options-music").asInstanceOf[dom.HTMLInputElement]
   optionsMusic.addEventListener("change", changeMusicVolume _)
   private val optionsGfxDetail = options.querySelector("#options-gfx-detail").asInstanceOf[dom.HTMLInputElement]
+  optionsGfxDetail.addEventListener("change", changeGfxDetail _)
   private val optionsHardMode = options.querySelector("#options-hard-mode").asInstanceOf[dom.HTMLInputElement]
 
   hudContainer.appendChild(options)
@@ -124,6 +125,7 @@ class GUI() extends TimeManagement {
     } else {
       optionsMusic.value = (game.context.audio.loadMusicConfig() * 10).toInt.toString
     }
+    optionsGfxDetail.checked = game.context.getGfxDetail()
 
     val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.HTMLCanvasElement]
     val renderingContext = tmpDrawingCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -232,6 +234,13 @@ class GUI() extends TimeManagement {
     game foreach { g =>
       g.context.audio.setMusicVolumeConfig(optionsMusic.valueAsNumber * .1)
       g.context.audio.playAtmosphere("music-boxin-monsters", 1.0, .01, Some(g.context.audio.musicListener))
+    }
+  }
+
+  def changeGfxDetail(ev: org.scalajs.dom.Event): Unit = {
+    game foreach { g =>
+      g.context.setGfxDetail(optionsGfxDetail.checked)
+      playClickSound()
     }
   }
 
