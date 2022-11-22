@@ -146,6 +146,7 @@ class Player(protected val map: GameMap)
         anim = newAnim
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
         if (isHarmedByMonster(positionOnMap)) {
+          context.audio.play("big-smash")
           setState(Dead())
         }
         mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
@@ -250,7 +251,6 @@ class Player(protected val map: GameMap)
   
   def place(crate: Crate): Unit = {
     if ((crate.place _).tupled(nextField)) {
-      context.audio.play("player-crate")
       setState(Idle())
     }
   }

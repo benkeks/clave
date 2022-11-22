@@ -37,8 +37,17 @@ class AudioContext(context: DrawingContext) {
     "small-lands" -> "Small_Lands.wav",
     "big-jumps" -> "Big_Jump.wav",
     "big-lands" -> "Big_Lands.wav",
+    "big-smash" -> "Big_Smash.wav",
     "monster-spots" -> "Monster_Spots.wav",
     "monster-evades" -> "Monster_Evades.wav",
+    // interaction
+    "barrier-trigger" -> "Barrier_Trigger.wav",
+    "barrier-activates" -> "Barrier_Activate.wav",
+    "barrier-deactivates" -> "Barrier_Deactivate.wav",
+    "crate-pickup" -> "Crate_Pickup.wav",
+    "crate-place" -> "Crate_Place.wav",
+    "freezer-activates" -> "Freeze_Activates.wav",
+    "freezer-freezes" -> "Frozen.wav",
     // music
     "music-boxin-monsters" -> "boxin-monsters.ogg",
   )

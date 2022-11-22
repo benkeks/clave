@@ -28,10 +28,12 @@ class Trigger(protected val map: GameMap)
   
   val material = Trigger.material.clone()
   val mesh = new Mesh(Trigger.box, material)
+  var context: DrawingContext = null
   
   def init(context: DrawingContext): Unit = {
     setState(Idle())
     context.scene.add(mesh)
+    this.context = context
   }
   
   def clear(context: DrawingContext): Unit = {
@@ -62,6 +64,7 @@ class Trigger(protected val map: GameMap)
         material.color.setHex(0x3355aa)
         newState
       case Pushed(by) =>
+        context.audio.play("barrier-trigger")
         position.setY(-.52)
         material.color.setHex(0x4477ee)
         newState
