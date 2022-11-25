@@ -170,8 +170,13 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         timeSpeed = .2
       case Running() =>
         context.audio.playAtmosphere("music-boxin-monsters", 1.0, .001, Some(context.audio.musicListener))
-        context.audio.play("game-unpaused")
         context.audio.setAtmosphereVolume("pause-atmosphere", 0.0)
+        state match {
+          case Paused() =>
+            context.audio.play("game-unpaused")
+          case _ =>
+            context.audio.play("level-start")
+        }
       case Paused() =>
         context.audio.play("game-paused")
         context.audio.playAtmosphere("pause-atmosphere", .4, .00001)
@@ -194,7 +199,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
             <p>$msgPart1</p>
             <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
           </div>""", delay = 500 + levelScore * 2)
-        context.audio.play("level-won")
+        schedule(lastFrameTime + 500 + levelScore * 2) { () =>
+          context.audio.play("level-won")
+        }
         playerControl.resetState()
       case Lost(reason) => 
         context.audio.play("level-lost")

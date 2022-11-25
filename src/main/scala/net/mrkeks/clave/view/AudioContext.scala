@@ -26,6 +26,7 @@ class AudioContext(context: DrawingContext) {
     "game-paused" -> "Game_Paused.wav",
     "game-unpaused" -> "Game_Unpaused.wav",
     "pause-atmosphere" -> "Pause_Atmosphere.wav",
+    "level-start" -> "Start_Level.wav",
     "level-won" -> "Level_Won.wav",
     "level-lost" -> "Level_Lost.wav",
     "victory-drawing" -> "Button_Hover.wav",
