@@ -149,6 +149,10 @@ class Monster(
           yScale = Mathf.approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
           rotate = Mathf.approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
 
+          if (((anim - .1 * deltaTime) * 100).toInt % 3000 > (anim * 100).toInt % 3000) {
+            context.audio.play("monster-moves")
+          }
+
           val speed = (.002 - 0.0005 * sizeLevel) * deltaTime
           val newX = Mathf.approach(position.x, tar.x, speed)
           val newY = Mathf.approach(position.y, 0, speed)
@@ -178,8 +182,10 @@ class Monster(
             case m: Monster if m.sizeLevel < 2 && m.kind == this.kind => m
           }
           if (sizeLevel < 2 && touchedOtherSmallMonsters.nonEmpty) {
+            context.audio.play("small-merges")
             setState(MergingWith(touchedOtherSmallMonsters.head))
           } else {
+            context.audio.play("small-bumps")
             setState(PushedTo(from, -ySpeed))
           }
         } // there is a bigger player there, turn around.
@@ -316,6 +322,8 @@ class Monster(
 
   def setState(newState: State): Unit = {
     state = newState match {
+      case s @ MoveTo(_) =>
+        s
       case s @ JumpTo(tar, from, ySpeed) =>
         viewDirection = Direction.fromVec(tar.clone().sub(position))
         s

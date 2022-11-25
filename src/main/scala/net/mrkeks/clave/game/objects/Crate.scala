@@ -145,7 +145,11 @@ class Crate(
   override def place(x: Int, z: Int) = {
     if (canBePlaced(x, z) && positionOnMap != (x,z)) {
       setPosition(x, 0, z)
-      context.audio.play("crate-place")
+      kind match {
+        case DefaultKind => context.audio.play("crate-place")
+        case FreezerKind(frozenMonster) => context.audio.play("crate-place-freeze")
+        case PlayerLikeKind => context.audio.play("crate-place-red")
+      }
       context.particleSystem.burst("dust", 10, ParticleSystem.BurstKind.Box,
          new Vector3(position.x-.25, position.y - .4, position.z-.25), new Vector3(position.x+.25, position.y - .3, position.z+.25),
          new Vector3(-.0025,.0,-.0025), new Vector3(.0025, .0, .0025), new Vector4(.4, .4, .4, .5), new Vector4(.8, .8, .8, .7), .4, .7)
