@@ -25,7 +25,7 @@ class AudioContext(context: DrawingContext) {
     "button-hover" -> "Button_Hover.wav",
     "game-paused" -> "Game_Paused.wav",
     "game-unpaused" -> "Game_Unpaused.wav",
-    "pause-atmosphere" -> "Pause_Atmosphere.wav",
+    //"pause-atmosphere" -> "Pause_Atmosphere.wav",
     "level-start" -> "Start_Level.wav",
     "level-won" -> "Level_Won.wav",
     "level-lost" -> "Level_Lost.wav",
