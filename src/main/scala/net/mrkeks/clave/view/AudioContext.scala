@@ -59,6 +59,7 @@ class AudioContext(context: DrawingContext) {
   )
 
   val soundEffects = new HashMap[String, AudioBuffer]()
+  val effectRateLimits = new HashMap[String, Double]().withDefaultValue(0)
 
   val audioListener = new AudioListener()
   val musicListener = new AudioListener()
@@ -127,16 +128,26 @@ class AudioContext(context: DrawingContext) {
       a.volume = Mathf.approach(a.volume, a.fadeToVolume, a.fadeSpeed * deltaTime)
       a.setVolume(a.volume)
     }
+    effectRateLimits.mapValuesInPlace { case (k, usage) =>
+      usage - deltaTime * .001
+    }
+    effectRateLimits.filterInPlace { case (k, usage) =>
+      usage > 0.0
+    }
   }
 
-  def play(key: String) = {
+  def play(key: String, rateLimit: Double = 0.0) = {
     if (effectVolume > 0) {
       for {
         buffer <- soundEffects.get(key)
+        if rateLimit == 0 || effectRateLimits(key) < 1.0
         channel <- audioChannels.find(f => !f.isPlaying)
       } {
         channel.setBuffer(buffer)
         channel.play()
+        if (rateLimit > 0) {
+          effectRateLimits(key) += 1.0 / rateLimit
+        }
       }
     }
   }

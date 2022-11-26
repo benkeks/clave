@@ -148,11 +148,9 @@ class Monster(
           // breathing anim
           yScale = Mathf.approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
           rotate = Mathf.approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
-
           if (((anim - .1 * deltaTime) * 100).toInt % 3000 > (anim * 100).toInt % 3000) {
-            context.audio.play("monster-moves")
+            context.audio.play("monster-moves", rateLimit = 5)
           }
-
           val speed = (.002 - 0.0005 * sizeLevel) * deltaTime
           val newX = Mathf.approach(position.x, tar.x, speed)
           val newY = Mathf.approach(position.y, 0, speed)
@@ -189,7 +187,7 @@ class Monster(
           }
         } // there is a bigger player there, turn around.
           else if (sizeLevel <= 1 && ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(_.isInstanceOf[Player])) {
-          context.audio.play("small-bumps")
+          context.audio.play("small-bumps", rateLimit = 5)
           setState(PushedTo(from, -ySpeed))
         } else {
           val speed = .0025 * deltaTime
@@ -288,9 +286,9 @@ class Monster(
           new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
           new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .5 + .1 * sizeLevel), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
         if (sizeLevel <= 1) {
-          context.audio.play("small-lands")
+          context.audio.play("small-lands", rateLimit = 4)
         } else {
-          context.audio.play("big-lands")
+          context.audio.play("big-lands", rateLimit = 4)
         }
       } // particles for jumping
         else if (position.y > .01 && mesh.position.y - meshPositionOffset <= 0.01) {
@@ -298,9 +296,9 @@ class Monster(
           new Vector3(position.x, position.y-.3, position.z), new Vector3(-.01, .1, -.01),
           new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .3 + .1 * sizeLevel), -.2 + .05 * sizeLevel, + .05 * sizeLevel)
         if (sizeLevel <= 1) {
-          context.audio.play("small-jumps")
+          context.audio.play("small-jumps", rateLimit = 4)
         } else {
-          context.audio.play("big-jumps")
+          context.audio.play("big-jumps", rateLimit = 4)
         }
       }
     }

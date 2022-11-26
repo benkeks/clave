@@ -84,9 +84,9 @@ class Gate(protected val map: GameMap)
       newState match {
         case Closed() =>
         case Closing() =>
-          context.audio.play("barrier-activates")
+          context.audio.play("barrier-activates", rateLimit = 3)
         case Open() =>
-          context.audio.play("barrier-deactivates")
+          context.audio.play("barrier-deactivates", rateLimit = 3)
       }
     }
     state = newState
