@@ -54,8 +54,10 @@ class AudioContext(context: DrawingContext) {
     "crate-place-red" -> "Crate_Place_Red.wav",
     "freezer-activates" -> "Freeze_Activates.wav",
     "freezer-freezes" -> "Frozen.wav",
-    // music
-    "music-boxin-monsters" -> "boxin-monsters.ogg",
+  )
+  private val MusicDirectory = "music/"
+  private val musicFiles = Map(
+    "music-boxin-monsters" -> "red-dot.ogg"
   )
 
   val soundEffects = new HashMap[String, AudioBuffer]()
@@ -77,6 +79,9 @@ class AudioContext(context: DrawingContext) {
   private val loader = new AudioLoader()
   for ((key, file) <- soundEffectFiles.toList) {
     loader.load(SoundDirectory + file, soundEffects(key) = _)
+  }
+  for ((key, file) <- musicFiles.toList) {
+    loader.load(MusicDirectory + file, soundEffects(key) = _)
   }
   context.camera.add(audioListener)
   
