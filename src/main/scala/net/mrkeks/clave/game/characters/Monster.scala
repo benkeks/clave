@@ -101,10 +101,10 @@ class Monster(
             case c: Crate if c.kind == CrateData.PlayerLikeKind => c
           }
         } yield (pos, playerLikeObject)
-        
+
         yScale = Mathf.approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
-        
+
         if (neighboringPlayers.nonEmpty && kind == AggressiveMonster) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
@@ -176,7 +176,7 @@ class Monster(
           position.setY(newY)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
-        if (map.intersectsLevel(tar, considerObstacles = true)) {
+        if (ySpeed < -.0001 && map.intersectsLevel(tar, considerObstacles = true)) {
           // if tile became blocked while moving there either merge with the monster there or turn around
           val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect {
             case m: Monster if m.sizeLevel < 2 && m.kind == this.kind => m
@@ -185,11 +185,11 @@ class Monster(
             context.audio.play("small-merges")
             setState(MergingWith(touchedOtherSmallMonsters.head))
           } else {
-            context.audio.play("small-bumps")
-            setState(PushedTo(from, -ySpeed))
+            setState(PushedTo(from, -ySpeed, forceful = true))
           }
         } // there is a bigger player there, turn around.
           else if (sizeLevel <= 1 && ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(_.isInstanceOf[Player])) {
+          context.audio.play("small-bumps")
           setState(PushedTo(from, -ySpeed))
         } else {
           val speed = .0025 * deltaTime
@@ -206,7 +206,7 @@ class Monster(
             setPosition(newX, 0, newZ)
           }
         }
-      case s @ PushedTo(tar, ySpeed) =>
+      case s @ PushedTo(tar, ySpeed, forceful) =>
         val speed = .0025 * deltaTime
         val newX = Mathf.approach(position.x, tar.x, speed)
         val newZ = Mathf.approach(position.z, tar.z, speed)
@@ -215,8 +215,11 @@ class Monster(
         setPosition(newX, position.y + ySpeed * deltaTime, newZ)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
         if (newX == tar.x && newZ == tar.z) {
-          // give fewer cooldown after being pushed
-          setState(Idle(strollCoolDown = 2000))
+          if (forceful) {
+            setState(Paralyzed(coolDown = 3000 + Math.random() * 2000))
+          } else {
+            setState(Idle(strollCoolDown = 1000 + Math.random() * 2000))
+          }
           setPosition(newX, 0, newZ)
         }
       case s @ MergingWith(otherMonster, progress) =>
@@ -236,6 +239,13 @@ class Monster(
       case s @ Frozen(byCrate) =>
         removeFromMap()
         position.copy(byCrate.getPosition)
+      case s @ Paralyzed(coolDown) =>
+        s.coolDown -= deltaTime
+        yScale = Mathf.approach(yScale, Math.sin(anim * .1) * .07, .009 * deltaTime)
+        rotate = Mathf.approach(rotate, Math.sin(anim * .15) * coolDown / 2000.0, .003 * deltaTime)
+        if (s.coolDown <= 0) {
+          setState(Idle(strollCoolDown = 1000))
+        }
     }
 
     // initialize mesh if necessary
