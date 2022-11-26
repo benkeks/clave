@@ -24,6 +24,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   import Game._
 
   var state: State = StartUp(0)
+  var lastStateChangeTime: Double = 0.0
 
   var map: GameMap = null
   
@@ -214,13 +215,17 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         playerControl.resetState()
     }
     state = newState
+    lastStateChangeTime = lastFrameTime
     gui.notifyGameState()
   }
 
   def handleActionKey(): Unit = {
     state match {
       case Narration(message) => setState(Running())
-      case Won(_, _, _) | Lost(_) => continueLevel()
+      case Won(_, _, _) | Lost(_) =>
+        if (lastFrameTime - lastStateChangeTime > 2000) {
+          continueLevel()
+        }
       case _ =>
     }
   }
