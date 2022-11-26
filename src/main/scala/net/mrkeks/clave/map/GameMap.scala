@@ -314,9 +314,9 @@ class GameMap(val width: Int, val height: Int)
     val color = if (isTileBlocked(x, z))
         0x021f
       else if (x > 0 && isTileBlocked(x-1, z))
-        0x1a3f
+        0x193f
       else
-        0x5c4f
+        0x5b4f
     groundShadow.update((x)+(height-z-1)*width, color | overlay)
     val objColor = new threejs.Color( if (x > 0 && isTileBlocked(x-1, z)) 0x999999ff else 0xffffffff)
     positionedGroundItems.get((x,z)).foreach(i => grass.setColorAt(i, objColor))
