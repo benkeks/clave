@@ -280,7 +280,7 @@ class Player(protected val map: GameMap)
         newState
       case Spawning(ySpeed) =>
         if (ySpeed < 0) {
-          setPosition(position.x, 70, position.z)
+          setPosition(position.x, 50, position.z)
         }
         newState
       case s => s
