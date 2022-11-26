@@ -13,12 +13,14 @@ object MonsterData {
   case class JumpTo(tar: Vector3, from: Vector3, var ySpeed: Double = 0.0) extends State
   case class PushedTo(tar: Vector3, var ySpeed: Double = 0.0, forceful: Boolean = false) extends State
   case class MergingWith(otherMonster: MonsterData, var progress: Double = 0.0) extends State
+  case class MergingWithPlayer(player: PlayerData, var progress: Double = 0.0) extends State
   case class Frozen(byCrate: CrateData) extends State
   case class Paralyzed(var coolDown: Double = 3000) extends State
 
   abstract sealed class MonsterKind
   case object AggressiveMonster extends MonsterKind
   case object FrightenedMonster extends MonsterKind
+  case object FriendlyMonster extends MonsterKind
 }
 
 trait MonsterData

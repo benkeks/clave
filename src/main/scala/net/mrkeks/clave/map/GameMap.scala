@@ -228,13 +228,13 @@ class GameMap(val width: Int, val height: Int)
   }
   
   def isMonsterOn(xz: (Int, Int)): Boolean =
-    getObjectsAt(xz).exists(_.isInstanceOf[Monster])
+    getObjectsAt(xz).exists { case m: Monster => m.kind != MonsterData.FriendlyMonster; case _ => false }
   
   def getObjectsAt(xz: (Int, Int)): Set[PositionedObject] = {
     if (xz == MapData.notOnMap) Set() else positionedObjects.get(xz).toSet
   }
 
-  override def isObstacleAt(xz: (Int, Int)): Boolean = isMonsterOn(xz)
+  override def isObstacleAt(xz: (Int, Int)): Boolean = getObjectsAt(xz).exists(o => o.isInstanceOf[Monster])
 
   def getAdjacentPositions(xz: (Int, Int)): List[(Int, Int)] = 
     getAdjacentPositions(xz._1, xz._2)

@@ -130,6 +130,9 @@ class Player(protected val map: GameMap)
     }
     movementDelta.copy(newMovementDelta)
 
+    val baseSize = Math.pow(.8 + .15 * size, .3)
+    shadowSize = baseSize * .85
+
     state match {
       case Spawning(ySpeed) =>
         setPosition(position.x, position.y + ySpeed * deltaTime, position.z)
@@ -149,8 +152,9 @@ class Player(protected val map: GameMap)
           context.audio.play("big-smash")
           setState(Dead())
         }
-        mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
-        mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
+        mesh.scale.setX(baseSize)
+        mesh.scale.setY(baseSize + Math.sin(anim * 2) * .2)
+        mesh.scale.setZ(baseSize - Math.sin(anim * 2 + .3) * .05)
       case Carrying(crate: Crate) =>
         val newAnim = anim + (targetSpeed + .001) * deltaTime
         if (targetSpeed > .0001 && (anim * 100).toInt % 120 > (newAnim * 100).toInt % 120) {
@@ -166,13 +170,14 @@ class Player(protected val map: GameMap)
         if (isHarmedByMonster(positionOnMap)) {
           setState(Dead())
         }
-        mesh.scale.setY(1.0 + Math.sin(anim * 2) * .2)
-        mesh.scale.setZ(1.0 - Math.sin(anim * 2 + .3) * .05)
+        mesh.scale.setX(baseSize)
+        mesh.scale.setY(baseSize + Math.sin(anim * 2) * .2)
+        mesh.scale.setZ(baseSize - Math.sin(anim * 2 + .3) * .05)
       case s @ Dead() =>
         s.deathAnim = Math.max(s.deathAnim - .005 * deltaTime, .66)
         mesh.position.set(position.x, position.y - 1.9 + s.deathAnim * 1.9, position.z)
-        mesh.scale.setY((1.0 + Math.sin(anim * 2) * .1) * s.deathAnim + .1)
-        mesh.scale.setX((1.0 - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
+        mesh.scale.setY((baseSize + Math.sin(anim * 2) * .1) * s.deathAnim + .1)
+        mesh.scale.setX((baseSize - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
         mesh.scale.setZ(mesh.scale.x)
       case s @ Frozen(byCrate) =>
         mesh.position.copy(byCrate.getPosition)

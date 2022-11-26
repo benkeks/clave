@@ -35,6 +35,12 @@ object Monster {
     defensiveMonsterMesh = Some(mesh)
   })
 
+  var friendlyMonsterMesh: Option[Object3D] = None
+  DrawingContext.gltfLoader.load("gfx/player_monster.glb", {gltf =>
+    val mesh = gltf.scene.children(0).asInstanceOf[Object3D]
+    friendlyMonsterMesh = Some(mesh)
+  })
+
   def clear(): Unit = {
 
   }
@@ -105,7 +111,7 @@ class Monster(
         yScale = Mathf.approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
 
-        if (neighboringPlayers.nonEmpty && kind == AggressiveMonster) {
+        if (neighboringPlayers.nonEmpty && (kind == AggressiveMonster || kind == FriendlyMonster)) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
             context.audio.play("monster-spots")
@@ -186,9 +192,14 @@ class Monster(
             setState(PushedTo(from, -ySpeed, forceful = true))
           }
         } // there is a bigger player there, turn around.
-          else if (sizeLevel <= 1 && ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(_.isInstanceOf[Player])) {
-          context.audio.play("small-bumps", rateLimit = 5)
-          setState(PushedTo(from, -ySpeed))
+          else if (ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(p => p.isInstanceOf[Player] && p.asInstanceOf[Player].size >= sizeLevel )) {
+          if (kind == FriendlyMonster) {
+            context.audio.play("small-merges")
+            setState(MergingWithPlayer((map.getObjectsAt(tar.x.toInt, tar.z.toInt)).collect{ case p: PlayerData => p }.head))
+          } else {
+            context.audio.play("small-bumps", rateLimit = 5)
+            setState(PushedTo(from, -ySpeed))
+          }
         } else {
           val speed = .0025 * deltaTime
           val newX = Mathf.approach(position.x, tar.x, speed)
@@ -234,6 +245,20 @@ class Monster(
             new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.1, .6, .1, .6), new Vector4(.2, .8, .2, .9), -.1, .0)
           markForDeletion()
         }
+      case s @ MergingWithPlayer(player, progress) =>
+        s.progress += deltaTime * .01
+        position.lerp(player.getPosition, progress)
+        if (false) {
+          val tar = map.mapPosToVec(
+              map.findNextFreeField(positionOnMap))
+          setState(PushedTo(tar, tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
+        } else if (progress >= 1.0 ) {
+          player.size = Math.max(player.size + 1, 10)
+          context.particleSystem.burst("dust", (6 + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
+            new Vector3(position.x, position.y-.3, position.z), new Vector3(1, .1, 1),
+            new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.6, .1, .1, .6), new Vector4(.8, .2, .2, .9), -.1, .0)
+          markForDeletion()
+        }
       case s @ Frozen(byCrate) =>
         removeFromMap()
         position.copy(byCrate.getPosition)
@@ -264,6 +289,19 @@ class Monster(
           }
         case FrightenedMonster =>
           Monster.defensiveMonsterMesh.foreach { m =>
+            m.children.foreach(c => mesh.add(c.clone()))
+            val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
+            val matMap = mat.map.clone()
+            matMap.offset = new Vector2(Math.random(), 0)
+            mat.color = new Color(.8 + .5 * Math.random(), .8 + .5 * Math.random(), .7 + .25 * Math.random())
+            mat.map = matMap
+            mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
+            matMap.needsUpdate = true
+            mat.needsUpdate = true
+            eyeMesh = Some(mesh.getObjectByName("Eyes"))
+          }
+        case FriendlyMonster =>
+          Monster.friendlyMonsterMesh.foreach { m =>
             m.children.foreach(c => mesh.add(c.clone()))
             val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
             val matMap = mat.map.clone()
@@ -308,13 +346,15 @@ class Monster(
         if (kind == FrightenedMonster && map.getPlayerDangerousness(positionOnMap) > 3) {
           val dangerScale = map.getPlayerDangerousness(positionOnMap) / 50.0
           mesh.scale.set(.9 - yScale * .2 + dangerScale * .5, 1.1 - dangerScale - yScale * .2, .9 + yScale + dangerScale * .9)
+        } else if (kind == FriendlyMonster) {
+          mesh.scale.set(.55 - yScale * .2, .65 - yScale * .2, .55 + yScale)
         } else {
           mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
         }
       case _ =>
         mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
     }
-    shadowSize = mesh.scale.y * .25 + .5
+    shadowSize = mesh.scale.y * .3 + .25
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
   }

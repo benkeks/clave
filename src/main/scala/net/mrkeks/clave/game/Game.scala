@@ -268,7 +268,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   }
 
   private def checkVictory(): Unit = {
-    if (state.isInstanceOf[Running]) {
+    if (state.isInstanceOf[Running] && gameObjects.forall{ case m: Monster => m.kind != MonsterData.FriendlyMonster; case _ => true }) {
       val victoryRegion = map.checkVictory(getPlayerPositions)
       val levelScore = victoryRegion.length
       if (levelScore > 0) {
