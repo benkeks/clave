@@ -10,18 +10,18 @@ class Input {
   val keysDown = collection.mutable.Set.empty[Int]
 
   var actionKeyListeners = new Queue[Input.ActionKeyListener]()
+  var menuKeyListeners = new Queue[Input.MenuKeyListener]()
 
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     keysDown.add(toKeyCodeInt(e))
+    if (e.key == PlayerControl.ActionCharStr) {
+      triggerAction()
+    } else if (e.key == Input.MenuKeyStr) {
+      triggerMenu()
+    }
   }
   dom.window.onkeyup = {e: dom.KeyboardEvent =>
     keysDown.remove(toKeyCodeInt(e))
-  }
-  
-  dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
-    if (e.key == PlayerControl.ActionCharStr) {
-      triggerAction()
-    }
   }
 
   class Touch(
@@ -108,6 +108,10 @@ class Input {
     actionKeyListeners.foreach(_.handleActionKey())
   }
 
+  private def triggerMenu() = {
+    menuKeyListeners.foreach(_.handleMenuKey())
+  }
+
   var gamepadsActive = false
   var gamepad: Option[dom.Gamepad] = None
 
@@ -120,6 +124,9 @@ class Input {
 
       if (oldGamepad.exists(gp => !gp.buttons(0).pressed) && gamepad.exists(_.buttons(0).pressed)) {
         triggerAction()
+      }
+      if (oldGamepad.exists(gp => !gp.buttons(9).pressed) && gamepad.exists(_.buttons(9).pressed)) {
+        triggerMenu()
       }
     } else {
       gamepad = None
@@ -164,7 +171,13 @@ object Input {
 
   val MovementTouchLengthThreshold: Double = 22
 
+  val MenuKeyStr = "Escape"
+
   trait ActionKeyListener {
     def handleActionKey(): Unit
+  }
+
+  trait MenuKeyListener {
+    def handleMenuKey(): Unit
   }
 }

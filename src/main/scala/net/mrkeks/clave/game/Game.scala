@@ -18,7 +18,8 @@ import net.mrkeks.clave.util.Mathf
 import net.mrkeks.clave.util.markovIf
 
 class Game(val context: DrawingContext, val input: Input, val gui: GUI, val levelDownloader: LevelDownloader)
-  extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement with Input.ActionKeyListener {
+    extends GameObjectManagement with GameLevelLoader with ProgressTracking with TimeManagement
+    with Input.ActionKeyListener with Input.MenuKeyListener {
 
   import Game._
 
@@ -50,6 +51,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   private var bgParticleTimer = 0.0
 
   input.actionKeyListeners.addOne(this)
+  input.menuKeyListeners.addOne(this)
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList
@@ -212,6 +214,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
             <p>Oh no!</p>
             <p><strong>${reason}</strong></p>
           </div>""", delay = 500)
+        playerControl.resetState()
     }
     state = newState
     gui.notifyGameState()
@@ -223,6 +226,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Won(_, _, _) | Lost(_) => continueLevel()
       case _ =>
     }
+  }
+
+  def handleMenuKey(): Unit = {
+    togglePause()
   }
 
   private def updateBackground(): Unit = {
@@ -283,7 +290,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       setState(Continuing())
     }
   }
-  
+
   def switchLevelById(id: String): Unit = {
     unloadLevel()
     loadLevelById(id)
