@@ -18,3 +18,10 @@ tilemap: |
   0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0
   0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+objects:
+  - kind: meta
+    x: -10
+    z: -1
+    info: |
+      <p>I'm really happy that</p>
+      <p>you are helping me catch all those monsters!</p>

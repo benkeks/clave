@@ -88,9 +88,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case LevelScreen() =>
       case Narration(_) =>
         tickedTimeLoop {
-          gameObjects.foreach(_.update(tickTime * .5))
+          gameObjects.foreach(_.update(tickTime * .2))
 
           removeAllMarkedForDeletion()
+        }
+        player.foreach { p =>
+          context.cameraLookAt(p.getPosition)
         }
       case Running() =>
         playerControl.update(deltaTime)
@@ -142,7 +145,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         }
     }
 
-    if (!state.isInstanceOf[StartUp]) {
+    if (!state.isInstanceOf[StartUp] && !state.isInstanceOf[Narration]) {
       player.foreach { p =>
         context.cameraUpdatePosition(p.getPosition)
       }
@@ -176,6 +179,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         state match {
           case Paused() =>
             context.audio.play("game-unpaused")
+          case Narration(_) =>
+            context.audio.play("button-click")
           case _ =>
             context.audio.play("level-start")
         }

@@ -31,7 +31,7 @@ class Meta(protected val map: GameMap)
         for {
           g <- game
           p <- g.player
-          if p.getPosition.y <= 10
+          //if p.getPosition.y <= 20
         } {
           state = Meta.Active()
           game.foreach(_.showMeta(info))

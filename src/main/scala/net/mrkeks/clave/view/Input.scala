@@ -121,7 +121,6 @@ class Input {
       val oldGamepad = gamepad
       gamepad = gamepads.headOption
       if (gamepad == Some(null)) gamepad = None
-
       if (oldGamepad.exists(gp => !gp.buttons(0).pressed) && gamepad.exists(_.buttons(0).pressed)) {
         triggerAction()
       }
