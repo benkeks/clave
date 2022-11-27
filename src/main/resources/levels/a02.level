@@ -19,3 +19,12 @@ tilemap: |
   0, 0, 0, 9, 0, 1, 0, 0, 1, 0, 1, 2, 0, 0, 1, 0
   0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0
   7, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+objects:
+  - kind: meta
+    x: -10
+    z: -1
+    info: |
+      <p style="margin-top:-5rem;">Clave is brought to you by:</p>
+      <p style="pointer-events: all">Code, Levels, Gfx ... <a href="https://mrkeks.net" target="_blank">Ben Keks</a></p>
+      <p style="pointer-events: all">Sfx ... <a href="https://www.aceluke.com/" target="_blank">Ace Luke</a></p>
+      <p style="pointer-events: all">Music ... <a href="https://sahara.mrkeks.net/" target="_blank">Sahara B.</a></p>

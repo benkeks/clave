@@ -286,7 +286,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     player.flatMap(_.getPositionOnMap).exists { playerPosition =>
       map.getAdjacentPositions(playerPosition).forall { case xz @ (x,z) =>
         map.isTilePermanentlyBlocked(x,z) ||
-        player.exists(_.state.isInstanceOf[PlayerData.Carrying]) && map.intersectsLevel(x,z, considerObstacles = true) ||
+        player.exists(_.state.isInstanceOf[PlayerData.Carrying]) && map.intersectsLevel(x,z, considerObstacles = false) ||
         map.getObjectsAt(xz).exists { case m: Monster => m.kind != MonsterData.FriendlyMonster; case _ => false }
       }
     }
