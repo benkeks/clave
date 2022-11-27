@@ -2,7 +2,7 @@ package net.mrkeks.clave.view
 
 import scala.scalajs.js
 import org.scalajs.dom
-import org.denigma.threejs.WebGLRenderer
+import org.denigma.threejs.{WebGLRenderer, WebGLRendererParameters}
 import org.denigma.threejs.PerspectiveCamera
 import org.denigma.threejs.Scene
 import org.denigma.threejs.Color
@@ -11,10 +11,16 @@ import org.denigma.threejs.PointLight
 import org.denigma.threejs.AmbientLight
 import org.denigma.threejs.TextureLoader
 import org.denigma.threejs.GLTFLoader
+import org.denigma.threejs.Fog
+import net.mrkeks.clave.game.abstracts.ObjectShadow
 
 object DrawingContext {
   val textureLoader = new TextureLoader()
   val gltfLoader = new GLTFLoader()
+
+  val bgColor = new Color(0x604060)
+
+  private val QualityKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "quality"
 }
 
 class DrawingContext() {
@@ -28,13 +34,14 @@ class DrawingContext() {
   /** how many game space units does the camera height cover?*/
   var cameraSpace: Double = 16.0
 
-  var renderer: WebGLRenderer = new WebGLRenderer()
+  private var gfxDetail = loadGfxDetail()
+  private val gfxConfig = makeGfxConfig()
+  var renderer: WebGLRenderer = new WebGLRenderer(gfxConfig)
   dom.document.body.appendChild(renderer.domElement)
 
-  renderer.setClearColor(new Color(0x604060))
+  renderer.setClearColor(DrawingContext.bgColor)
 
   val camera = new PerspectiveCamera(aspect = aspect)
-  //new OrthographicCamera(7 - (8 * aspect), 7 + (8 * aspect), 2,2 - 16,-100,100)
   val cameraMin = new Vector3(0, 0, 0)
   val cameraMax = new Vector3(0, 100, 28)
   val cameraLookAt = new Vector3()
@@ -42,6 +49,7 @@ class DrawingContext() {
   adjustViewport()
 
   val scene = new Scene()
+  scene.fog = new Fog(DrawingContext.bgColor.getHex(), cameraMax.y, cameraMax.y * 2)
 
   val ambient = new AmbientLight(0x606266)
   scene.add(ambient)
@@ -56,9 +64,36 @@ class DrawingContext() {
 
   val particleSystem = new ParticleSystem(this)
 
+  val audio = new AudioContext(this)
+
   dom.window.onresize = (uiEv) => {
     adjustViewport()
   }
+
+  def makeGfxConfig(): WebGLRendererParameters = {
+    if (gfxDetail) {
+      js.Dynamic.literal(
+        antialias = true
+      ).asInstanceOf[WebGLRendererParameters]
+    } else {
+      js.Dynamic.literal(
+        antialias = false
+      ).asInstanceOf[WebGLRendererParameters]
+    }
+  }
+
+  def loadGfxDetail(): Boolean = {
+    val txt = dom.window.localStorage.getItem(DrawingContext.QualityKey)
+    gfxDetail = (txt != "low")
+    gfxDetail
+  }
+
+  def setGfxDetail(highRes: Boolean) = {
+    gfxDetail = highRes
+    dom.window.localStorage.setItem(DrawingContext.QualityKey, if (highRes) "high" else "low")
+  }
+
+  def getGfxDetail(): Boolean = gfxDetail
 
   def adjustViewport() = {
     width = dom.window.innerWidth
@@ -72,7 +107,9 @@ class DrawingContext() {
     camera.updateProjectionMatrix()
   }
 
-  def render() = {
+  def render(deltaTime: Double) = {
+    ObjectShadow.updateAllShadows()
+    audio.update(deltaTime)
     renderer.render(scene, camera)
   }
 
@@ -85,7 +122,6 @@ class DrawingContext() {
       cameraMin.set(mapWidth / 2, 0, mapHeight / 2)
       cameraMax.copy(cameraMin)
     }
-
   }
 
   def cameraUpdatePosition(lookAt: Vector3, spectatorOffSet: Double = 0.0): Unit = {
@@ -94,5 +130,13 @@ class DrawingContext() {
     val y = lookAt.y
     camera.position.copy(cameraLookAt).add(new Vector3((cameraSpace * .85) * Math.sin(.02 * y), 1.0 + cameraSpace + spectatorOffSet, zOff + spectatorOffSet))
     camera.lookAt(cameraLookAt.clone().add(new Vector3(0, .5 * y - spectatorOffSet * .5, zOff * (1 - Math.cos(.02 * y)))))
+  }
+
+  def cameraLookAt(lookAt: Vector3, spectatorOffSet: Double = 0.0): Unit = {
+    val zOff = 2.0 + cameraSpace / 2.0
+    cameraLookAt.copy(lookAt).clamp(cameraMin, cameraMax)
+    val y = lookAt.y
+    camera.position.copy(cameraLookAt).add(new Vector3((cameraSpace * .85) * Math.sin(.02 * y), 1.0 + y*.8 + cameraSpace + spectatorOffSet, zOff + spectatorOffSet))
+    camera.lookAt(lookAt.clone())
   }
 }

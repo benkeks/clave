@@ -30,6 +30,10 @@ object Mathf {
     src * (1.0 - ratio) + tar * ratio
   }
 
+  def quadTo(apexX: Double, ratio: Double) = {
+    (1.0 / (1.0-2.0*apexX)) * ratio * ratio + ((-2.0 * apexX) / (1.0-2.0*apexX)) * ratio
+  }
+
   def clamp(value: Double, min: Double, max: Double) = {
     Math.min(max, Math.max(value, min))
   }

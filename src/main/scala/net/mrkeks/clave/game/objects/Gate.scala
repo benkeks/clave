@@ -80,6 +80,15 @@ class Gate(protected val map: GameMap)
   }
   
   def setState(newState: State): Unit = {
+    if (state != newState) {
+      newState match {
+        case Closed() =>
+        case Closing() =>
+          context.audio.play("barrier-activates", rateLimit = 3)
+        case Open() =>
+          context.audio.play("barrier-deactivates", rateLimit = 3)
+      }
+    }
     state = newState
   }
 }

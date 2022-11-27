@@ -1,7 +1,7 @@
 package net.mrkeks.clave.view
 
 import org.scalajs.dom
-import scala.collection.mutable.MultiDict
+import scala.collection.mutable.Queue
 import scala.scalajs.js.Any.fromFunction1
 
 /** centrally manages the key board input */
@@ -9,18 +9,19 @@ class Input {
 
   val keysDown = collection.mutable.Set.empty[Int]
 
-  val keyPressListener = MultiDict[String, (AnyRef, () => Unit)]()
+  var actionKeyListeners = new Queue[Input.ActionKeyListener]()
+  var menuKeyListeners = new Queue[Input.MenuKeyListener]()
 
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     keysDown.add(toKeyCodeInt(e))
+    if (e.key == PlayerControl.ActionCharStr) {
+      triggerAction()
+    } else if (e.key == Input.MenuKeyStr) {
+      triggerMenu()
+    }
   }
   dom.window.onkeyup = {e: dom.KeyboardEvent =>
     keysDown.remove(toKeyCodeInt(e))
-  }
-  
-  dom.window.onkeypress = {(e: dom.KeyboardEvent) =>
-    keyPressListener.get(e.key)
-      .foreach {  case (_, cb) => cb() }
   }
 
   class Touch(
@@ -98,14 +99,17 @@ class Input {
         keysDown.remove(PlayerControl.DownCode)
       }
       if (!t.changedDirection && e.timeStamp - t.start < 500) {
-        fakeAction(PlayerControl.ActionCharStr)
+        triggerAction()
       }
     }
   })
 
-  private def fakeAction(keyStr: String) = {
-    keyPressListener.get(keyStr)
-      .foreach {  case (_, cb) => cb() }
+  private def triggerAction() = {
+    actionKeyListeners.foreach(_.handleActionKey())
+  }
+
+  private def triggerMenu() = {
+    menuKeyListeners.foreach(_.handleMenuKey())
   }
 
   var gamepadsActive = false
@@ -117,9 +121,11 @@ class Input {
       val oldGamepad = gamepad
       gamepad = gamepads.headOption
       if (gamepad == Some(null)) gamepad = None
-
       if (oldGamepad.exists(gp => !gp.buttons(0).pressed) && gamepad.exists(_.buttons(0).pressed)) {
-        fakeAction(PlayerControl.ActionCharStr)
+        triggerAction()
+      }
+      if (oldGamepad.exists(gp => !gp.buttons(9).pressed) && gamepad.exists(_.buttons(9).pressed)) {
+        triggerMenu()
       }
     } else {
       gamepad = None
@@ -163,4 +169,14 @@ object Input {
   val MovementTouchDirectionThreshold: Double = .6
 
   val MovementTouchLengthThreshold: Double = 22
+
+  val MenuKeyStr = "Escape"
+
+  trait ActionKeyListener {
+    def handleActionKey(): Unit
+  }
+
+  trait MenuKeyListener {
+    def handleMenuKey(): Unit
+  }
 }

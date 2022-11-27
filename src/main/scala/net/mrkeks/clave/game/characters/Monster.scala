@@ -35,6 +35,12 @@ object Monster {
     defensiveMonsterMesh = Some(mesh)
   })
 
+  var friendlyMonsterMesh: Option[Object3D] = None
+  DrawingContext.gltfLoader.load("gfx/player_monster.glb", {gltf =>
+    val mesh = gltf.scene.children(0).asInstanceOf[Object3D]
+    friendlyMonsterMesh = Some(mesh)
+  })
+
   def clear(): Unit = {
 
   }
@@ -101,13 +107,14 @@ class Monster(
             case c: Crate if c.kind == CrateData.PlayerLikeKind => c
           }
         } yield (pos, playerLikeObject)
-        
+
         yScale = Mathf.approach(yScale, Math.sin(anim * .02) * .05, .003 * deltaTime)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
-        
-        if (neighboringPlayers.nonEmpty && kind == AggressiveMonster) {
+
+        if (neighboringPlayers.nonEmpty && (kind == AggressiveMonster || kind == FriendlyMonster)) {
           // player approaches
           neighboringPlayers.headOption.foreach { case (pos, p) =>
+            context.audio.play("monster-spots")
             setState(ChargeJumpTo(new Vector3(pos._1, 0, pos._2)))
           }
         } else if (map.getPlayerDangerousness(positionOnMap) > 3 && kind == FrightenedMonster) {
@@ -123,6 +130,7 @@ class Monster(
             val escapeRoute = options.minBy(_._1)._2
             val tar = new Vector3(escapeRoute._1, 0, escapeRoute._2)
             viewDirection = Direction.fromVec(tar.clone().sub(position))
+            if (currentDanger > 10) context.audio.play("monster-evades")
             setState(MoveTo(tar))
           }
         } else markovIf (0.0035) {
@@ -146,7 +154,9 @@ class Monster(
           // breathing anim
           yScale = Mathf.approach(yScale, Math.sin(anim * .025) * .1, .003 * deltaTime)
           rotate = Mathf.approach(rotate, Math.sin(anim * .1) * .1, .001 * deltaTime)
-
+          if (((anim - .1 * deltaTime) * 100).toInt % 3000 > (anim * 100).toInt % 3000) {
+            context.audio.play("monster-moves", rateLimit = 5)
+          }
           val speed = (.002 - 0.0005 * sizeLevel) * deltaTime
           val newX = Mathf.approach(position.x, tar.x, speed)
           val newY = Mathf.approach(position.y, 0, speed)
@@ -170,19 +180,26 @@ class Monster(
           position.setY(newY)
         }
       case s @ JumpTo(tar, from, ySpeed) =>
-        if (map.intersectsLevel(tar, considerObstacles = true)) {
+        if (ySpeed < -.0001 && map.intersectsLevel(tar, considerObstacles = true)) {
           // if tile became blocked while moving there either merge with the monster there or turn around
           val touchedOtherSmallMonsters = map.getObjectsAt((tar.x.toInt, tar.z.toInt)).collect {
             case m: Monster if m.sizeLevel < 2 && m.kind == this.kind => m
           }
           if (sizeLevel < 2 && touchedOtherSmallMonsters.nonEmpty) {
+            context.audio.play("small-merges")
             setState(MergingWith(touchedOtherSmallMonsters.head))
           } else {
-            setState(PushedTo(from, -ySpeed))
+            setState(PushedTo(from, -ySpeed, forceful = true))
           }
         } // there is a bigger player there, turn around.
-          else if (sizeLevel <= 1 && ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(_.isInstanceOf[Player])) {
-          setState(PushedTo(from, -ySpeed))
+          else if (ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(p => p.isInstanceOf[Player] && p.asInstanceOf[Player].size >= sizeLevel )) {
+          if (kind == FriendlyMonster) {
+            context.audio.play("small-merges")
+            setState(MergingWithPlayer((map.getObjectsAt(tar.x.toInt, tar.z.toInt)).collect{ case p: PlayerData => p }.head))
+          } else {
+            context.audio.play("small-bumps", rateLimit = 5)
+            setState(PushedTo(from, -ySpeed))
+          }
         } else {
           val speed = .0025 * deltaTime
           val newX = Mathf.approach(position.x, tar.x, speed)
@@ -198,7 +215,7 @@ class Monster(
             setPosition(newX, 0, newZ)
           }
         }
-      case s @ PushedTo(tar, ySpeed) =>
+      case s @ PushedTo(tar, ySpeed, forceful) =>
         val speed = .0025 * deltaTime
         val newX = Mathf.approach(position.x, tar.x, speed)
         val newZ = Mathf.approach(position.z, tar.z, speed)
@@ -207,8 +224,11 @@ class Monster(
         setPosition(newX, position.y + ySpeed * deltaTime, newZ)
         rotate = Mathf.approach(rotate, 0, .0001 * deltaTime)
         if (newX == tar.x && newZ == tar.z) {
-          // give fewer cooldown after being pushed
-          setState(Idle(strollCoolDown = 2000))
+          if (forceful) {
+            setState(Paralyzed(coolDown = 3000 + Math.random() * 2000))
+          } else {
+            setState(Idle(strollCoolDown = 1000 + Math.random() * 2000))
+          }
           setPosition(newX, 0, newZ)
         }
       case s @ MergingWith(otherMonster, progress) =>
@@ -225,9 +245,30 @@ class Monster(
             new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.1, .6, .1, .6), new Vector4(.2, .8, .2, .9), -.1, .0)
           markForDeletion()
         }
+      case s @ MergingWithPlayer(player, progress) =>
+        s.progress += deltaTime * .01
+        position.lerp(player.getPosition, progress)
+        if (false) {
+          val tar = map.mapPosToVec(
+              map.findNextFreeField(positionOnMap))
+          setState(PushedTo(tar, tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
+        } else if (progress >= 1.0 ) {
+          player.size = Math.max(player.size + 1, 10)
+          context.particleSystem.burst("dust", (6 + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
+            new Vector3(position.x, position.y-.3, position.z), new Vector3(1, .1, 1),
+            new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.6, .1, .1, .6), new Vector4(.8, .2, .2, .9), -.1, .0)
+          markForDeletion()
+        }
       case s @ Frozen(byCrate) =>
         removeFromMap()
         position.copy(byCrate.getPosition)
+      case s @ Paralyzed(coolDown) =>
+        s.coolDown -= deltaTime
+        yScale = Mathf.approach(yScale, Math.sin(anim * .1) * .07, .009 * deltaTime)
+        rotate = Mathf.approach(rotate, Math.sin(anim * .15) * coolDown / 2000.0, .003 * deltaTime)
+        if (s.coolDown <= 0) {
+          setState(Idle(strollCoolDown = 1000))
+        }
     }
 
     // initialize mesh if necessary
@@ -252,6 +293,19 @@ class Monster(
             val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
             val matMap = mat.map.clone()
             matMap.offset = new Vector2(Math.random(), 0)
+            mat.color = new Color(.8 + .5 * Math.random(), .8 + .5 * Math.random(), .7 + .25 * Math.random())
+            mat.map = matMap
+            mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
+            matMap.needsUpdate = true
+            mat.needsUpdate = true
+            eyeMesh = Some(mesh.getObjectByName("Eyes"))
+          }
+        case FriendlyMonster =>
+          Monster.friendlyMonsterMesh.foreach { m =>
+            m.children.foreach(c => mesh.add(c.clone()))
+            val mat = mesh.getObjectByName("Body").asInstanceOf[Mesh].material.asInstanceOf[MeshStandardMaterial].clone()
+            val matMap = mat.map.clone()
+            matMap.offset = new Vector2(Math.random(), 0)
             mat.color = new Color(.75 + .5 * Math.random(), .75 + .5 * Math.random(), .75 + .5 * Math.random())
             mat.map = matMap
             mesh.getObjectByName("Body").asInstanceOf[Mesh].material = mat
@@ -262,30 +316,51 @@ class Monster(
       }
     }
 
-    val meshPositionOffset = -.4 + sizeLevel * .2
-    // particles for landing
-    if (position.y <= .5 && mesh.position.y - meshPositionOffset > .5000001) {
-      context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
-        new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
-        new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .5 + .1 * sizeLevel), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
-    } // particles for jumping
-      else if (position.y > .01 && mesh.position.y - meshPositionOffset <= 0.01) {
-      context.particleSystem.burst("dust", (3 + 2 * sizeLevel + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
-        new Vector3(position.x, position.y-.3, position.z), new Vector3(-.01, .1, -.01),
-        new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .3 + .1 * sizeLevel), -.2 + .05 * sizeLevel, + .05 * sizeLevel)
+    val meshPositionOffset = -.45 + sizeLevel * .25
+    if (!state.isInstanceOf[Frozen]) {
+      // particles for landing
+      if (position.y < .5 && mesh.position.y - meshPositionOffset >= .5) {
+        context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
+          new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
+          new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.5, .5, .5, .6), new Vector4(.7, .7, .7, .5 + .1 * sizeLevel), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
+        if (sizeLevel <= 1) {
+          context.audio.play("small-lands", rateLimit = 4)
+        } else {
+          context.audio.play("big-lands", rateLimit = 4)
+        }
+      } // particles for jumping
+        else if (position.y > .01 && mesh.position.y - meshPositionOffset <= 0.01) {
+        context.particleSystem.burst("dust", (3 + 2 * sizeLevel + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
+          new Vector3(position.x, position.y-.3, position.z), new Vector3(-.01, .1, -.01),
+          new Vector3(.0,.0,.0), new Vector3(.002, .0, .002), new Vector4(.3, .5, .3, .6), new Vector4(.5, .7, .5, .3 + .1 * sizeLevel), -.2 + .05 * sizeLevel, + .05 * sizeLevel)
+        if (sizeLevel <= 1) {
+          context.audio.play("small-jumps", rateLimit = 4)
+        } else {
+          context.audio.play("big-jumps", rateLimit = 4)
+        }
+      }
     }
     mesh.position.set(position.x, position.y + meshPositionOffset, position.z)
     sizeLevel match {
       case 1 =>
-        mesh.scale.set(.8 - yScale * .2, .8 - yScale * .2, .8 + yScale)
-        shadowSize = .55
+        if (kind == FrightenedMonster && map.getPlayerDangerousness(positionOnMap) > 3) {
+          val dangerScale = map.getPlayerDangerousness(positionOnMap) / 50.0
+          mesh.scale.set(.9 - yScale * .2 + dangerScale * .5, 1.1 - dangerScale - yScale * .2, .9 + yScale + dangerScale * .9)
+        } else if (kind == FriendlyMonster) {
+          mesh.scale.set(.65 - yScale * .2, .7 - yScale * .2, .6 + yScale)
+        } else {
+          mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
+        }
       case _ =>
-        mesh.scale.set(1.2 - yScale * .2, 1.2 - yScale * .2, 1.2 + yScale)
-        shadowSize = .85
+        if (kind == FriendlyMonster) {
+          mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
+        } else {
+          mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
+        }
     }
+    shadowSize = mesh.scale.y * .3 + .25
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
-    updateShadow()
   }
 
   override def freezeComplete(byCrate: CrateData): Boolean = {
@@ -299,6 +374,8 @@ class Monster(
 
   def setState(newState: State): Unit = {
     state = newState match {
+      case s @ MoveTo(_) =>
+        s
       case s @ JumpTo(tar, from, ySpeed) =>
         viewDirection = Direction.fromVec(tar.clone().sub(position))
         s

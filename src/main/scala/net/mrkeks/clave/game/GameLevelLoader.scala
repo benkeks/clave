@@ -12,6 +12,7 @@ import net.mrkeks.clave.game.characters.{Monster, MonsterData}
 import net.mrkeks.clave.map.LevelDownloader
 import net.mrkeks.clave.game.objects.CrateData
 import net.mrkeks.clave.game.abstracts.GameObjectManagement
+import net.mrkeks.clave.game.objects.Meta
 
 trait GameLevelLoader {
   self: GameObjectManagement =>
@@ -67,6 +68,7 @@ trait GameLevelLoader {
       case MapData.Tile.Crate => List("crate")
       case MapData.Tile.Monster => List("monster")
       case MapData.Tile.DefensiveMonster => List("monster_defensive")
+      case MapData.Tile.MonsterFriend => List("monster_friend")
       case MapData.Tile.GateOpen => List("gate_open")
       case MapData.Tile.GateClosed => List("gate_closed")
       case MapData.Tile.Trigger => List("trigger")
@@ -86,6 +88,8 @@ trait GameLevelLoader {
         List(new Monster(map))
       case "monster_defensive" =>
         List(new Monster(map, kind = MonsterData.FrightenedMonster))
+      case "monster_friend" =>
+        List(new Monster(map, kind = MonsterData.FriendlyMonster))
       case "gate_open" | "gate_closed" =>
         val gate = new Gate(map)
         triggerGroup.addGate(gate)
@@ -94,6 +98,8 @@ trait GameLevelLoader {
         val trigger = new Trigger(map)
         triggerGroup.addTrigger(trigger)
         List(trigger)
+      case "meta" =>
+        List(new Meta(map))
       case _ =>
         List()
     }
@@ -102,13 +108,14 @@ trait GameLevelLoader {
       (tileType: MapData.Tile, pos: List[(Int,Int)]) <- positions
       (x,z) <- pos
       kind <- objKindsFromTile(tileType)
-    } yield Level.ObjectInfo(kind, x, z)
+    } yield Level.ObjectInfo(kind, x, z, "")
 
     for {
-      Level.ObjectInfo(kind, x, z) <- tileObjects ++ level.objects
+      Level.ObjectInfo(kind, x, z, info) <- tileObjects ++ level.objects
       obj <- factoryConstruct(kind)
     } {
       obj.setPosition(x, 0, z)
+      obj.setInfo(info)
       obj match { case c: Crate => c.place(x, z); case _ => }
       add(obj)
     }

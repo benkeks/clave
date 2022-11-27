@@ -11,6 +11,7 @@ class LevelPreviewer(context: dom.CanvasRenderingContext2D) {
     MapData.Tile.GateOpen -> List(140,140,140,255),
     MapData.Tile.Trigger -> List(30,40,250,255),
     MapData.Tile.DefensiveMonster -> List(200,190,10,255),
+    MapData.Tile.MonsterFriend -> List(200,5,10,255),
     MapData.Tile.Monster -> List(10,100,20,255),
     MapData.Tile.Player -> List(230,10,20,255),
     MapData.Tile.Freezer -> List(180,210,250,255)

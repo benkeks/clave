@@ -4,7 +4,7 @@ import org.scalajs.dom
 
 object ProgressTracking {
   val ClavePrefix = "clave."
-  val ClaveVersion = "0.2.1"
+  val ClaveVersion = "0.3.0"
   val LocalStorageScoreKey = ClavePrefix + "scores"
 }
 

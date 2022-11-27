@@ -44,7 +44,7 @@ class Editor(val context: DrawingContext, val input: Input, val gui: EditorGUI, 
 
     gameObjects.foreach(_.update(0))
 
-    context.render()
+    context.render(deltaTime)
 
     updateTime(timeStamp)
 

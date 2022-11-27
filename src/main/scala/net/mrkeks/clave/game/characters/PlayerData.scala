@@ -27,13 +27,15 @@ object PlayerData extends PositionedObjectData {
 }
 
 trait PlayerData extends GameObjectData with PositionedObjectData {
-  
+
   import PlayerData._
-  
+
   val direction = new Vector3()
-  
+
   var state: State = Idle()
-  
+
+  var size: Int = 1
+
   def isAlive() = {
     !state.isInstanceOf[Dead]
   }

@@ -2,7 +2,7 @@ package net.mrkeks.clave.map
 
 object Level {
 
-  case class ObjectInfo(kind: String, x: Int, z: Int)
+  case class ObjectInfo(kind: String, x: Int, z: Int, info: String)
 
   val level0 = Level(
       name = "Block 'em up",
@@ -66,7 +66,8 @@ object Level {
         yObj <- yaml.get("objects").toList
         node <- yObj.arr
         nObj = node.obj
-      } yield Level.ObjectInfo(nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt)
+        info = nObj.get("info").flatMap(_.strOpt).getOrElse("")
+      } yield Level.ObjectInfo( nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt, info)
       Some(Level(yaml("name").str, yaml("width").str.toInt, yaml("height").str.toInt, parseCSV(yaml("tilemap").str), objects))
     } else {
       None

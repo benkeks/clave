@@ -27,6 +27,10 @@ trait FreezableObject {
     }
   }
 
+  def isBeingFrozen() = {
+    freezeProgress > 0.0001
+  }
+
   def doFreeze(time: Double, source: CrateData): Boolean = {
     freezeProgress += 1.1 * time
     if (freezeProgress > 100) {

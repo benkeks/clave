@@ -9,5 +9,4 @@ trait GameObject extends GameObjectData {
   def clear(context: DrawingContext): Unit
   
   def update(deltaTime: Double): Unit
-  
 }

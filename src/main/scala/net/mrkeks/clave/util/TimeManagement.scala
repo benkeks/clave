@@ -16,6 +16,8 @@ trait TimeManagement {
   /** how many ticks have to be computed to catch up with the game time*/
   var tickBalance = 0.0
 
+  var timeSpeed = 1.0
+
   private val scheduledActions = Buffer[(Double, () => Unit)]()
   
   def updateTime(timeStamp: Double) = {
@@ -31,7 +33,7 @@ trait TimeManagement {
   }
 
   def tickedTimeLoop(loopBody: =>Unit) = {
-    tickBalance += deltaTime
+    tickBalance += deltaTime * timeSpeed
     while (tickBalance >= tickTime) {
       tickBalance -= tickTime
       loopBody

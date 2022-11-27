@@ -6,7 +6,7 @@ import scala.util.Random
 object MapData {
   object Tile extends Enumeration {
     val Empty, Crate, SolidWall, GateClosing, GateOpen,
-        GateClosed, Trigger, DefensiveMonster, Monster, Player, Freezer = Value
+        GateClosed, Trigger, DefensiveMonster, Monster, Player, Freezer, MonsterFriend = Value
   }
   type Tile = Tile.Value
   
@@ -34,7 +34,7 @@ trait MapData {
       for (x <- 0 until width) {
         val tile = Tile(mapData(z)(x))
         tile match {
-          case Tile.Crate | Tile.Player | Tile.DefensiveMonster | Tile.Monster
+          case Tile.Crate | Tile.Player | Tile.DefensiveMonster | Tile.Monster | Tile.MonsterFriend
              | Tile.GateOpen | Tile.GateClosed | Tile.Trigger | Tile.Freezer =>
             specialTiles = (tile, (x,z)) :: specialTiles
             data(x)(z) = Tile.Empty
@@ -53,25 +53,30 @@ trait MapData {
    *  is still allowed to take effect)
    *  (used for collision detection)
    *  (does not change src or dir) */
-  def localSlideCast(src: Vector3, dir: Vector3, bumpingDist: Double): Vector3 = {
+  def localSlideCast(src: Vector3, dir: Vector3, bumpingDist: Double): (Vector3, Boolean, Boolean) = {
     val newPos = src.clone()
-    
+    var xCol = false
+    var zCol = false
     newPos.setX(src.x + dir.x + dir.x.sign * bumpingDist)
     newPos.setX(
-      if (intersectsLevel(newPos, considerObstacles = true))
+      if (intersectsLevel(newPos, considerObstacles = true)) {
+        xCol = true
         src.x
-      else
+      } else {
         src.x + dir.x
+      }
     )
     newPos.setZ(src.z + dir.z + dir.z.sign * bumpingDist)
     newPos.setZ(
-      if (intersectsLevel(newPos, considerObstacles = true))
+      if (intersectsLevel(newPos, considerObstacles = true)) {
+        zCol = true
         src.z
-      else
+      } else {
         src.z + dir.z
+      }
     )
     
-    newPos.clamp(topLeft, bottomRight)
+    (newPos.clamp(topLeft, bottomRight), xCol, zCol)
   }
   
   def vecToMapPos(v: Vector3) = {

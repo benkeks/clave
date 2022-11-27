@@ -2,11 +2,11 @@ package net.mrkeks.clave.view
 
 import net.mrkeks.clave.game.characters.Player
 
-class PlayerControl(val player: Player, val input: Input) {
-  
-  input.keyPressListener.addOne(PlayerControl.ActionCharStr, (this, actionKey))
+class PlayerControl(val player: Player, val input: Input) extends Input.ActionKeyListener {
 
   private var actionRegistered = false
+
+  input.actionKeyListeners.addOne(this)
   
   def update(deltaTime: Double): Unit = {
     player.direction.set(0,0,0)
@@ -27,12 +27,12 @@ class PlayerControl(val player: Player, val input: Input) {
     actionRegistered = false
   }
 
-  def actionKey(): Unit = {
+  def handleActionKey(): Unit = {
     actionRegistered = true
   }
   
   def clear(): Unit = {
-    input.keyPressListener.removeKey(PlayerControl.ActionCharStr)
+    input.actionKeyListeners.removeAll(_ == this)
   }
   
 }
