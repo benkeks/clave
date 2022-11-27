@@ -347,12 +347,16 @@ class Monster(
           val dangerScale = map.getPlayerDangerousness(positionOnMap) / 50.0
           mesh.scale.set(.9 - yScale * .2 + dangerScale * .5, 1.1 - dangerScale - yScale * .2, .9 + yScale + dangerScale * .9)
         } else if (kind == FriendlyMonster) {
-          mesh.scale.set(.55 - yScale * .2, .65 - yScale * .2, .55 + yScale)
+          mesh.scale.set(.65 - yScale * .2, .7 - yScale * .2, .6 + yScale)
         } else {
           mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
         }
       case _ =>
-        mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
+        if (kind == FriendlyMonster) {
+          mesh.scale.set(.9 - yScale * .2, 1.0 - yScale * .2, .9 + yScale)
+        } else {
+          mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
+        }
     }
     shadowSize = mesh.scale.y * .3 + .25
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
