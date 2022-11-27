@@ -112,7 +112,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         } else if (playerIsSurrounded()) {
           setState(Lost("The monsters got you surrounded!"))
         } else {
-          checkVictory()
+          val friends = gameObjects.collect { case m: Monster if m.kind == MonsterData.FriendlyMonster => m }
+          if (friends.exists(_.state.isInstanceOf[MonsterData.Frozen])) {
+            setState(Lost("A friend has been frozen!"))
+          } else if (friends.isEmpty) {
+            checkVictory()
+          }
         }
       case Paused() =>
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
@@ -268,7 +273,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   }
 
   private def checkVictory(): Unit = {
-    if (state.isInstanceOf[Running] && gameObjects.forall{ case m: Monster => m.kind != MonsterData.FriendlyMonster; case _ => true }) {
+    if (state.isInstanceOf[Running]) {
       val victoryRegion = map.checkVictory(getPlayerPositions)
       val levelScore = victoryRegion.length
       if (levelScore > 0) {
@@ -282,7 +287,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       map.getAdjacentPositions(playerPosition).forall { case xz @ (x,z) =>
         map.isTilePermanentlyBlocked(x,z) ||
         player.exists(_.state.isInstanceOf[PlayerData.Carrying]) && map.intersectsLevel(x,z, considerObstacles = true) ||
-        map.getObjectsAt(xz).exists(_.isInstanceOf[Monster])
+        map.getObjectsAt(xz).exists { case m: Monster => m.kind != MonsterData.FriendlyMonster; case _ => false }
       }
     }
   }
