@@ -4,7 +4,7 @@ enablePlugins(JSDependenciesPlugin)
 
 name := "Clave"
 
-version := "0.2.1"
+version := "0.3.0"
 
 scalaVersion := "2.13.10"
 
