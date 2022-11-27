@@ -79,7 +79,7 @@ class GameMap(val width: Int, val height: Int)
   private var playerDangerousnessUpdate = Array.ofDim[Int](width, height)
   private var playerDangerousnessUpdateLine: Int = 0
 
-  private var victoryCheckNeeded = false
+  private var victoryCheckNeeded = true
   protected val victoryCheck = Array.ofDim[Int](width, height)
 
   // underground presentation

@@ -14,7 +14,11 @@ levels:
 - a05
 - a06
 - a065
+- tut03-friends
+- a066
 - a067
+- a068
+- a069
 - a07
 - a075
 - a077
@@ -22,7 +26,7 @@ levels:
 - a08
 - a085
 - a087
-- tut03-freezer
+- tut04-freezer
 - a0873
 - a0874
 - a0875

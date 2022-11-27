@@ -68,6 +68,7 @@ trait GameLevelLoader {
       case MapData.Tile.Crate => List("crate")
       case MapData.Tile.Monster => List("monster")
       case MapData.Tile.DefensiveMonster => List("monster_defensive")
+      case MapData.Tile.MonsterFriend => List("monster_friend")
       case MapData.Tile.GateOpen => List("gate_open")
       case MapData.Tile.GateClosed => List("gate_closed")
       case MapData.Tile.Trigger => List("trigger")
@@ -87,6 +88,8 @@ trait GameLevelLoader {
         List(new Monster(map))
       case "monster_defensive" =>
         List(new Monster(map, kind = MonsterData.FrightenedMonster))
+      case "monster_friend" =>
+        List(new Monster(map, kind = MonsterData.FriendlyMonster))
       case "gate_open" | "gate_closed" =>
         val gate = new Gate(map)
         triggerGroup.addGate(gate)
