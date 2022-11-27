@@ -101,12 +101,12 @@ class GUI() extends TimeManagement {
       <input id="options-gfx-detail" type="checkbox" class="form-check-input" title="${Texts.GfxDetailDescription}" />
       <label class="form-check-label" for="options-gfx-detail" title="${Texts.GfxDetailDescription}">${Texts.GfxDetailSymbol}</label>
     </div>
-    <div class="form-check">
-      <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
-      <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
-    </div>
     """
-  
+  // <div class="form-check">
+  //     <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
+  //     <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
+  //   </div>
+
   private val optionsVolume = options.querySelector("#options-volume").asInstanceOf[dom.HTMLInputElement]
   optionsVolume.addEventListener("change", changeVolume _)
   private val optionsMusic = options.querySelector("#options-music").asInstanceOf[dom.HTMLInputElement]
