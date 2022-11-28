@@ -208,6 +208,9 @@ class GUI() extends TimeManagement {
     narrationText = text
     if (text == "") {
       narration.classList.remove("visible")
+      schedule(lastFrameTime + 2000) { () =>
+        narration.innerHTML = narrationText
+      }
     } else {
       narration.innerHTML = narrationText
       narration.classList.add("visible")

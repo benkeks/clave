@@ -73,12 +73,15 @@ body {
 #popup.visible .message p:nth-child(4), #narration.visible p:nth-child(4) {
   animation-delay: 4.0s;
 }
+#popup.visible .message p:nth-child(5), #narration.visible p:nth-child(5) {
+  animation-delay: 5.0s;
+}
 @keyframes text-fly-in {
   0% { transform: translateX(50%); opacity: 0 }
   100% { transform: translateX(0); opacity: 1 }
 }
 @keyframes narration-fly-in {
-  0% { transform: translateY(55vh); opacity: .3 }
+  0% { transform: translateY(100vh); opacity: .3 }
   100% { transform: translateY(0); opacity: 1 }
 }
 
@@ -91,21 +94,26 @@ body {
   transform: translateX(-50%) translateY(-10%) scale(0.7);
 }
 #narration {
+  position: absolute;
+  top: calc(0.5rem + 20vh);
+  left: 50%;
   font-size: 2rem;
-  transform: translateX(-40%) translateY(-10%) scale(0.7);
-  max-width: 70%
+  transform: translateX(-40%) translateY(100vh) scale(0.7);
+  max-width: 70%;
+  max-height: 90%;
 }
 #narration p {
   margin-bottom: .1rem;
 }
-
-#popup, #level-list, #narration {
-  color: white;
-  text-shadow: 0 0 5px black;
+#popup, #level-list {
   position: absolute;
   left: 50%;
   top: 50%;
   max-height: 90%;
+}
+#popup, #level-list, #narration {
+  color: white;
+  text-shadow: 0 0 5px black;
   transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 800ms;
   display: block;
   opacity: 0;
@@ -137,11 +145,14 @@ body {
   transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 200ms;
 }
 #narration.visible {
-  transform: translateX(-50%) translateY(-12rem) scale(1);
+  transform: translateX(-50%) translateY(1rem) scale(1);
   opacity: 1;
   display: block;
   width: 90%;
   transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55) 1s, opacity 200ms 1s;
+}
+#narration.visible .credits a {
+  pointer-events: all;
 }
 
 #popup .level-name {

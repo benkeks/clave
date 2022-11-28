@@ -231,9 +231,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   def handleActionKey(): Unit = {
     state match {
-      case Narration(message) => setState(Running())
+      case Narration(message) =>
+        if (lastFrameTime - lastStateChangeTime > 1500) {
+          setState(Running())
+        }
       case Won(_, _, _) | Lost(_) =>
-        if (lastFrameTime - lastStateChangeTime > 2000) {
+        if (lastFrameTime - lastStateChangeTime > 1500) {
           continueLevel()
         }
       case _ =>
