@@ -14,9 +14,9 @@ import org.scalajs.dom
 class AudioContext(context: DrawingContext) {
 
   private val EffectVolumeKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "effectVolume"
-  private var effectVolume: Double = 0.0
+  private var effectVolume: Double = 0.3
   private val MusicVolumeKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "musicVolume"
-  private var musicVolume: Double = 0.0
+  private var musicVolume: Double = 0.3
 
   private val SoundDirectory = "sfx/"
   private val soundEffectFiles = Map(
@@ -88,7 +88,7 @@ class AudioContext(context: DrawingContext) {
   def loadVolumeConfig(): Double = {
     val txt = dom.window.localStorage.getItem(EffectVolumeKey)
     if (txt != null && txt != "") {
-      val volume = txt.toDoubleOption.getOrElse(0.0)
+      val volume = txt.toDoubleOption.getOrElse(0.3)
       setEffectVolume(volume)
       volume
     } else {
@@ -100,7 +100,7 @@ class AudioContext(context: DrawingContext) {
   def loadMusicConfig(): Double = {
     val txt = dom.window.localStorage.getItem(MusicVolumeKey)
     if (txt != null && txt != "") {
-      val volume = txt.toDoubleOption.getOrElse(0.0)
+      val volume = txt.toDoubleOption.getOrElse(0.3)
       setMusicVolume(volume)
       volume
     } else {
