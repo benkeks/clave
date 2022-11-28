@@ -13,7 +13,7 @@ import scala.scalajs.js.URIUtils
 
 class GUI() extends TimeManagement {
 
-  private object Texts {
+  object Texts {
     val ContinueSymbol = "▶"
     val ContinueDescription = "Start/continue current level"
     val PauseSymbol = "☰"
@@ -80,6 +80,11 @@ class GUI() extends TimeManagement {
   narration.id = "narration"
   hudContainer.appendChild(narration)
   private var narrationText = ""
+
+  private val hint = dom.document.createElement("div")
+  hint.id = "hint"
+  hudContainer.appendChild(hint)
+  private var hintText = ""
 
   private val versionInfo = dom.document.createElement("div")
   versionInfo.id = "version-info"
@@ -204,10 +209,26 @@ class GUI() extends TimeManagement {
     }
   }
 
+  def setHint(text: String): Unit = {
+    hintText = text
+    if (text == "") {
+      hint.classList.remove("visible")
+      schedule(lastFrameTime + 2000) { () =>
+        hint.innerHTML = hintText
+      }
+    } else {
+      hint.innerHTML = hintText
+      hint.classList.add("visible")
+    }
+  }
+
   def setNarration(text: String): Unit = {
     narrationText = text
     if (text == "") {
       narration.classList.remove("visible")
+      schedule(lastFrameTime + 2000) { () =>
+        narration.innerHTML = narrationText
+      }
     } else {
       narration.innerHTML = narrationText
       narration.classList.add("visible")

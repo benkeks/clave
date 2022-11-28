@@ -3,16 +3,23 @@ package net.mrkeks.clave.view
 import org.scalajs.dom
 import scala.collection.mutable.Queue
 import scala.scalajs.js.Any.fromFunction1
+import net.mrkeks.clave.view.Input.UnknownInput
+import net.mrkeks.clave.view.Input.KeyboardInput
+import net.mrkeks.clave.view.Input.TouchInput
+import net.mrkeks.clave.view.Input.GamepadInput
 
-/** centrally manages the key board input */
+/** centrally manages the keyboard input */
 class Input {
 
   val keysDown = collection.mutable.Set.empty[Int]
+
+  var mainInputMode: Input.InputMode = Input.UnknownInput
 
   var actionKeyListeners = new Queue[Input.ActionKeyListener]()
   var menuKeyListeners = new Queue[Input.MenuKeyListener]()
 
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
+    detectInputMode(Input.KeyboardInput)
     keysDown.add(toKeyCodeInt(e))
     if (e.key == PlayerControl.ActionCharStr) {
       triggerAction()
@@ -34,7 +41,9 @@ class Input {
 
   val touches = collection.mutable.HashMap[Double, Touch]()
 
-  dom.window.addEventListener("touchstart", { (e: dom.TouchEvent) => 
+  dom.window.addEventListener("touchstart", { (e: dom.TouchEvent) =>
+    detectInputMode(Input.TouchInput)
+
     e.preventDefault()
     val domTouch = e.changedTouches(0)
     touches += ((domTouch.identifier, new Touch(e.timeStamp, e.timeStamp, domTouch.clientX, domTouch.clientY)))
@@ -112,6 +121,12 @@ class Input {
     menuKeyListeners.foreach(_.handleMenuKey())
   }
 
+  private def detectInputMode(mode: Input.InputMode) = {
+    if (mainInputMode == Input.UnknownInput) {
+      mainInputMode = mode
+    }
+  }
+
   var gamepadsActive = false
   var gamepad: Option[dom.Gamepad] = None
 
@@ -134,6 +149,9 @@ class Input {
 
   private def toggleGamepads(ev: dom.Event) = {
     gamepadsActive = dom.window.navigator.getGamepads().nonEmpty
+    if (gamepadsActive) {
+      detectInputMode(Input.GamepadInput)
+    }
   }
 
   dom.window.addEventListener("gamepadconnected", toggleGamepads(_))
@@ -160,6 +178,22 @@ class Input {
     }
     updateGamepads()
   }
+
+  def renderInputHint(txt: String): String = {
+    txt
+      .replace("$DoAction", mainInputMode match {
+        case UnknownInput => "Press [Space] or (a) or tap"
+        case KeyboardInput => "Press [Space]"
+        case TouchInput => "Tap"
+        case GamepadInput => "Press gamepad (a)"
+      })
+      .replace("$DoNavigate", mainInputMode match {
+        case UnknownInput => "Use arrow key / joystick / swiping"
+        case KeyboardInput => "Use arrow keys"
+        case TouchInput => "Swipe anywhere"
+        case GamepadInput => "Use left joystick"
+      })
+  }
 }
 
 object Input {
@@ -171,6 +205,12 @@ object Input {
   val MovementTouchLengthThreshold: Double = 22
 
   val MenuKeyStr = "Escape"
+
+  abstract sealed class InputMode
+  case object UnknownInput extends InputMode
+  case object KeyboardInput extends InputMode
+  case object TouchInput extends InputMode
+  case object GamepadInput extends InputMode
 
   trait ActionKeyListener {
     def handleActionKey(): Unit

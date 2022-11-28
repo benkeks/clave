@@ -1,15 +1,18 @@
 package net.mrkeks.clave.game
 
 import org.scalajs.dom
+import net.mrkeks.clave.map.LevelDownloader
 
 object ProgressTracking {
   val ClavePrefix = "clave."
-  val ClaveVersion = "0.3.0"
+  val ClaveVersion = "0.3.1"
   val LocalStorageScoreKey = ClavePrefix + "scores"
 }
 
 trait ProgressTracking {
   import ProgressTracking._
+
+  val levelDownloader: LevelDownloader
 
   var score = 0
 
@@ -37,7 +40,8 @@ trait ProgressTracking {
   private def saveProgress(): Unit = {
     val scoresYaml = for {
       (lvlId, lvlScore) <- levelScores
-    } yield (lvlId, new yamlesque.Str(lvlScore.toString()).asInstanceOf[yamlesque.Value])
+      lvl <- levelDownloader.getLevelById(lvlId)
+    } yield (s"$lvlId+${lvl.version}", new yamlesque.Str(lvlScore.toString()).asInstanceOf[yamlesque.Value])
     val scoreMap = new yamlesque.Obj(scoresYaml)
     val yamlString = yamlesque.write(yamlesque.Obj(
       "scores" -> scoreMap,
@@ -50,12 +54,14 @@ trait ProgressTracking {
     val txt = dom.window.localStorage.getItem(LocalStorageScoreKey)
     if (txt != null && txt != "") {
       val yaml = yamlesque.read(txt).obj
-      if ((Set("scores", "version", "hash") subsetOf yaml.keySet)
-        && yaml("version").str == ClaveVersion) {
+      if ((Set("scores", "version", "hash") subsetOf yaml.keySet)) {
         val loadedScores = for {
           yScores <- yaml.get("scores").toList
-          (lvlId, yamlesque.Str(lvlScore)) <- yScores.obj
-        } yield (lvlId, lvlScore.toInt)
+          (lvlIdPlusHash, yamlesque.Str(lvlScore)) <- yScores.obj
+          lvlIdParsed = lvlIdPlusHash.split('+')
+          if lvlIdParsed.length == 2
+          levelScore = if (levelDownloader.getLevelById(lvlIdParsed(0)).exists(l => l.version.toString == lvlIdParsed(1))) lvlScore.toInt else 0
+        } yield (lvlIdParsed(0), levelScore)
         levelScores.clear()
         levelScores.addAll(loadedScores)
         initialScores = levelScores.clone()

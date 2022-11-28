@@ -95,6 +95,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         player.foreach { p =>
           context.cameraLookAt(p.getPosition)
         }
+        if (lastStateChangeTime + 3500 < lastFrameTime) {
+          gui.setHint(input.renderInputHint("$DoAction to continue."))
+        }
       case Running() =>
         playerControl.update(deltaTime)
 
@@ -103,7 +106,17 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
           removeAllMarkedForDeletion()
         }
-        
+
+        if (lastStateChangeTime + 3500 < lastFrameTime && playerControl != null && (!playerControl.hasEverMoved || !playerControl.hasEverActed)) {
+          if (!playerControl.hasEverMoved) {
+            gui.setHint(input.renderInputHint("$DoNavigate to move around."))
+          } else if (!playerControl.hasEverActed) {
+            gui.setHint(input.renderInputHint("$DoAction to pick up a box you touch or to place a box you carry."))
+          }
+        } else {
+          gui.setHint("")
+        }
+
         if (player.isDefined &&
             player.get.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost("The monsters crushed you!"))
@@ -120,6 +133,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           }
         }
       case Paused() =>
+        if (lastStateChangeTime + 3000 < lastFrameTime) {
+          gui.setHint(s"Press ${gui.Texts.ContinueSymbol} button to continue.")
+        }
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
@@ -135,10 +151,16 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           context.particleSystem.emitParticle("point", x, -.4, z, (pointTar.x - x) / flyTime, .025 * flyTime / 2000, (pointTar.z - z) / flyTime, .93, .93, .47, 1.0, .8 + .5 * Math.random())
           map.victoryLighting(x, z) < s.victoryDrawProgress
         }
+        if (lastStateChangeTime + 2500 < lastFrameTime) {
+          gui.setHint(input.renderInputHint("$DoAction to continue."))
+        }
       case Lost(_) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
           removeAllMarkedForDeletion()
+        }
+        if (lastStateChangeTime + 2500 < lastFrameTime) {
+          gui.setHint(input.renderInputHint("$DoAction to continue."))
         }
       case Continuing() =>
         player.foreach { p => 
@@ -171,6 +193,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         gui.setNarration("")
       case _ =>
     }
+    gui.setHint("")
 
     newState match {
       case StartUp(_) =>
@@ -231,9 +254,12 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   def handleActionKey(): Unit = {
     state match {
-      case Narration(message) => setState(Running())
+      case Narration(message) =>
+        if (lastFrameTime - lastStateChangeTime > 1500) {
+          setState(Running())
+        }
       case Won(_, _, _) | Lost(_) =>
-        if (lastFrameTime - lastStateChangeTime > 2000) {
+        if (lastFrameTime - lastStateChangeTime > 1500) {
           continueLevel()
         }
       case _ =>
@@ -310,8 +336,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
     }
     gui.setLevelHighScore(levelScores(id))
-    if (playerControl != null) playerControl.clear()
-    playerControl = new PlayerControl(player.get, input)
+    if (playerControl == null) {
+      playerControl = new PlayerControl(player.get, input)
+    } else {
+      playerControl.reassign(player.get)
+    } 
     player.get.setState(PlayerData.Spawning(ySpeed = -.06))
     gameObjects.foreach {
       case m: Meta => m.registerGame(this)

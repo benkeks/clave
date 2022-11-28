@@ -17,6 +17,6 @@ objects:
     x: -10
     z: -1
     info: |
-      <p>Hi, I'm Clave!</p>
-      <p>I must wall in the dangerous monsters!</p>
+      <p>Hi, I'm <strong>Clave</strong>!</p>
+      <p>I must <strong>wall in</strong> the dangerous <strong>monsters</strong>!</p>
       <p>Will you help me?</p>

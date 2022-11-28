@@ -24,7 +24,8 @@ objects:
     x: -10
     z: -1
     info: |
-      <p style="margin-top:-5rem;">Thanks for playing Clave!<br>~~~</p>
-      <p style="pointer-events: all">Code, Levels, Gfx ... <a href="https://mrkeks.net" target="_blank">Ben Keks</a></p>
-      <p style="pointer-events: all">Sfx ... <a href="https://www.aceluke.com/" target="_blank">Ace Luke</a></p>
-      <p style="pointer-events: all">Music ... <a href="https://sahara.mrkeks.net/" target="_blank">Sahara B.</a></p>
+      <p style=""><strong>Clave</strong> is brought to you by:</p>
+      <p>&#x1F4E6;&#x1F4E6;&#x1F4E6;</p>
+      <p class="credits"><a href="https://mrkeks.net" target="_blank">benkeks</a> &#x1F4E6; Code, Levels, Graphics</p>
+      <p class="credits"><a href="https://www.aceluke.com/" target="_blank">Ace Luke</a> &#x1F4E6; Sound effects</p>
+      <p class="credits"><a href="https://twitter.com/saharaback" target="_blank">Sahara B.</a> &#x1F4E6; Music</p>

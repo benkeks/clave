@@ -24,7 +24,8 @@ object Level {
        0, 0, 0, 9, 0, 1, 0, 0, 1, 0, 1, 2, 0, 0, 1, 0
        0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0
        8, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"""),
-       objects = List())
+       objects = List(),
+       version = 0)
 
   val titleScreen = Level(
       name = "TitleScreen",
@@ -50,7 +51,8 @@ object Level {
         0, 0, 0, 4, 0, 4, 0, 0, 4, 4, 0, 4, 0, 4, 0, 4, 4, 0, 0, 0, 0
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         0, 0, 0,10,10,10, 0,10,10,10, 0,10,10,10, 0,10,10,10, 0, 9, 0"""),
-       objects = List())
+       objects = List(),
+       version = 0)
 
   def parseCSV(csv: String): Array[Array[Int]] = {
     csv
@@ -68,7 +70,7 @@ object Level {
         nObj = node.obj
         info = nObj.get("info").flatMap(_.strOpt).getOrElse("")
       } yield Level.ObjectInfo( nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt, info)
-      Some(Level(yaml("name").str, yaml("width").str.toInt, yaml("height").str.toInt, parseCSV(yaml("tilemap").str), objects))
+      Some(Level(yaml("name").str, yaml("width").str.toInt, yaml("height").str.toInt, parseCSV(yaml("tilemap").str), objects, txt.hashCode()))
     } else {
       None
     }
@@ -85,5 +87,6 @@ case class Level(
   width: Int,
   height: Int,
   mapData: Array[Array[Int]],
-  objects: List[Level.ObjectInfo]) {
+  objects: List[Level.ObjectInfo],
+  version: Int) {
 }

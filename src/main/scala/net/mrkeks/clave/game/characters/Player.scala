@@ -232,7 +232,7 @@ class Player(protected val map: GameMap)
     }
   }
   
-  def doAction(): Unit = {
+  def doAction(): Boolean = {
     state match {
       case Idle() =>
         touching match {
@@ -240,23 +240,28 @@ class Player(protected val map: GameMap)
             pickup(c)
           case _ =>
             // nothing to grab
+            false
         }
       case Carrying(c: Crate) =>
         place(c)
       case Dead() =>
-        
+        false
       case _ =>
+        false
     }
   }
   
-  def pickup(crate: Crate): Unit = {
+  def pickup(crate: Crate): Boolean = {
     setState(Carrying(crate))
     crate.pickup(this)
   }
   
-  def place(crate: Crate): Unit = {
+  def place(crate: Crate): Boolean = {
     if ((crate.place _).tupled(nextField)) {
       setState(Idle())
+      true
+    } else {
+      false
     }
   }
 
