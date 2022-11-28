@@ -130,7 +130,7 @@ class Crate(
     highlightBox.visible = touching.nonEmpty
   }
   
-  def pickup(player: Player): Unit = {
+  def pickup(player: Player): Boolean = {
     state = Carried(player)
 
     context.audio.play("crate-pickup")
@@ -140,6 +140,7 @@ class Crate(
 
     // temporally remove location from game map
     removeFromMap()
+    true
   }
   
   override def place(x: Int, z: Int) = {

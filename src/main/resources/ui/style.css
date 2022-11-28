@@ -111,7 +111,7 @@ body {
   top: 50%;
   max-height: 90%;
 }
-#popup, #level-list, #narration {
+#popup, #level-list, #narration, #hint {
   color: white;
   text-shadow: 0 0 5px black;
   transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 800ms;
@@ -119,8 +119,14 @@ body {
   opacity: 0;
   text-align: center;
 }
-#popup, #narration {
+#popup, #narration, #hint {
   pointer-events: none;
+}
+#hint {
+  position: absolute;
+  bottom: .1rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20rem) scale(0.7);
 }
 #level-list {
   display: none;
@@ -146,6 +152,13 @@ body {
 }
 #narration.visible {
   transform: translateX(-50%) translateY(1rem) scale(1);
+  opacity: 1;
+  display: block;
+  width: 90%;
+  transition: transform 800ms cubic-bezier(0.68, -0.55, 0.27, 1.55) 1s, opacity 200ms 1s;
+}
+#hint.visible {
+  transform: translateX(-50%) translateY(0rem) scale(1);
   opacity: 1;
   display: block;
   width: 90%;
