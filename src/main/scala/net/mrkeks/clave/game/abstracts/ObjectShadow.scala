@@ -21,7 +21,6 @@ object ObjectShadow {
   
   val material = new MeshLambertMaterial()
   material.color.setHex(0x888888)
-  //material.blending = THREE.
   material.transparent = true
   material.depthWrite = false
   material.opacity = .5
