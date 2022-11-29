@@ -39,6 +39,7 @@ object ObjectShadow {
 
   private val MaxShadowCount = 50
   private val shadows = new InstancedMesh(geometry, material, MaxShadowCount)
+  shadows.renderOrder = 2
 
   def init(context: DrawingContext) = {
     context.scene.add(shadows)
@@ -54,7 +55,7 @@ object ObjectShadow {
     } {
       val pos = s.getPosition
       posMatrix.makeTranslation(pos.x + pos.y*.4 + 0.1, -0.45, pos.z)
-      scaleVector.set(s.shadowSize, s.shadowSize, s.shadowSize)
+      scaleVector.set(s.shadowXSize, s.shadowXSize, s.shadowZSize)
       posMatrix.scale(scaleVector)
       shadows.setMatrixAt(i, posMatrix)
       color.r = Mathf.clamp(pos.y *.4 - 1.0, 0.0, 0.5)
@@ -76,7 +77,8 @@ object ObjectShadow {
 
 trait ObjectShadow extends PositionedObject {
 
-  def shadowSize: Double
+  def shadowXSize: Double
+  def shadowZSize: Double
   
   def initShadow(context: DrawingContext): Unit = {
     ObjectShadow.shadowCasters += this

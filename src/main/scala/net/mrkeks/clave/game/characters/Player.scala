@@ -65,7 +65,8 @@ class Player(protected val map: GameMap)
   var previousCol = (false, false)
   val dropPreview = new Mesh(Player.dropPreviewGeometry, Player.dropPreviewMaterial)
   
-  var shadowSize = 0.7
+  var shadowXSize = 0.7
+  var shadowZSize = 0.7
   
   def init(context: DrawingContext): Unit = {
     this.context = context
@@ -131,7 +132,8 @@ class Player(protected val map: GameMap)
     movementDelta.copy(newMovementDelta)
 
     val baseSize = Math.pow(.8 + .15 * size, .3)
-    shadowSize = baseSize * .85
+    shadowXSize = baseSize * .85
+    shadowZSize = baseSize * .85
 
     state match {
       case Spawning(ySpeed) =>
@@ -185,7 +187,8 @@ class Player(protected val map: GameMap)
         // this cannot actually happen
     }
 
-    shadowSize = mesh.scale.y * .1 + .5
+    shadowXSize = mesh.scale.y * .1 + .5
+    shadowZSize = mesh.scale.z * .1 + .5
   }
 
   private def isHarmedByMonster(xz: (Int, Int)) = {

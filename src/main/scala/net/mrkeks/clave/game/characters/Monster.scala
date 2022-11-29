@@ -62,7 +62,8 @@ class Monster(
   var yScale = 0.0
   var rotate = 0.0
   
-  var shadowSize = .85
+  var shadowXSize = .85
+  var shadowZSize = .85
   
   def init(context: DrawingContext): Unit = {
     this.context = context
@@ -358,7 +359,8 @@ class Monster(
           mesh.scale.set(1.2 - yScale * .2, 1.3 - yScale * .2, 1.2 + yScale)
         }
     }
-    shadowSize = mesh.scale.y * .3 + .25
+    shadowZSize = mesh.scale.x * .25 + mesh.scale.z * .25 + .25
+    shadowXSize = shadowZSize * .4 + mesh.scale.y * .35 + meshPositionOffset * .5 + .2
     mesh.rotation.y = Mathf.approach(mesh.rotation.y, Direction.toRadians(viewDirection), .01 * deltaTime, wraparound = 2.0 * Math.PI)
     mesh.rotation.z = rotate
   }
