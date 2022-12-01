@@ -12,3 +12,11 @@ tilemap: |
   2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
   2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+objects:
+  - kind: meta
+    x: -10
+    z: -1
+    info: |
+      <p>At the moment the monsters might seem cute.</p>
+      <p>But once they grow, they can become really dangerous!</p>
+      <p>I have to confine them!</p>
