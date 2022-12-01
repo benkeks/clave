@@ -2,6 +2,7 @@
 name: Clave
 levels:
 - tut01-boxes
+- a005
 - a01
 - a02
 - a023
@@ -18,12 +19,12 @@ levels:
 - tut03-friends
 - a066
 - a067
-- a068
 - a069
 - a07
 - a075
 - a077
 - a078
+- a079
 - a08
 - a085
 - a087
