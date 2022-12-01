@@ -2,6 +2,7 @@
 name: Clave
 levels:
 - tut01-boxes
+- a005
 - a01
 - a02
 - a023
@@ -15,10 +16,10 @@ levels:
 - a05
 - a06
 - a065
+- a0655
 - tut03-friends
 - a066
 - a067
-- a068
 - a069
 - a07
 - a075
@@ -27,10 +28,13 @@ levels:
 - a08
 - a085
 - a087
+- a0785
+- a079
 - tut04-freezer
 - a0873
 - a0874
 - a0875
+- a0877
 - a088
 - a089
 - a09
@@ -38,6 +42,7 @@ levels:
 - a095
 - a10
 - a101
+- a1015
 - a102
 - a103
 - a105

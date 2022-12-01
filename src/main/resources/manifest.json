@@ -1,20 +1,39 @@
 {
-    "id": "clave.keks.in",
-    "short_name": "Clave",
-    "name": "Clave",
-    "start_url": "index.html",
-    "display": "standalone",
-    "orientation": "landscape",
-    "icons": [
-        {
-          "src": "ui/icon-192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        },
-        {
-          "src": "ui/icon-512.png",
-          "type": "image/png",
-          "sizes": "512x512"
-        }
-    ]
+  "id": "clave.keks.in",
+  "short_name": "Clave",
+  "name": "Clave",
+  "description": "A small game about trapping monsters with boxes.",
+  "start_url": "index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "ui/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "ui/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "ui/screenshot-game.png",
+      "sizes": "1719x1177",
+      "type": "image/png"
+    },
+    {
+      "src": "ui/screenshot-friends.png",
+      "sizes": "1205x706",
+      "type": "image/png"
+    },
+    {
+      "src": "ui/screenshot-credits.png",
+      "sizes": "1374x921",
+      "type": "image/png"
+    }
+  ]
 }

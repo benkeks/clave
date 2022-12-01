@@ -277,6 +277,9 @@ class GUI() extends TimeManagement {
     game foreach { g =>
       g.context.setGfxDetail(optionsGfxDetail.checked)
       playClickSound()
+      if (g.state.isInstanceOf[Game.StartUp]) {
+        dom.window.location.reload()
+      }
     }
   }
 

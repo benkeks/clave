@@ -1,0 +1,22 @@
+---
+name: "The door"
+width: 15
+height: 9
+tilemap: |
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+  2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
+  2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
+  2, 0, 0, 7, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
+  2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 0, 1, 2
+  2, 0, 0, 7, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
+  2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
+  2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+objects:
+  - kind: meta
+    x: -10
+    z: -1
+    info: |
+      <p>At the moment the monsters might seem cute.</p>
+      <p>But once they grow, they can become really dangerous!</p>
+      <p>I have to confine them!</p>
