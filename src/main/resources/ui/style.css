@@ -76,6 +76,9 @@ body {
 #popup.visible .message p:nth-child(5), #narration.visible p:nth-child(5) {
   animation-delay: 5.0s;
 }
+#popup.visible .message p:nth-child(6), #narration.visible p:nth-child(6) {
+  animation-delay: 6.0s;
+}
 @keyframes text-fly-in {
   0% { transform: translateX(50%); opacity: 0 }
   100% { transform: translateX(0); opacity: 1 }

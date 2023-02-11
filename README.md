@@ -21,5 +21,7 @@ In order to build the source, you will need [sbt](https://www.scala-sbt.org/). I
 - [benkeks](https://github.com/benkeks): Programming, Level design, Graphics
 - [Ace Luke](https://github.com/AceLuke): Sound effects
 - [Sahara B.](https://twitter.com/saharaback): Music
+- Thanks to:
+  - Isa Tchlsk: For the monster style
 
 [benkeks](https://github.com/benkeks) originally developed Clave overnight for an assignment in the [Game Programming course 2012 at TU Berlin](https://www.eecs.tu-berlin.de/institut_fuer_technische_informatik_und_mikroelektronik/cg_archiv/menue/teaching/ss2012/game_programming/). The present version is a Scala.js rewrite using Three.js, which started during a stay in Portland in 2016.
