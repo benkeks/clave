@@ -2,6 +2,8 @@
 name: "Push the button!"
 width: 16
 height: 16
+score_okay: 226
+score_perfect: 249
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

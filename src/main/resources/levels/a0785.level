@@ -2,6 +2,8 @@
 name: "Surprised?"
 width: 9
 height: 13
+score_perfect: 67
+score_okay: 50
 tilemap: |
   0, 0, 0, 0, 9, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0

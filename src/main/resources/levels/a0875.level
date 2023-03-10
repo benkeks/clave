@@ -2,6 +2,8 @@
 name: "Dual freeze"
 width: 11
 height: 11
+score_perfect: 90
+score_okay: 89
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0

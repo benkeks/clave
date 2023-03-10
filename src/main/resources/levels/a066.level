@@ -2,6 +2,8 @@
 name: "Friend and foe"
 width: 15
 height: 15
+score_perfect: 183
+score_okay: 175
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0

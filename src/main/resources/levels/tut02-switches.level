@@ -2,6 +2,8 @@
 name: "Activating barriers"
 width: 8
 height: 8
+score_okay: 48
+score_perfect: 49
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0

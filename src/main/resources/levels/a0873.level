@@ -2,6 +2,7 @@
 name: "Icy ave"
 width: 11
 height: 11
+score_perfect: 101
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0

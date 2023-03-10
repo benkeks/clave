@@ -2,6 +2,8 @@
 name: "Nice Cage!"
 width: 16
 height: 16
+score_okay: 191
+score_perfect: 202
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0

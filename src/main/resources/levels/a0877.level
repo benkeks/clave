@@ -2,6 +2,8 @@
 name: "Eject!"
 width: 13
 height: 13
+score_perfect: 148
+score_okay: 147
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

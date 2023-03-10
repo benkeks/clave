@@ -2,6 +2,7 @@
 name: "The door"
 width: 15
 height: 9
+score_perfect: 75
 tilemap: |
   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2

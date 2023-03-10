@@ -2,6 +2,7 @@
 name: "Collecting friends"
 width: 8
 height: 8
+score_perfect: 32
 tilemap: |
   2, 2, 2, 2, 2, 2, 2, 2
   2, 0, 0,11, 0, 0, 0, 0

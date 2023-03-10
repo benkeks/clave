@@ -2,6 +2,8 @@
 name: "Windows"
 width: 15
 height: 15
+score_okay: 110
+score_perfect: 142
 tilemap: |
   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2

@@ -2,6 +2,8 @@
 name: "The passage"
 width: 15
 height: 15
+score_perfect: 183
+score_okay: 147
 tilemap: |
   0, 0, 0, 0, 0, 0, 1,11, 1, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 2, 8, 2, 0, 0, 0, 0, 0, 0

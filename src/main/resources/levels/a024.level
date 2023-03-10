@@ -2,6 +2,8 @@
 name: "Trap one"
 width: 9
 height: 9
+score_perfect: 48
+score_okay: 43
 tilemap: |
   2, 1, 1, 1, 1, 1, 1, 1, 2
   1, 0, 0, 0, 0, 0, 0, 0, 1

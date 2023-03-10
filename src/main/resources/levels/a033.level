@@ -2,6 +2,8 @@
 name: "Pillars"
 width: 17
 height: 13
+score_okay: 140
+score_perfect: 173
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

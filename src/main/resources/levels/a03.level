@@ -2,6 +2,8 @@
 name: "Box em in!"
 width: 13
 height: 13
+score_perfect: 145
+score_okay: 130
 tilemap: |
   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

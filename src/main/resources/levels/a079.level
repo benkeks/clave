@@ -2,6 +2,8 @@
 name: "Hostages"
 width: 16
 height: 18
+score_perfect: 244
+score_okay: 200
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 2, 2, 2, 5, 2, 2, 0, 0, 0, 0, 0

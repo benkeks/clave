@@ -2,6 +2,8 @@
 name: "Pick your side"
 width: 17
 height: 11
+score_perfect: 89
+score_okay: 87
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0

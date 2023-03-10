@@ -2,6 +2,8 @@
 name: "Where are my boxes?"
 width: 16
 height: 16
+score_perfect: 164
+score_okay: 153
 tilemap: |
   0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0
   0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0

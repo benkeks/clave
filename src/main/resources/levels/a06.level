@@ -2,6 +2,8 @@
 name: "A-mazing!"
 width: 16
 height: 16
+score_okay: 150
+score_perfect: 172
 tilemap: |
   0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0
   1, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0
