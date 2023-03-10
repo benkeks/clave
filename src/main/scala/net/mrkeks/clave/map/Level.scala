@@ -70,7 +70,16 @@ object Level {
         nObj = node.obj
         info = nObj.get("info").flatMap(_.strOpt).getOrElse("")
       } yield Level.ObjectInfo( nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt, info)
-      Some(Level(yaml("name").str, yaml("width").str.toInt, yaml("height").str.toInt, parseCSV(yaml("tilemap").str), objects, txt.hashCode()))
+      Some(Level(
+        name = yaml("name").str,
+        width = yaml("width").str.toInt,
+        height = yaml("height").str.toInt,
+        mapData = parseCSV(yaml("tilemap").str),
+        objects = objects,
+        scorePerfect = yaml("score_perfect").str.toInt,
+        scoreOkay = yaml("score_okay").str.toInt,
+        version = txt.hashCode()
+      ))
     } else {
       None
     }
@@ -88,5 +97,7 @@ case class Level(
   height: Int,
   mapData: Array[Array[Int]],
   objects: List[Level.ObjectInfo],
-  version: Int) {
+  scorePerfect: Int = 2,
+  scoreOkay: Int = 1,
+  version: Int = 0) {
 }
