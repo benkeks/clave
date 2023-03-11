@@ -21,6 +21,7 @@ import org.denigma.threejs.Color
 import org.scalajs.dom
 import scala.scalajs.js.Any.fromFunction1
 import net.mrkeks.clave.game.abstracts.FreezableObject
+import net.mrkeks.clave.game.objects.Contamination
 
 object Monster {
   var aggroMonsterMesh: Option[Object3D] = None
@@ -281,6 +282,16 @@ class Monster(
             new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
             new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.4, .6, .1, .6), new Vector4(.8, .8, .2, .9), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
           setState(Paralyzed(1000))
+          // add contamination to surrounding tiles
+          for {
+            pos <- positionOnMap :: map.getAdjacentPositions(positionOnMap)
+            if map.getObjectsAt(pos).forall(obj => obj.isInstanceOf[Player] || obj.isInstanceOf[Monster])
+          } {
+            val contamination = new Contamination(map)
+            contamination.setPosition(pos._1, 0, pos._2)
+            contamination.timeToLive = 1.5 + 1.5 * Math.random()
+            markForCreation(contamination)
+          }
         } else if (progress >= .5) {
         }
     }

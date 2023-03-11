@@ -4,6 +4,7 @@ import net.mrkeks.clave.view.DrawingContext
 import net.mrkeks.clave.view.ParticleSystem
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.game.objects.Crate
+import net.mrkeks.clave.game.objects.Contamination
 import net.mrkeks.clave.game.abstracts._
 import net.mrkeks.clave.util.Mathf
 
@@ -150,8 +151,7 @@ class Player(protected val map: GameMap)
         }
         anim = newAnim
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
-        if (isHarmedByMonster(positionOnMap)) {
-          context.audio.play("big-smash")
+        if (isHarmed(positionOnMap)) {
           setState(Dead())
         }
         mesh.scale.setX(baseSize)
@@ -169,7 +169,7 @@ class Player(protected val map: GameMap)
           dropPreview.position.setY(-.5)
         }
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
-        if (isHarmedByMonster(positionOnMap)) {
+        if (isHarmed(positionOnMap)) {
           setState(Dead())
         }
         mesh.scale.setX(baseSize)
@@ -191,10 +191,13 @@ class Player(protected val map: GameMap)
     shadowZSize = mesh.scale.z * .1 + .5
   }
 
-  private def isHarmedByMonster(xz: (Int, Int)) = {
+  private def isHarmed(xz: (Int, Int)) = {
     map.getObjectsAt(xz).exists {
       case monster: Monster =>
+        context.audio.play("big-smash")
         monster.sizeLevel > 1
+      case contamination: Contamination =>
+        contamination.isDangerous()
       case _ => false
     }
   }
