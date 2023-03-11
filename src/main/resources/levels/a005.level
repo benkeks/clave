@@ -3,6 +3,7 @@ name: "The door"
 width: 15
 height: 9
 score_perfect: 75
+score_okay: 49
 tilemap: |
   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 2
@@ -19,5 +20,5 @@ objects:
     z: -1
     info: |
       <p>At the moment the monsters might seem cute.</p>
-      <p>But once they grow, they can become really dangerous!</p>
+      <p>But later this year they'll grow and become really dangerous!</p>
       <p>I have to confine them!</p>
