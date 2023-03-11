@@ -15,6 +15,12 @@ trait GameObjectData {
     markedForDeletion = true
   }
 
+  protected[game] var markedForCreation: List[GameObject] = List()
+
+  def markForCreation(gameObject: GameObject): Unit = {
+    markedForCreation ::= gameObject
+  }
+
   override def equals(o: Any) = o match {
     case that: GameObjectData => this.id == that.id
     case _ => false

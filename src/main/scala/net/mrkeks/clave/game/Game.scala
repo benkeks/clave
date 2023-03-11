@@ -85,7 +85,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
 
-          removeAllMarkedForDeletion()
+          updateGameObjectList()
         }
         s.anim = Math.min(1.0, anim + .0004 * deltaTime)
         val animProgress = 160.0 - 150.0 * Mathf.quadTo(.8, s.anim)
@@ -95,7 +95,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime * .2))
 
-          removeAllMarkedForDeletion()
+          updateGameObjectList()
         }
         player.foreach { p =>
           context.cameraLookAt(p.getPosition)
@@ -109,7 +109,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
 
-          removeAllMarkedForDeletion()
+          updateGameObjectList()
         }
 
         if (lastStateChangeTime + 3500 < lastFrameTime && playerControl != null && (!playerControl.hasEverMoved || !playerControl.hasEverActed)) {
@@ -144,7 +144,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case s @ Won(score, victoryRegion, victoryDrawProgress) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
-          removeAllMarkedForDeletion()
+          updateGameObjectList()
         }
         if ((victoryDrawProgress * 4).toInt % 2 == 0 && victoryRegion.nonEmpty) {
           context.audio.play("victory-drawing")
@@ -162,7 +162,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
       case Lost(_) =>
         tickedTimeLoop {
           gameObjects.foreach(_.update(tickTime))
-          removeAllMarkedForDeletion()
+          updateGameObjectList()
         }
         if (lastStateChangeTime + 2500 < lastFrameTime) {
           gui.setHint(input.renderInputHint("$DoAction to continue."))
