@@ -76,8 +76,8 @@ object Level {
         height = yaml("height").str.toInt,
         mapData = parseCSV(yaml("tilemap").str),
         objects = objects,
-        scorePerfect = yaml("score_perfect").str.toInt,
-        scoreOkay = yaml("score_okay").str.toInt,
+        scorePerfect = yaml.get("score_perfect").map(_.str.toInt).getOrElse(3),
+        scoreOkay = yaml.get("score_okay").map(_.str.toInt).getOrElse(2),
         version = txt.hashCode()
       ))
     } else {
@@ -97,7 +97,7 @@ case class Level(
   height: Int,
   mapData: Array[Array[Int]],
   objects: List[Level.ObjectInfo],
-  scorePerfect: Int = 2,
-  scoreOkay: Int = 1,
+  scorePerfect: Int = 3,
+  scoreOkay: Int = 2,
   version: Int = 0) {
 }
