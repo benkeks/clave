@@ -133,6 +133,9 @@ class Monster(
             viewDirection = Direction.fromVec(tar.clone().sub(position))
             if (currentDanger > 10) context.audio.play("monster-evades")
             setState(MoveTo(tar))
+          } else if (sizeLevel >= 2) {
+            // big frightened monsters will try to defend
+            setState(SelfDefense(initialDirection = Direction.toRadians(viewDirection)))
           }
         } else markovIf (0.0035) {
           // move into an arbitrary direction
@@ -269,6 +272,16 @@ class Monster(
         rotate = Mathf.approach(rotate, Math.sin(anim * .15) * coolDown / 2000.0, .003 * deltaTime)
         if (s.coolDown <= 0) {
           setState(Idle(strollCoolDown = 1000))
+        }
+      case s @ SelfDefense(progress, initialDirection) =>
+        s.progress += deltaTime * .001
+        viewDirection = Direction.fromRadians(initialDirection + 6.3 * s.progress)
+        if (progress >= 1.0) {
+          context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
+            new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
+            new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.4, .6, .1, .6), new Vector4(.8, .8, .2, .9), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
+          setState(Paralyzed(1000))
+        } else if (progress >= .5) {
         }
     }
 

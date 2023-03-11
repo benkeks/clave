@@ -36,6 +36,19 @@ object PositionedObjectData {
       case Left  => Math.PI * .5
       case Right => Math.PI * 1.5
     }
+
+    def fromRadians(radianDirection: Double) = {
+      val dir = radianDirection % (2 * Math.PI)
+      if (dir >= 1.75 * Math.PI || dir < .25 * Math.PI) {
+        Up
+      } else if (dir < .75 * Math.PI) {
+        Left
+      } else if (dir < 1.25 * Math.PI) {
+        Down
+      } else {
+        Right
+      }
+    }
 //    
 //    def fromRnd(rnd: Double) = {
 //      if (rnd < .25) {

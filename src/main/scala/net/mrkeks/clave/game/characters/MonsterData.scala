@@ -16,6 +16,7 @@ object MonsterData {
   case class MergingWithPlayer(player: PlayerData, var progress: Double = 0.0) extends State
   case class Frozen(byCrate: CrateData) extends State
   case class Paralyzed(var coolDown: Double = 3000) extends State
+  case class SelfDefense(var progress: Double = 0.0, var initialDirection: Double = 0.0) extends State
 
   abstract sealed class MonsterKind
   case object AggressiveMonster extends MonsterKind
