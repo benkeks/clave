@@ -29,19 +29,19 @@ trait GameLevelLoader {
     clear()
   }
 
-  def loadLevelById(levelId: String): Unit = {
+  def loadLevelById(levelId: String, difficulty: Game.Difficulty = Game.Difficulty.Easy): Unit = {
     if (levelId == "__titleScreen__") {
-      loadLevel(Level.titleScreen)
+      loadLevel(Level.titleScreen, difficulty)
       player.foreach(_.setPosition(10,0,20))
     } else {
       for (level <- levelDownloader.getLevelById(levelId)) {
         currentLevelNum = levelDownloader.getNumById(levelId)
-        loadLevel(level)
+        loadLevel(level, difficulty)
       }
     }
   }
 
-  private def loadLevel(level: Level): Unit = {
+  private def loadLevel(level: Level, difficulty: Game.Difficulty): Unit = {
     currentLevel = Some(level)
     map = new GameMap(level.width, level.height)
 
@@ -85,9 +85,19 @@ trait GameLevelLoader {
       case "crate_freezer" =>
         List(new Crate(map, kind = CrateData.FreezerKind(None)))
       case "monster" =>
-        List(new Monster(map))
+        val monster = new Monster(map)
+        monster.sizeLevel = difficulty match {
+          case Game.Difficulty.Hard => 2
+          case _ => 1
+        }
+        List(monster)
       case "monster_defensive" =>
-        List(new Monster(map, kind = MonsterData.FrightenedMonster))
+        val monster = new Monster(map, kind = MonsterData.FrightenedMonster)
+        monster.sizeLevel = difficulty match {
+          case Game.Difficulty.Hard => 2
+          case _ => 1
+        }
+        List(monster)
       case "monster_friend" =>
         List(new Monster(map, kind = MonsterData.FriendlyMonster))
       case "gate_open" | "gate_closed" =>

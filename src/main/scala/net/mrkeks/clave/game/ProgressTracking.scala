@@ -76,6 +76,6 @@ trait ProgressTracking {
   }
 
   def hardModeAvailable() = {
-    wonLevels >= 10
+    wonLevels >= 5
   }
 }

@@ -337,7 +337,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   def switchLevelById(id: String): Unit = {
     unloadLevel()
-    loadLevelById(id)
+    loadLevelById(id, difficulty)
     for (l <- currentLevel) {
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
       gui.setLevelHighScore(l, levelScores(id))
