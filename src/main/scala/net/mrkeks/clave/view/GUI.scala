@@ -107,11 +107,11 @@ class GUI() extends TimeManagement {
       <input id="options-gfx-detail" type="checkbox" class="form-check-input" title="${Texts.GfxDetailDescription}" />
       <label class="form-check-label" for="options-gfx-detail" title="${Texts.GfxDetailDescription}">${Texts.GfxDetailSymbol}</label>
     </div>
+    <div class="form-check">
+      <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
+      <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
+    </div>
     """
-  // <div class="form-check">
-  //     <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
-  //     <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
-  //   </div>
 
   private val optionsVolume = options.querySelector("#options-volume").asInstanceOf[dom.HTMLInputElement]
   optionsVolume.addEventListener("change", changeVolume _)
@@ -120,6 +120,7 @@ class GUI() extends TimeManagement {
   private val optionsGfxDetail = options.querySelector("#options-gfx-detail").asInstanceOf[dom.HTMLInputElement]
   optionsGfxDetail.addEventListener("change", changeGfxDetail _)
   private val optionsHardMode = options.querySelector("#options-hard-mode").asInstanceOf[dom.HTMLInputElement]
+  optionsHardMode.addEventListener("change", changeDifficulty _)
 
   hudContainer.appendChild(options)
 
@@ -137,6 +138,11 @@ class GUI() extends TimeManagement {
       optionsMusic.value = (game.context.audio.loadMusicConfig() * 10).toInt.toString
     }
     optionsGfxDetail.checked = game.context.getGfxDetail()
+    optionsHardMode.checked = game.getDifficulty() == Game.Difficulty.Hard
+    if (!game.hardModeAvailable() && !optionsHardMode.checked) {
+      // deactivate / hide hard mode option if there have not been enough won levels
+      optionsHardMode.parentElement.style.display = "none"
+    }
 
     val tmpDrawingCanvas = dom.document.createElement("canvas").asInstanceOf[dom.HTMLCanvasElement]
     val renderingContext = tmpDrawingCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -287,6 +293,16 @@ class GUI() extends TimeManagement {
         dom.window.location.reload()
       }
     }
+  }
+
+  def changeDifficulty(ev: org.scalajs.dom.Event): Unit = {
+    game foreach (_.setDifficulty(
+      if (optionsHardMode.checked)
+        Game.Difficulty.Hard
+      else
+        Game.Difficulty.Easy
+    ))
+    playClickSound()
   }
 
   def playClickSound(): Unit = {

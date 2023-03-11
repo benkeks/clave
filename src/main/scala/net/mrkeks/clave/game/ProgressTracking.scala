@@ -15,6 +15,7 @@ trait ProgressTracking {
   val levelDownloader: LevelDownloader
 
   var score = 0
+  var wonLevels = 0
 
   val levelScores = collection.mutable.LinkedHashMap[String, Int]()
   var initialScores = collection.mutable.LinkedHashMap[String, Int]()
@@ -30,6 +31,7 @@ trait ProgressTracking {
   def bookScore(levelId: String, levelScore: Int): Unit = {
     score += levelScore
     levelScores.updateWith(levelId)(_.orElse(Some(0)).map(Math.max(_, levelScore)))
+    wonLevels = levelScores.count(_._2 > 0)
     saveProgress()
   }
 
@@ -65,10 +67,15 @@ trait ProgressTracking {
         levelScores.clear()
         levelScores.addAll(loadedScores)
         initialScores = levelScores.clone()
+        wonLevels = levelScores.count(_._2 > 0)
       } else {
         // invalid entry in local storage! discard it to be overwritten soon!
         dom.window.localStorage.removeItem(LocalStorageScoreKey)
       }
     }
+  }
+
+  def hardModeAvailable() = {
+    wonLevels >= 10
   }
 }

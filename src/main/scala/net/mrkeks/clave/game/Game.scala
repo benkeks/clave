@@ -14,6 +14,7 @@ import net.mrkeks.clave.view.PlayerControl
 
 import org.denigma.threejs.Vector3
 import scala.scalajs.js
+import org.scalajs.dom
 import net.mrkeks.clave.util.Mathf
 import net.mrkeks.clave.util.markovIf
 
@@ -31,6 +32,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   var player: Option[Player] = None
   
   var playerControl: PlayerControl = null
+
+  private var difficulty: Difficulty = loadDifficulty()
+
+  loadProgress()
 
   gui.registerGame(this)
 
@@ -365,6 +370,22 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     }
   }
 
+  def loadDifficulty(): Difficulty = {
+    val txt = dom.window.localStorage.getItem(DifficultyKey)
+    if (txt == null) {
+      Difficulty.Easy
+    } else {
+      Difficulty.apply(txt.toIntOption.getOrElse(0))
+    }
+  }
+
+  def setDifficulty(difficulty: Difficulty) = {
+    dom.window.localStorage.setItem(DifficultyKey, difficulty.id.toString())
+    this.difficulty = difficulty
+  }
+
+  def getDifficulty() = difficulty
+
   def showMeta(message: String) = {
     setState(Narration(message))
   }
@@ -393,4 +414,11 @@ object Game {
   }
 
   val GameStateIds = List("startup", "levelscreen", "narration", "running", "paused", "won", "lost", "continuing")
+
+  object Difficulty extends Enumeration {
+    val Easy, Hard = Value
+  }
+  type Difficulty = Difficulty.Value
+
+  val DifficultyKey = net.mrkeks.clave.game.ProgressTracking.ClavePrefix + "difficulty"
 }

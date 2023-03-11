@@ -17,10 +17,10 @@ import net.mrkeks.clave.game.abstracts.ObjectShadow
 
 @JSExportTopLevel("Clave")
 object Clave {
-  
+
   class Config(val startLevel: Int = 0, val editor: Boolean = false)
 
-  val DevMode: Boolean = false
+  val DevMode: Boolean = true
 
   @JSExport
   def main(): Unit = {
@@ -61,7 +61,6 @@ object Clave {
 
         val game: Game = new Game(context, input, gui, levelDownloader)
         val initialLevelId = levelDownloader.getLevelIdByNum(configuration.startLevel)
-        game.loadProgress()
         game.unlockLevel(initialLevelId)
         if (DevMode) levelDownloader.levelList.foreach(game.unlockLevel(_))
         game.loadLevelById("__titleScreen__")
