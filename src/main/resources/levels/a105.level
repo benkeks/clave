@@ -2,6 +2,8 @@
 name: "Deja-vu-three"
 width: 16
 height: 16
+score_perfect: 249
+score_okay: 227
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

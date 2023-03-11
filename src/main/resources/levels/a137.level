@@ -2,6 +2,8 @@
 name: "Cage me if you can"
 width: 15
 height: 15
+score_perfect: 211
+score_okay: 190
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

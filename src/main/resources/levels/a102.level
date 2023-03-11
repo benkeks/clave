@@ -2,6 +2,8 @@
 name: "Monster exchange"
 width: 15
 height: 15
+score_perfect: 170
+score_okay: 160
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

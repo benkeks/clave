@@ -2,6 +2,8 @@
 name: "The prison"
 width: 15
 height: 15
+score_perfect: 174
+score_okay: 165
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

@@ -2,6 +2,8 @@
 name: "Red attraction"
 width: 16
 height: 16
+score_perfect: 224
+score_okay: 200
 tilemap: |
   0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

@@ -2,6 +2,8 @@
 name: "How to recage"
 width: 15
 height: 15
+score_perfect: 219
+score_okay: 200
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

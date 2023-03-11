@@ -2,6 +2,8 @@
 name: "It's two traps!"
 width: 16
 height: 16
+score_perfect: 226
+score_okay: 150
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 9, 0, 4, 8, 0

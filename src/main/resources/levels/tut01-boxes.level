@@ -3,6 +3,7 @@ name: "Catching monsters"
 width: 9
 height: 9
 score_perfect: 52
+score_okay: 49
 tilemap: |
   2, 2, 2, 2, 0, 0, 0, 0, 0
   2, 7, 0, 2, 0, 0, 0, 0, 0

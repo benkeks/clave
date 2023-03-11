@@ -2,6 +2,8 @@
 name: "Cold storage"
 width: 15
 height: 15
+score_perfect: 195
+score_okay: 190
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

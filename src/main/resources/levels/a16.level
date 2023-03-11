@@ -2,6 +2,8 @@
 name: "The temple"
 width: 15
 height: 15
+score_perfect: 212
+score_okay: 2
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0
