@@ -92,12 +92,23 @@ object Level {
 }
 
 case class Level(
-  name: String,
-  width: Int,
-  height: Int,
-  mapData: Array[Array[Int]],
-  objects: List[Level.ObjectInfo],
-  scorePerfect: Int = 3,
-  scoreOkay: Int = 2,
-  version: Int = 0) {
+    name: String,
+    width: Int,
+    height: Int,
+    mapData: Array[Array[Int]],
+    objects: List[Level.ObjectInfo],
+    scorePerfect: Int = 3,
+    scoreOkay: Int = 2,
+    version: Int = 0) {
+
+  def renderScore(score: Int) = {
+    if (score >= scorePerfect)
+      "★★★"
+    else if (score >= scoreOkay)
+      "★★☆"
+    else if (score > 0)
+      "★☆☆"
+    else
+      "☆☆☆"
+  }
 }

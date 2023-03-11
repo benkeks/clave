@@ -2,6 +2,7 @@ package net.mrkeks.clave.view
 
 import net.mrkeks.clave.game.Game
 import net.mrkeks.clave.map.LevelPreviewer
+import net.mrkeks.clave.map.Level
 import net.mrkeks.clave.util.TimeManagement
 import net.mrkeks.clave.game.ProgressTracking
 import net.mrkeks.clave.Clave
@@ -154,7 +155,7 @@ class GUI() extends TimeManagement {
       levelButton.appendChild(dom.document.createTextNode(level.name))
       val span = dom.document.createElement("span").asInstanceOf[dom.HTMLSpanElement]
       span.classList.add("score")
-      span.appendChild(dom.document.createTextNode("(0)"))
+      span.appendChild(dom.document.createTextNode(""))
       levelButton.appendChild(span)
       levelButton.addEventListener("click", selectLevel(levelId) _)
       levelButton.addEventListener("mouseenter", playHoverSound)
@@ -177,8 +178,13 @@ class GUI() extends TimeManagement {
     levelList.appendChild(feedbackButton)
   }
 
-  def setLevelHighScore(score: Int): Unit = {
-    scoreText.textContent = "Level high score: "+score
+  def setLevelHighScore(level: Level, score: Int): Unit = {
+    if (score > 0) {
+      val grading = level.renderScore(score)
+      scoreText.textContent = s"Level high score: $score ($grading)"
+    } else {
+      scoreText.textContent = ""
+    }
   }
 
   /**
@@ -303,8 +309,9 @@ class GUI() extends TimeManagement {
   def updateLevelListDisplay(game: Game) = {
     levelButtons.foreach { case (id, btn) =>
       if (game.levelScores.isDefinedAt(id)) {
+        val grading = game.levelDownloader.getLevelById(id).map(_.renderScore(game.levelScores(id))).get
         btn.classList.remove("d-none")
-        btn.children(1).innerText = s"(${game.levelScores(id)})"
+        btn.children(1).innerText = grading
         if (game.scoreHasBeenUpdated(id))
           btn.classList.add("score-updated")
         if (game.currentLevelId == id)

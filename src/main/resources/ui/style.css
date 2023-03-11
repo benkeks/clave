@@ -195,6 +195,7 @@ body {
   opacity: 0.6;
   padding-left: 5px;
   font-size: 14px;
+  display: block;
 }
 #level-list .level-sel.score-updated .score {
   color: #ed4;

@@ -231,7 +231,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         gui.setPopup(s"""
           <div class='message'>
             <p>$msgPart1</p>
-            <p><strong>You scored <span class="score">$levelScore</span> points.</strong></p>
+            <p><strong>You cleared <span class="score">$levelScore</span> fields.</strong></p>
+            <p>${currentLevel.map(_.renderScore(levelScore)).getOrElse("")}</p>
           </div>""", delay = 500 + levelScore * 2)
         schedule(lastFrameTime + 500 + levelScore * 2) { () =>
           context.audio.play("level-won")
@@ -334,8 +335,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     loadLevelById(id)
     for (l <- currentLevel) {
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
+      gui.setLevelHighScore(l, levelScores(id))
     }
-    gui.setLevelHighScore(levelScores(id))
     if (playerControl == null) {
       playerControl = new PlayerControl(player.get, input)
     } else {
