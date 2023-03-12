@@ -235,9 +235,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         }
         gui.setPopup(s"""
           <div class='message'>
-            <p>$msgPart1</p>
             <p><strong>You cleared <span class="score">$levelScore</span> fields.</strong></p>
             <p>${currentLevel.map(_.renderScore(levelScore)).getOrElse("")}</p>
+            <p>$msgPart1</p>
           </div>""", delay = 500 + levelScore * 2)
         schedule(lastFrameTime + 500 + levelScore * 2) { () =>
           context.audio.play("level-won")
