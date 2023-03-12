@@ -289,7 +289,8 @@ class Monster(
           } {
             val contamination = new Contamination(map)
             contamination.setPosition(pos._1, 0, pos._2)
-            contamination.timeToLive = 1.5 + 1.5 * Math.random()
+            contamination.visualPosition = position
+            contamination.timeToLive = 2.0 + 1.5 * Math.random()
             markForCreation(contamination)
           }
         } else if (progress >= .5) {

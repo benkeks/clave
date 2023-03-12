@@ -8,6 +8,7 @@ import net.mrkeks.clave.game.abstracts.GameObject
 import net.mrkeks.clave.game.abstracts.PositionedObject
 import net.mrkeks.clave.map.GameMap
 import net.mrkeks.clave.view.DrawingContext
+import net.mrkeks.clave.util.Mathf
 
 object Contamination {
   private val material = new MeshLambertMaterial()
@@ -34,7 +35,9 @@ class Contamination(protected val map: GameMap)
   def init(context: DrawingContext): Unit = {
     context.scene.add(mesh)
     this.context = context
-    mesh.position.copy(position)
+    mesh.position.copy(visualPosition)
+    mesh.rotation.x = Math.random() * 6.3
+    mesh.rotation.y = Math.random() * 6.3
     material.opacity = creationProgress * .7
   }
 
@@ -57,6 +60,9 @@ class Contamination(protected val map: GameMap)
         material.opacity = timeToLive * .7
       }
     }
-    mesh.position.copy(position)
+    mesh.position.x = Mathf.approach(mesh.position.x, position.x, deltaTime * .005)
+    mesh.position.y = Mathf.approach(mesh.position.y, position.y, deltaTime * .005)
+    mesh.position.z = Mathf.approach(mesh.position.z, position.z, deltaTime * .005)
+    mesh.rotation.y += deltaTime * .001
   }
 }
