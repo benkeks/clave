@@ -99,6 +99,7 @@ trait ProgressTracking {
   }
 
   def hardModeAvailable() = {
-    wonLevels >= 5
+    // for now, activate hard mode right from the start.
+    wonLevels >= 0
   }
 }
