@@ -19,6 +19,11 @@ object PlayerData extends PositionedObjectData {
     var deathAnim = 1.0
   }
 
+  case class Poisoned() extends State {
+    override val speed = 0.0
+    var deathAnim = 1.0
+  }
+
   case class Frozen(byCrate: CrateData) extends State {
     override val speed = 0.0
   }
@@ -37,6 +42,8 @@ trait PlayerData extends GameObjectData with PositionedObjectData {
   var size: Int = 1
 
   def isAlive() = {
-    !state.isInstanceOf[Dead]
+    !state.isInstanceOf[Dead] &&
+    !state.isInstanceOf[Frozen] &&
+    !state.isInstanceOf[Poisoned]
   }
 }

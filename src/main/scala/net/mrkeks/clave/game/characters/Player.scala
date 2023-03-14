@@ -151,9 +151,7 @@ class Player(protected val map: GameMap)
         }
         anim = newAnim
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
-        if (isHarmed(positionOnMap)) {
-          setState(Dead())
-        }
+        checkHarm(positionOnMap)
         mesh.scale.setX(baseSize)
         mesh.scale.setY(baseSize + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(baseSize - Math.sin(anim * 2 + .3) * .05)
@@ -169,9 +167,7 @@ class Player(protected val map: GameMap)
           dropPreview.position.setY(-.5)
         }
         move(direction.clone().multiplyScalar(state.speed * deltaTime))
-        if (isHarmed(positionOnMap)) {
-          setState(Dead())
-        }
+        checkHarm(positionOnMap)
         mesh.scale.setX(baseSize)
         mesh.scale.setY(baseSize + Math.sin(anim * 2) * .2)
         mesh.scale.setZ(baseSize - Math.sin(anim * 2 + .3) * .05)
@@ -181,6 +177,10 @@ class Player(protected val map: GameMap)
         mesh.scale.setY((baseSize + Math.sin(anim * 2) * .1) * s.deathAnim + .1)
         mesh.scale.setX((baseSize - Math.sin(anim * 2 + .2) * .05) / s.deathAnim)
         mesh.scale.setZ(mesh.scale.x)
+      case s @ Poisoned() =>
+        s.deathAnim = Math.max(s.deathAnim - .003 * deltaTime, 0)
+        mesh.position.set(position.x, position.y + .75 - 3.0 * Math.pow(s.deathAnim - .5, 2), position.z)
+        mesh.rotation.x = - 7.0 + s.deathAnim * 7.0
       case s @ Frozen(byCrate) =>
         mesh.position.copy(byCrate.getPosition)
       case Carrying(_) =>
@@ -191,14 +191,19 @@ class Player(protected val map: GameMap)
     shadowZSize = mesh.scale.z * .1 + .5
   }
 
-  private def isHarmed(xz: (Int, Int)) = {
+  private def checkHarm(xz: (Int, Int)) = {
     map.getObjectsAt(xz).exists {
       case monster: Monster =>
         context.audio.play("big-smash")
         monster.sizeLevel > 1
+        setState(Dead())
+        true
       case contamination: Contamination =>
         contamination.isDangerous()
-      case _ => false
+        setState(Poisoned())
+        true
+      case _ =>
+        false
     }
   }
 
@@ -250,7 +255,7 @@ class Player(protected val map: GameMap)
         }
       case Carrying(c: Crate) =>
         place(c)
-      case Dead() =>
+      case Dead() | Poisoned() =>
         false
       case _ =>
         false
@@ -282,7 +287,7 @@ class Player(protected val map: GameMap)
 
   def setState(newState: State): Unit = {
     state = newState match {
-      case Dead() =>
+      case Dead() | Poisoned() | Frozen(_) =>
         state match {
           case Carrying(c) =>
             place(c.asInstanceOf[Crate])

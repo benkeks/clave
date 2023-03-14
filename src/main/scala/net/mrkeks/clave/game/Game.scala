@@ -125,6 +125,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         if (player.isDefined &&
             player.get.state.isInstanceOf[PlayerData.Dead]) {
           setState(Lost("The monsters crushed you!"))
+        } else if (player.isDefined &&
+            player.get.state.isInstanceOf[PlayerData.Poisoned]) {
+          setState(Lost("The monsters poisoned you!"))
         } else if (player.isDefined && player.get.state.isInstanceOf[PlayerData.Frozen]) {
           setState(Lost("You've been deep-frozen."))
         } else if (playerIsSurrounded()) {
