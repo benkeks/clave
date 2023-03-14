@@ -3,6 +3,7 @@ name: "Feeling Pac-Man?"
 width: 21
 height: 27
 score_perfect: 227
+score_perfect_hard: 225
 score_okay: 190
 tilemap: |
   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2

@@ -25,3 +25,7 @@ objects:
   - kind: crate
     x: 3
     z: 10
+objects_hard:
+  - kind: monster_defensive
+    x: 4
+    z: 4

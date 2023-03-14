@@ -3,6 +3,7 @@ name: "Walk the line"
 width: 16
 height: 16
 score_perfect: 229
+score_perfect_hard: 227
 score_okay: 211
 tilemap: |
   0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

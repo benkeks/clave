@@ -3,7 +3,9 @@ name: "Whatever works reloaded!"
 width: 16
 height: 16
 score_perfect: 230
+score_perfect_hard: 215
 score_okay: 215
+score_okay_hard: 12
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

@@ -3,6 +3,8 @@ name: "The temple"
 width: 15
 height: 15
 score_perfect: 212
+score_perfect_hard: 208
+score_okay_hard: 5
 score_okay: 2
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -24,3 +26,13 @@ objects:
   - kind: crate_player
     x: 1
     z: 1
+objects_hard:
+  - kind: crate_freezer
+    x: 1
+    z: 2
+  - kind: crate_freezer
+    x: 2
+    z: 1
+  - kind: crate_freezer
+    x: 2
+    z: 2
