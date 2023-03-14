@@ -186,7 +186,7 @@ class GUI() extends TimeManagement {
 
   def setLevelHighScore(level: Level, score: Int): Unit = {
     if (score > 0) {
-      val grading = level.renderScore(score)
+      val grading = level.renderScoreForDifficulty(score, game.get.getDifficulty())
       scoreText.textContent = s"Level high score: $score ($grading)"
     } else {
       scoreText.textContent = ""

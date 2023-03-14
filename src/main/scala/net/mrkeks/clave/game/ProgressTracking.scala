@@ -14,36 +14,54 @@ trait ProgressTracking {
 
   val levelDownloader: LevelDownloader
 
-  var score = 0
   var wonLevels = 0
 
-  val levelScores = collection.mutable.LinkedHashMap[String, Int]()
-  var initialScores = collection.mutable.LinkedHashMap[String, Int]()
+  val levelScores = collection.mutable.LinkedHashMap[String, (Int, Int)]()
+  var initialScores = collection.mutable.LinkedHashMap[String, (Int, Int)]()
 
   var upcomingLevelId: Option[String] = None
 
   def unlockLevel(levelId: String): Unit = {
-    if (!levelScores.isDefinedAt(levelId)) levelScores(levelId) = 0
+    if (!levelScores.isDefinedAt(levelId)) levelScores(levelId) = (0, 0)
     upcomingLevelId = Some(levelId)
     saveProgress()
   }
 
-  def bookScore(levelId: String, levelScore: Int): Unit = {
-    score += levelScore
-    levelScores.updateWith(levelId)(_.orElse(Some(0)).map(Math.max(_, levelScore)))
-    wonLevels = levelScores.count(_._2 > 0)
+  private def updateWonLevels(): Unit = {
+    wonLevels = levelScores.count(s => s._2._1 > 0 || s._2._2 > 0)
+  }
+
+  def bookScore(levelId: String, levelScore: Int, difficulty: Game.Difficulty): Unit = {
+    val newEasyScore = if (difficulty == Game.Difficulty.Easy) levelScore else 0
+    val newHardScore = if (difficulty == Game.Difficulty.Hard) levelScore else 0
+    levelScores.updateWith(levelId) {
+      case None => Some(newEasyScore, newHardScore)
+      case Some((easyScore, hardScore)) => Some(Math.max(easyScore, newEasyScore), Math.max(hardScore, newHardScore))
+    }
+    updateWonLevels()
     saveProgress()
   }
 
+  def getScoreForDifficulty(levelId: String, difficulty: Game.Difficulty): Int = {
+    val (levelScoreEasy, levelScoreHard) = levelScores.get(levelId).getOrElse((0,0))
+    difficulty match {
+      case Game.Difficulty.Easy => levelScoreEasy
+      case Game.Difficulty.Hard => levelScoreHard
+    }
+  }
+
   def scoreHasBeenUpdated(levelId: String): Boolean = {
-    levelScores.get(levelId).exists(newScore => initialScores.get(levelId).forall(newScore > _))
+    levelScores.get(levelId).exists(newScore => initialScores.get(levelId).forall(oldScore => oldScore._1 < newScore._1 || oldScore._2 < newScore._2))
   }
 
   private def saveProgress(): Unit = {
     val scoresYaml = for {
       (lvlId, lvlScore) <- levelScores
       lvl <- levelDownloader.getLevelById(lvlId)
-    } yield (s"$lvlId+${lvl.version}", new yamlesque.Str(lvlScore.toString()).asInstanceOf[yamlesque.Value])
+      scoreEntry = yamlesque.Obj(
+        ("easy", new yamlesque.Str(lvlScore._1.toString())),
+        ("hard", new yamlesque.Str(lvlScore._2.toString())))
+    } yield (s"$lvlId+${lvl.version}", scoreEntry.asInstanceOf[yamlesque.Value])
     val scoreMap = new yamlesque.Obj(scoresYaml)
     val yamlString = yamlesque.write(yamlesque.Obj(
       "scores" -> scoreMap,
@@ -59,15 +77,20 @@ trait ProgressTracking {
       if ((Set("scores", "version", "hash") subsetOf yaml.keySet)) {
         val loadedScores = for {
           yScores <- yaml.get("scores").toList
-          (lvlIdPlusHash, yamlesque.Str(lvlScore)) <- yScores.obj
+          (lvlIdPlusHash, yamlesque.Obj(lvlScore)) <- yScores.obj
           lvlIdParsed = lvlIdPlusHash.split('+')
           if lvlIdParsed.length == 2
-          levelScore = if (levelDownloader.getLevelById(lvlIdParsed(0)).exists(l => l.version.toString == lvlIdParsed(1))) lvlScore.toInt else 0
+          if lvlScore.contains("easy") && lvlScore.contains("hard")
+          levelScore =
+            if (levelDownloader.getLevelById(lvlIdParsed(0)).exists(l => l.version.toString == lvlIdParsed(1)))
+              (lvlScore("easy").str.toInt, lvlScore("hard").str.toInt)
+            else
+              (0,0)
         } yield (lvlIdParsed(0), levelScore)
         levelScores.clear()
         levelScores.addAll(loadedScores)
         initialScores = levelScores.clone()
-        wonLevels = levelScores.count(_._2 > 0)
+        updateWonLevels()
       } else {
         // invalid entry in local storage! discard it to be overwritten soon!
         dom.window.localStorage.removeItem(LocalStorageScoreKey)

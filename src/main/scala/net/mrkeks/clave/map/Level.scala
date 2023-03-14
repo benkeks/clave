@@ -1,5 +1,7 @@
 package net.mrkeks.clave.map
 
+import net.mrkeks.clave.game.Game
+
 object Level {
 
   case class ObjectInfo(kind: String, x: Int, z: Int, info: String)
@@ -70,14 +72,18 @@ object Level {
         nObj = node.obj
         info = nObj.get("info").flatMap(_.strOpt).getOrElse("")
       } yield Level.ObjectInfo( nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt, info)
+      val scorePerfect = yaml.get("score_perfect").map(_.str.toInt).getOrElse(3)
+      val scoreOkay = yaml.get("score_okay").map(_.str.toInt).getOrElse(2)
       Some(Level(
         name = yaml("name").str,
         width = yaml("width").str.toInt,
         height = yaml("height").str.toInt,
         mapData = parseCSV(yaml("tilemap").str),
         objects = objects,
-        scorePerfect = yaml.get("score_perfect").map(_.str.toInt).getOrElse(3),
-        scoreOkay = yaml.get("score_okay").map(_.str.toInt).getOrElse(2),
+        scorePerfect = scorePerfect,
+        scoreOkay = scoreOkay,
+        scorePerfectHard = yaml.get("score_perfect_hard").map(_.str.toInt).getOrElse(scorePerfect),
+        scoreOkayHard = yaml.get("score_okay_hard").map(_.str.toInt).getOrElse(scoreOkay),
         version = txt.hashCode()
       ))
     } else {
@@ -99,16 +105,33 @@ case class Level(
     objects: List[Level.ObjectInfo],
     scorePerfect: Int = 3,
     scoreOkay: Int = 2,
+    scorePerfectHard: Int = 3,
+    scoreOkayHard: Int = 2,
     version: Int = 0) {
 
-  def renderScore(score: Int) = {
-    if (score >= scorePerfect)
-      "★★★"
-    else if (score >= scoreOkay)
-      "★★☆"
-    else if (score > 0)
-      "★☆☆"
-    else
-      "☆☆☆"
+  def gradeLevel(score: (Int, Int)): (Int, Int) = {
+    val (easyScore, hardScore) = score
+    (
+      if (easyScore >= scorePerfect) 3 else if (easyScore >= scoreOkay) 2 else if (easyScore > 0) 1 else 0,
+      if (hardScore >= scorePerfectHard) 3 else if (hardScore >= scoreOkayHard) 2 else if (hardScore > 0) 1 else 0
+    )
+  }
+
+  def renderScore(score: (Int, Int)): String = {
+    val (stars, skulls) = gradeLevel(score)
+    val visibleStars = Math.max(stars - skulls, 0)
+    val emptyStars = 3 - Math.max(skulls, stars)
+    "🕱" * skulls + "★" * visibleStars + "☆" * emptyStars
+  }
+
+  def renderScoreForDifficulty(score: Int, difficulty: Game.Difficulty): String = {
+    difficulty match {
+      case Game.Difficulty.Easy =>
+        val (stars, skulls) = gradeLevel((score, 0))
+        "★" * stars + "☆" * (3 - stars)
+      case Game.Difficulty.Hard => 
+        val (stars, skulls) = gradeLevel((0, score))
+        "🕱" * skulls + "☠" * (3 - skulls)
+    }
   }
 }

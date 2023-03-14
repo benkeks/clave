@@ -221,9 +221,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         context.audio.play("game-paused")
       case Continuing() =>
       case Won(levelScore, _, _) =>
-        val previousScore = levelScores.get(currentLevelId).getOrElse(0)
+        val previousScore = getScoreForDifficulty(currentLevelId, difficulty)
         context.audio.setAtmosphereVolume("music-boxin-monsters", .3)
-        bookScore(currentLevelId, levelScore)
+        bookScore(currentLevelId, levelScore, difficulty)
         val msgPart1 = if (previousScore == 0) {
           "Yeah, a new success!"
         } else if (previousScore < levelScore) {
@@ -236,7 +236,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         gui.setPopup(s"""
           <div class='message'>
             <p><strong>You cleared <span class="score">$levelScore</span> fields.</strong></p>
-            <p>${currentLevel.map(_.renderScore(levelScore)).getOrElse("")}</p>
+            <p>${currentLevel.map(_.renderScoreForDifficulty(levelScore, difficulty)).getOrElse("")}</p>
             <p>$msgPart1</p>
           </div>""", delay = 500 + levelScore * 2)
         schedule(lastFrameTime + 500 + levelScore * 2) { () =>
@@ -340,7 +340,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     loadLevelById(id, difficulty)
     for (l <- currentLevel) {
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
-      gui.setLevelHighScore(l, levelScores(id))
+      gui.setLevelHighScore(l, getScoreForDifficulty(id, difficulty))
     }
     if (playerControl == null) {
       playerControl = new PlayerControl(player.get, input)
@@ -382,6 +382,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   def setDifficulty(difficulty: Difficulty) = {
     dom.window.localStorage.setItem(DifficultyKey, difficulty.id.toString())
     this.difficulty = difficulty
+    // TODO: Reload level if difficulty changes during running level
   }
 
   def getDifficulty() = difficulty
