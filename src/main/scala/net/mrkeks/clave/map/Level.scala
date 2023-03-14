@@ -72,6 +72,12 @@ object Level {
         nObj = node.obj
         info = nObj.get("info").flatMap(_.strOpt).getOrElse("")
       } yield Level.ObjectInfo( nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt, info)
+      val objectsHard = for {
+        yObj <- yaml.get("objects_hard").toList
+        node <- yObj.arr
+        nObj = node.obj
+        info = nObj.get("info").flatMap(_.strOpt).getOrElse("")
+      } yield Level.ObjectInfo( nObj("kind").str, nObj("x").str.toInt, nObj("z").str.toInt, info)
       val scorePerfect = yaml.get("score_perfect").map(_.str.toInt).getOrElse(3)
       val scoreOkay = yaml.get("score_okay").map(_.str.toInt).getOrElse(2)
       Some(Level(
@@ -80,6 +86,7 @@ object Level {
         height = yaml("height").str.toInt,
         mapData = parseCSV(yaml("tilemap").str),
         objects = objects,
+        objectsHard = objectsHard,
         scorePerfect = scorePerfect,
         scoreOkay = scoreOkay,
         scorePerfectHard = yaml.get("score_perfect_hard").map(_.str.toInt).getOrElse(scorePerfect),
@@ -103,6 +110,7 @@ case class Level(
     height: Int,
     mapData: Array[Array[Int]],
     objects: List[Level.ObjectInfo],
+    objectsHard: List[Level.ObjectInfo] = List(),
     scorePerfect: Int = 3,
     scoreOkay: Int = 2,
     scorePerfectHard: Int = 3,

@@ -121,7 +121,10 @@ trait GameLevelLoader {
     } yield Level.ObjectInfo(kind, x, z, "")
 
     for {
-      Level.ObjectInfo(kind, x, z, info) <- tileObjects ++ level.objects
+      Level.ObjectInfo(kind, x, z, info) <-
+        tileObjects ++
+        level.objects ++
+        (difficulty match { case Game.Difficulty.Hard => level.objectsHard case _ => List() })
       obj <- factoryConstruct(kind)
     } {
       obj.setPosition(x, 0, z)
