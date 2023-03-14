@@ -134,7 +134,7 @@ class Monster(
             viewDirection = Direction.fromVec(tar.clone().sub(position))
             if (currentDanger > 10) context.audio.play("monster-evades")
             setState(MoveTo(tar))
-          } else if (sizeLevel >= 2) {
+          } else if (sizeLevel >= 2 && currentDanger > 10) {
             // big frightened monsters will try to defend
             setState(SelfDefense(initialDirection = Direction.toRadians(viewDirection)))
           }
@@ -281,10 +281,11 @@ class Monster(
           context.particleSystem.burst("dust", 6 + 2 * sizeLevel, ParticleSystem.BurstKind.Radial,
             new Vector3(position.x, position.y-.7, position.z), new Vector3(-.01, .1, -.01),
             new Vector3(.0,.0,.0), new Vector3(.003, .0, .003), new Vector4(.4, .6, .1, .6), new Vector4(.8, .8, .2, .9), .05 + .03 * sizeLevel, .1 + .05 * sizeLevel)
-          setState(Paralyzed(1000))
+          setState(Paralyzed(1000 + 1000 * Math.random()))
           // add contamination to surrounding tiles
+          context.audio.play("monster-sprays", rateLimit = 4)
           for {
-            pos <- positionOnMap :: map.getAdjacentPositions(positionOnMap)
+            pos <- map.getAdjacentPositions(positionOnMap)
             if map.getObjectsAt(pos).forall(obj => obj.isInstanceOf[Player] || obj.isInstanceOf[Monster])
           } {
             val contamination = new Contamination(map)
@@ -408,6 +409,9 @@ class Monster(
         s
       case s @ ChargeJumpTo(tar, progress) =>
         viewDirection = Direction.fromVec(tar.clone().sub(position))
+        s
+      case s @ SelfDefense(progress, initialDirection) =>
+        context.audio.play("monster-panics", rateLimit = 2)
         s
       case s => s
     }

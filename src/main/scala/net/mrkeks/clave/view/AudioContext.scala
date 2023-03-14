@@ -44,6 +44,8 @@ class AudioContext(context: DrawingContext) {
     "big-smash" -> "Big_Smash.ogg",
     "monster-spots" -> "Monster_Spots.ogg",
     "monster-evades" -> "Monster_Evades.ogg",
+    "monster-panics" -> "Monster_Spots.ogg",
+    "monster-sprays" -> "Crate_Place_Red.ogg",
     // interaction
     "barrier-trigger" -> "Barrier_Trigger.ogg",
     "barrier-activates" -> "Barrier_Activate.ogg",
