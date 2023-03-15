@@ -3,6 +3,7 @@ name: "Frozen"
 width: 15
 height: 15
 score_perfect: 188
+score_perfect_hard: 187
 score_okay: 180
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

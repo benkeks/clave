@@ -3,7 +3,9 @@ name: "Cold storage"
 width: 15
 height: 15
 score_perfect: 195
+score_perfect_hard: 191
 score_okay: 190
+score_okay_hard: 180
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -20,3 +22,7 @@ tilemap: |
   0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0
+objects_hard:
+  - kind: monster_defensive
+    x: 13
+    z: 14
