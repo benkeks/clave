@@ -197,7 +197,7 @@ class Monster(
             setState(PushedTo(from, -ySpeed, forceful = true))
           }
         } // there is a bigger player there, turn around.
-          else if (ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(p => p.isInstanceOf[Player] && p.asInstanceOf[Player].size >= sizeLevel )) {
+          else if (ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(p => p.isInstanceOf[Player] && p.asInstanceOf[Player].size > (if (kind == FriendlyMonster) .9 else 2) * sizeLevel)) {
           if (kind == FriendlyMonster) {
             context.audio.play("small-merges")
             setState(MergingWithPlayer((map.getObjectsAt(tar.x.toInt, tar.z.toInt)).collect{ case p: PlayerData => p }.head))
@@ -258,7 +258,7 @@ class Monster(
               map.findNextFreeField(positionOnMap))
           setState(PushedTo(tar, tar.distanceTo(position) * 0.00004 / 0.0025 * .5))
         } else if (progress >= 1.0 ) {
-          player.size = Math.max(player.size + 1, 10)
+          player.size = Math.min(player.size + 1, 10)
           context.particleSystem.burst("dust", (6 + 4 * Math.random()).toInt, ParticleSystem.BurstKind.Radial,
             new Vector3(position.x, position.y-.3, position.z), new Vector3(1, .1, 1),
             new Vector3(.0,.0,.0), new Vector3(-.002, .0, -.002), new Vector4(.6, .1, .1, .6), new Vector4(.8, .2, .2, .9), -.1, .0)

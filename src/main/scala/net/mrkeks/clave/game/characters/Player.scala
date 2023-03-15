@@ -193,13 +193,11 @@ class Player(protected val map: GameMap)
 
   private def checkHarm(xz: (Int, Int)) = {
     map.getObjectsAt(xz).exists {
-      case monster: Monster =>
+      case monster: Monster if 2 * monster.sizeLevel >= size =>
         context.audio.play("big-smash")
-        monster.sizeLevel > 1
         setState(Dead())
         true
-      case contamination: Contamination =>
-        contamination.isDangerous()
+      case contamination: Contamination if contamination.isDangerous() =>
         setState(Poisoned())
         true
       case _ =>
