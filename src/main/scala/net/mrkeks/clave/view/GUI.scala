@@ -138,7 +138,7 @@ class GUI() extends TimeManagement {
       optionsMusic.value = (game.context.audio.loadMusicConfig() * 10).toInt.toString
     }
     optionsGfxDetail.checked = game.context.getGfxDetail()
-    optionsHardMode.checked = game.getDifficulty() == Game.Difficulty.Hard
+    optionsHardMode.checked = game.getDifficultySetting() == Game.Difficulty.Hard
     if (!game.hardModeAvailable() && !optionsHardMode.checked) {
       // deactivate / hide hard mode option if there have not been enough won levels
       optionsHardMode.parentElement.style.display = "none"
@@ -186,7 +186,7 @@ class GUI() extends TimeManagement {
 
   def setLevelHighScore(level: Level, score: Int): Unit = {
     if (score > 0) {
-      val grading = level.renderScoreForDifficulty(score, game.get.getDifficulty())
+      val grading = level.renderScoreForDifficulty(score, game.get.getLevelDifficulty())
       scoreText.textContent = s"Level high score: $score ($grading)"
     } else {
       scoreText.textContent = ""

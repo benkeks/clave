@@ -33,7 +33,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   
   var playerControl: PlayerControl = null
 
-  private var difficulty: Difficulty = loadDifficulty()
+  private var settingsDifficulty: Difficulty = loadDifficulty()
+  private var levelDifficulty: Difficulty = settingsDifficulty
 
   loadProgress()
 
@@ -224,9 +225,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         context.audio.play("game-paused")
       case Continuing() =>
       case Won(levelScore, _, _) =>
-        val previousScore = getScoreForDifficulty(currentLevelId, difficulty)
+        val previousScore = getScoreForDifficulty(currentLevelId, levelDifficulty)
         context.audio.setAtmosphereVolume("music-boxin-monsters", .3)
-        bookScore(currentLevelId, levelScore, difficulty)
+        bookScore(currentLevelId, levelScore, levelDifficulty)
         val msgPart1 = if (previousScore == 0) {
           "Yeah, a new success!"
         } else if (previousScore < levelScore) {
@@ -239,7 +240,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         gui.setPopup(s"""
           <div class='message'>
             <p><strong>You cleared <span class="score">$levelScore</span> fields.</strong></p>
-            <p>${currentLevel.map(_.renderScoreForDifficulty(levelScore, difficulty)).getOrElse("")}</p>
+            <p>${currentLevel.map(_.renderScoreForDifficulty(levelScore, levelDifficulty)).getOrElse("")}</p>
             <p>$msgPart1</p>
           </div>""", delay = 500 + levelScore * 2)
         schedule(lastFrameTime + 500 + levelScore * 2) { () =>
@@ -340,10 +341,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   def switchLevelById(id: String): Unit = {
     unloadLevel()
-    loadLevelById(id, difficulty)
+    levelDifficulty = settingsDifficulty
+    loadLevelById(id, levelDifficulty)
     for (l <- currentLevel) {
       gui.setPopup(s"<div class='level-name'>${l.name}</div>", time = 2000)
-      gui.setLevelHighScore(l, getScoreForDifficulty(id, difficulty))
+      gui.setLevelHighScore(l, getScoreForDifficulty(id, levelDifficulty))
     }
     if (playerControl == null) {
       playerControl = new PlayerControl(player.get, input)
@@ -384,11 +386,11 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   def setDifficulty(difficulty: Difficulty) = {
     dom.window.localStorage.setItem(DifficultyKey, difficulty.id.toString())
-    this.difficulty = difficulty
-    // TODO: Reload level if difficulty changes during running level
+    this.settingsDifficulty = difficulty
   }
 
-  def getDifficulty() = difficulty
+  def getDifficultySetting() = settingsDifficulty
+  def getLevelDifficulty() = levelDifficulty
 
   def showMeta(message: String) = {
     setState(Narration(message))
