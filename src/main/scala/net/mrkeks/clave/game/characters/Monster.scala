@@ -197,7 +197,7 @@ class Monster(
             setState(PushedTo(from, -ySpeed, forceful = true))
           }
         } // there is a bigger player there, turn around.
-          else if (ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(p => p.isInstanceOf[Player] && p.asInstanceOf[Player].size > (if (kind == FriendlyMonster) .9 else 2) * sizeLevel)) {
+          else if (ySpeed < -.0004 && map.getObjectsAt((tar.x.toInt, tar.z.toInt)).exists(p => p.isInstanceOf[Player] && Math.sqrt(p.asInstanceOf[Player].size) >= sizeLevel - (if (kind == FriendlyMonster) 1 else 0))) {
           if (kind == FriendlyMonster) {
             context.audio.play("small-merges")
             setState(MergingWithPlayer((map.getObjectsAt(tar.x.toInt, tar.z.toInt)).collect{ case p: PlayerData => p }.head))

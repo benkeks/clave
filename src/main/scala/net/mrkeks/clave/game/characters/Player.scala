@@ -193,7 +193,7 @@ class Player(protected val map: GameMap)
 
   private def checkHarm(xz: (Int, Int)) = {
     map.getObjectsAt(xz).exists {
-      case monster: Monster if 2 * monster.sizeLevel >= size =>
+      case monster: Monster if Math.sqrt(size) < monster.sizeLevel =>
         context.audio.play("big-smash")
         setState(Dead())
         true
