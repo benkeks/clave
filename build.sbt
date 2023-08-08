@@ -4,22 +4,20 @@ enablePlugins(JSDependenciesPlugin)
 
 name := "Clave"
 
-version := "0.4.0"
+version := "0.4.1"
 
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.11"
 
 scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.3.0",
-  "org.scala-js" %%% "scalajs-dom" % "2.1.0",
-  "io.crashbox" %%% "yamlesque" % "0.3.0"
+  "org.scala-js" %%% "scalajs-dom" % "2.6.0",
+  "io.crashbox" %%% "yamlesque" % "0.3.2"
 )
 
 jsDependencies ++= Seq(
   ProvidedJS / "lib/loaders/GLTFLoader.js" commonJSName "GLTFLoader"  dependsOn "facade_bundled/three.js",
-//  "org.webjars" % "jquery" % "3.4.1" / "jquery.js" minified "jquery.min.js",
-//  "org.webjars" % "bootstrap" % "4.4.1" / "bootstrap.js" minified "bootstrap.min.js" dependsOn "jquery.js"
 )
 
 Compile / fastOptJS / artifactPath :=
