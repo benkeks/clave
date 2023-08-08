@@ -57,6 +57,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     .setGrowth(.0008)
   private var bgParticleTimer = 0.0
 
+  private var touchInputHintHasBeenDisplayed = 0
+
   input.actionKeyListeners.addOne(this)
   input.menuKeyListeners.addOne(this)
 
@@ -119,6 +121,9 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           } else if (!playerControl.hasEverActed) {
             gui.setHint(input.renderInputHint("$DoAction to pick up a box you touch or to place a box you carry."))
           }
+        } else if (input.userUsesLongTouches && touchInputHintHasBeenDisplayed < 500) {
+          gui.setHint(input.renderInputHint("Touch input works best through short swipes."))
+          touchInputHintHasBeenDisplayed += 1
         } else {
           gui.setHint("")
         }

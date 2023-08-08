@@ -18,6 +18,8 @@ class Input {
   var actionKeyListeners = new Queue[Input.ActionKeyListener]()
   var menuKeyListeners = new Queue[Input.MenuKeyListener]()
 
+  var userUsesLongTouches: Boolean = false
+
   dom.window.onkeydown = { e: dom.KeyboardEvent =>
     detectInputMode(Input.KeyboardInput)
     keysDown.add(toKeyCodeInt(e))
@@ -94,6 +96,10 @@ class Input {
         touch.lastX = domTouch.clientX
         touch.lastY = domTouch.clientY
         touch.lastTime = e.timeStamp
+      }
+
+      if (e.timeStamp - touch.start > 4000) {
+        userUsesLongTouches = true
       }
     }
 
