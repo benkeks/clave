@@ -125,10 +125,11 @@ class GUI() extends TimeManagement {
   optionsMusic.addEventListener("change", changeMusicVolume _)
   private val optionsGfxDetail = options.querySelector("#options-gfx-detail").asInstanceOf[dom.HTMLInputElement]
   optionsGfxDetail.addEventListener("change", changeGfxDetail _)
-  private val optionsGfxFulscreen = options.querySelector("#options-gfx-fullscreen").asInstanceOf[dom.HTMLInputElement]
-  optionsGfxFulscreen.addEventListener("change", changeGfxFullscreen _)
-  if (!dom.document.fullscreenEnabled) optionsGfxFulscreen.style.display = "none"
-  if (dom.document.fullscreenElement != null) optionsGfxFulscreen.checked = true
+  private val optionsGfxFullscreen = options.querySelector("#options-gfx-fullscreen").asInstanceOf[dom.HTMLInputElement]
+  optionsGfxFullscreen.addEventListener("change", changeGfxFullscreen _)
+  if (!dom.document.fullscreenEnabled) optionsGfxFullscreen.style.display = "none"
+  if (dom.document.fullscreenElement != null) optionsGfxFullscreen.checked = true
+  dom.document.addEventListener[dom.Event]("fullscreenchange", _ => optionsGfxFullscreen.checked = (dom.document.fullscreenElement != null))
   private val optionsHardMode = options.querySelector("#options-hard-mode").asInstanceOf[dom.HTMLInputElement]
   optionsHardMode.addEventListener("change", changeDifficulty _)
 
@@ -307,7 +308,7 @@ class GUI() extends TimeManagement {
 
   def changeGfxFullscreen(ev: org.scalajs.dom.Event): Unit = {
     if (dom.document.fullscreenEnabled) {
-      if (optionsGfxFulscreen.checked) {
+      if (optionsGfxFullscreen.checked) {
         dom.document.body.requestFullscreen()
       } else {
         dom.document.exitFullscreen()
