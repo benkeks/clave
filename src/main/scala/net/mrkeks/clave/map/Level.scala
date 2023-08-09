@@ -129,7 +129,7 @@ case class Level(
     val (stars, skulls) = gradeLevel(score)
     val visibleStars = Math.max(stars - skulls, 0)
     val emptyStars = 3 - Math.max(skulls, stars)
-    "\uD83D\uDD71" * skulls ++ "★" * visibleStars ++ "☆" * emptyStars
+    "☀" * skulls ++ "★" * visibleStars ++ "☆" * emptyStars
   }
 
   def renderScoreForDifficulty(score: Int, difficulty: Game.Difficulty): String = {
@@ -139,7 +139,7 @@ case class Level(
         "★" * stars ++ "☆" * (3 - stars)
       case Game.Difficulty.Hard => 
         val (stars, skulls) = gradeLevel((0, score))
-        "\uD83D\uDD71" * skulls ++ "\u2620" * (3 - skulls)
+        "☀" * skulls ++ "☉" * (3 - skulls)
     }
   }
 }
