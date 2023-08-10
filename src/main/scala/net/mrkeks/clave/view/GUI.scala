@@ -307,12 +307,8 @@ class GUI() extends TimeManagement {
   }
 
   def changeGfxFullscreen(ev: org.scalajs.dom.Event): Unit = {
-    if (dom.document.fullscreenEnabled) {
-      if (optionsGfxFullscreen.checked) {
-        dom.document.body.requestFullscreen()
-      } else {
-        dom.document.exitFullscreen()
-      }
+    game foreach { g =>
+      g.context.setFullscreen(optionsGfxFullscreen.checked)
     }
   }
 

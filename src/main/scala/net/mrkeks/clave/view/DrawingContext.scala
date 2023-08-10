@@ -30,14 +30,7 @@ class DrawingContext() {
   var aspect: Double = 1.0
 
   val devicePixelRatio = dom.window.devicePixelRatio
-
-  // switch to landscape on mobile if possible
-  if (dom.window.innerWidth < dom.window.innerHeight) {
-    val screenDyn = dom.window.screen.asInstanceOf[js.Dynamic].selectDynamic("orientation")
-    if (!js.isUndefined(screenDyn)) {
-      screenDyn.lock("landscape").`catch`{_: js.Any => }
-    }
-  }
+  requestLandscapeOrientation()
 
   /** how many game space units does the camera height cover?*/
   var cameraSpace: Double = 16.0
@@ -102,6 +95,28 @@ class DrawingContext() {
   }
 
   def getGfxDetail(): Boolean = gfxDetail
+
+  def setFullscreen(fullscreen: Boolean) = {
+    import scala.scalajs.js.Thenable.Implicits._
+    import scalajs.concurrent.JSExecutionContext.Implicits._
+    if (dom.document.fullscreenEnabled) {
+      if (fullscreen) {
+        dom.document.body.requestFullscreen().foreach { _ => requestLandscapeOrientation() }
+      } else {
+        dom.document.exitFullscreen()
+      }
+    }
+  }
+
+  /* switch to landscape on mobile if possible */
+  def requestLandscapeOrientation(): Unit = {
+    if (dom.window.innerWidth < dom.window.innerHeight) {
+      val screenDyn = dom.window.screen.asInstanceOf[js.Dynamic].selectDynamic("orientation")
+      if (!js.isUndefined(screenDyn)) {
+        screenDyn.lock("landscape").`catch`{_: js.Any => }
+      }
+    }
+  }
 
   def adjustViewport() = {
     width = dom.window.innerWidth
