@@ -31,6 +31,14 @@ class DrawingContext() {
 
   val devicePixelRatio = dom.window.devicePixelRatio
 
+  // switch to landscape on mobile if possible
+  if (dom.window.innerWidth < dom.window.innerHeight) {
+    val screenDyn = dom.window.screen.asInstanceOf[js.Dynamic].selectDynamic("orientation")
+    if (!js.isUndefined(screenDyn)) {
+      screenDyn.lock("landscape").`catch`{_: js.Any => }
+    }
+  }
+
   /** how many game space units does the camera height cover?*/
   var cameraSpace: Double = 16.0
 
