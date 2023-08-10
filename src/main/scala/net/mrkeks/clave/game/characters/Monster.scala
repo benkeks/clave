@@ -343,7 +343,7 @@ class Monster(
       }
     }
 
-    val meshPositionOffset = -.45 + sizeLevel * .25
+    val meshPositionOffset = -.45 + sizeLevel * (if (state.isInstanceOf[Frozen]) .1 else .25)
     if (!state.isInstanceOf[Frozen]) {
       // particles for landing
       if (position.y < .5 && mesh.position.y - meshPositionOffset >= .5) {
