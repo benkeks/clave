@@ -3,11 +3,16 @@
   src: url("CaveatBrush-Regular.ttf");
 }
 
-body {
-  background-color: #f0f0f0;
+body, html, #main-container {
+  width: 100%;
+  height: 100%;
   padding: 0px;
   margin: 0px;
   overflow: hidden;
+}
+
+body {
+  background-color: #f0f0f0;
   font-family: "CaveatBrush";
   touch-action: none;
 }

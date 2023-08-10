@@ -135,7 +135,7 @@ class GUI() extends TimeManagement {
 
   hudContainer.appendChild(options)
 
-  dom.document.body.appendChild(hudContainer)
+  dom.document.body.firstElementChild.appendChild(hudContainer)
 
   var game: Option[Game] = None
 

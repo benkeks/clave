@@ -8,7 +8,7 @@ class EditorGUI() {
   private val hudContainer = dom.document.createElement("div")
   hudContainer.id = "hud"
   hudContainer.classList.add("editor")
-  dom.document.body.appendChild(hudContainer)
+  dom.document.body.firstElementChild.appendChild(hudContainer)
 
   private val toolButtons = dom.document.createElement("div")
   toolButtons.classList.add("btn-group")

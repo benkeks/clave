@@ -37,7 +37,7 @@ class DrawingContext() {
   private var gfxDetail = loadGfxDetail()
   private val gfxConfig = makeGfxConfig()
   var renderer: WebGLRenderer = new WebGLRenderer(gfxConfig)
-  dom.document.body.appendChild(renderer.domElement)
+  dom.document.body.firstElementChild.appendChild(renderer.domElement)
 
   renderer.setClearColor(DrawingContext.bgColor)
 
@@ -102,7 +102,7 @@ class DrawingContext() {
     renderer.asInstanceOf[js.Dynamic].setPixelRatio(devicePixelRatio)
     renderer.setSize(width, height)
     val minSide = Math.min(width, height)
-    cameraSpace = if (minSide < 600) 2 + 14.0 * minSide / 600.0 else 16.0
+    cameraSpace = if (minSide < 800) 1.5 + 13.5 * minSide / 800.0 else 16.0
     camera.aspect = aspect
     camera.updateProjectionMatrix()
   }
