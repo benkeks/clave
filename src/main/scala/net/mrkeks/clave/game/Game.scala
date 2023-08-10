@@ -30,6 +30,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   var map: GameMap = null
   
   var player: Option[Player] = None
+  private var playerHasBeenSurroundedTime: Double = 0.0
   
   var playerControl: PlayerControl = null
 
@@ -57,7 +58,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     .setGrowth(.0008)
   private var bgParticleTimer = 0.0
 
-  private var touchInputHintHasBeenDisplayed = 0
+  private var touchInputHintHasBeenDisplayed: Double = 0.0
 
   input.actionKeyListeners.addOne(this)
   input.menuKeyListeners.addOne(this)
@@ -121,11 +122,17 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           } else if (!playerControl.hasEverActed) {
             gui.setHint(input.renderInputHint("$DoAction to pick up a box you touch or to place a box you carry."))
           }
-        } else if (input.userUsesLongTouches && touchInputHintHasBeenDisplayed < 500) {
+        } else if (input.userUsesLongTouches && touchInputHintHasBeenDisplayed < 6000) {
           gui.setHint(input.renderInputHint("Touch input works best through short swipes."))
-          touchInputHintHasBeenDisplayed += 1
+          touchInputHintHasBeenDisplayed += deltaTime
         } else {
           gui.setHint("")
+        }
+
+        if (playerIsSurrounded()) {
+          playerHasBeenSurroundedTime += deltaTime
+        } else {
+          playerHasBeenSurroundedTime = Math.max(playerHasBeenSurroundedTime - 10 * deltaTime, 0)
         }
 
         if (player.isDefined &&
@@ -136,7 +143,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           setState(Lost("The monsters poisoned you!"))
         } else if (player.isDefined && player.get.state.isInstanceOf[PlayerData.Frozen]) {
           setState(Lost("You've been deep-frozen."))
-        } else if (playerIsSurrounded()) {
+        } else if (playerHasBeenSurroundedTime > 2000) {
           setState(Lost("The monsters got you surrounded!"))
         } else {
           val friends = gameObjects.collect { case m: Monster if m.kind == MonsterData.FriendlyMonster => m }
