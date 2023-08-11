@@ -2,8 +2,9 @@
 name: "Full house"
 width: 17
 height: 14
-score_perfect: 100
-score_okay: 20
+score_perfect: 148
+score_perfect_hard: 125
+score_okay: 30
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
