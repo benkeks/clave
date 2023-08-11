@@ -81,6 +81,7 @@ class GameMap(val width: Int, val height: Int)
 
   private var victoryCheckNeeded = true
   protected val victoryCheck = Array.ofDim[Int](width, height)
+  var enableVictoryLighting: Double = 0
 
   // underground presentation
   val groundShadow = new Uint16Array(width * height)
@@ -310,13 +311,14 @@ class GameMap(val width: Int, val height: Int)
       }
   }
   
-  def updateLighting(x: Int, z: Int, overlay: Int = 0): Unit = {
+  def updateLighting(x: Int, z: Int): Unit = {
     val color = if (isTileBlocked(x, z))
         0x021f
       else if (x > 0 && isTileBlocked(x-1, z))
         0x193f
       else
         0x5b4f
+    val overlay = if (victoryCheck(x)(z) >= 0 && victoryCheck(x)(z) < enableVictoryLighting) 0xee7f else 0x0000
     groundShadow.update((x)+(height-z-1)*width, color | overlay)
     val objColor = new threejs.Color( if (x > 0 && isTileBlocked(x-1, z)) 0x999999ff else 0xffffffff)
     positionedGroundItems.get((x,z)).foreach(i => grass.setColorAt(i, objColor))
@@ -335,7 +337,7 @@ class GameMap(val width: Int, val height: Int)
   def victoryLighting(x: Int, z: Int): Int = {
     if (isOnMap(x, z)) {
       val v = victoryCheck(x)(z)
-      updateLighting(x, z, if (v >= 0) 0xee7f else 0x0000)
+      updateLighting(x, z)
       return v
     } else {
       return 0

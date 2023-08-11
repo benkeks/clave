@@ -166,6 +166,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           context.audio.play("victory-drawing")
         }
         s.victoryDrawProgress += deltaTime * .02
+        map.enableVictoryLighting = s.victoryDrawProgress
         val pointTar = player.get.getPosition
         s.victoryRegion = victoryRegion.dropWhile { case (x, z) =>
           val flyTime = 1000 + 30 * pointTar.distanceTo(new Vector3(x,0,z))
