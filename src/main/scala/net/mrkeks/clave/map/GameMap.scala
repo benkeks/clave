@@ -95,12 +95,13 @@ class GameMap(val width: Int, val height: Int)
   groundMaterial.map = groundShadowTexture
   groundMaterial.reflectivity = .5
 
-  val undergroundPlane = new PlaneGeometry(1, 1)
-
-  val underground = new Mesh(undergroundPlane, groundMaterial)
+  val underground = new Mesh(new PlaneGeometry(1, 1), groundMaterial)
   underground.scale.set(width, height, 1.0)
   underground.rotation.x = -.5 * Math.PI
   underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
+
+  val undergroundEdges = new Mesh(makeUndergroundEdges(), groundMaterial)
+  undergroundEdges.position.set(-.5, -.5, -.5)
 
   val wind = new Vector3(.001,0,0)
   val grassDrift = new threejs.Vector2(0,0)
@@ -109,6 +110,7 @@ class GameMap(val width: Int, val height: Int)
     context.scene.add(walls)
     context.scene.add(grass)
     context.scene.add(underground)
+    context.scene.add(undergroundEdges)
     updateAllLighting()
   }
   
@@ -182,14 +184,42 @@ class GameMap(val width: Int, val height: Int)
     walls.instanceMatrix.needsUpdate = true
     grass.instanceMatrix.needsUpdate = true
   }
-  
+
+  def makeUndergroundEdges(): BufferGeometry = {
+    val edgeGeometry = new BufferGeometry()
+    val vertices = new js.typedarray.Float32Array(6 * (2 * width + 2 * height + 1))
+    for (x <- 0 to width) {
+      vertices(x * 6 + 0) = x.toFloat
+      vertices(x * 6 + 1) = 0.toFloat
+      vertices(x * 6 + 2) = (height + Math.random()).toFloat
+      vertices(x * 6 + 3) = x.toFloat
+      vertices(x * 6 + 4) = -5f
+      vertices(x * 6 + 5) = height.toFloat
+    }
+    val triangles = new js.typedarray.Uint16Array(6 * (2 * width + 2 * height))
+    for (x <- 0 until width) {
+      triangles(x * 6 + 0) = x
+      triangles(x * 6 + 1) = x + 1
+      triangles(x * 6 + 2) = x + 2
+      triangles(x * 6 + 3) = x + 2
+      triangles(x * 6 + 4) = x + 1
+      triangles(x * 6 + 5) = x + 3
+    }
+    edgeGeometry.setAttribute("position", new threejs.Float32BufferAttribute(vertices, 3))
+    edgeGeometry.setIndex(new threejs.Uint16BufferAttribute(triangles, 1))
+    edgeGeometry.setDrawRange(0, 3 * 2 * width)
+    edgeGeometry
+  }
+
   def clear(context: DrawingContext): Unit = {
     walls.geometry.dispose()
     groundShadowTexture.dispose()
     groundMaterial.dispose()
+    undergroundEdges.geometry.dispose()
     context.scene.remove(walls)
     context.scene.remove(grass)
     context.scene.remove(underground)
+    context.scene.remove(undergroundEdges)
   }
   
   def updateObjectPosition(o: PositionedObject, position: Vector3): (Int, Int) = {
