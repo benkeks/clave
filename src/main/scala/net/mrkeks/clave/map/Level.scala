@@ -139,7 +139,7 @@ case class Level(
         "★" * stars ++ "☆" * (3 - stars)
       case Game.Difficulty.Hard => 
         val (stars, skulls) = gradeLevel((0, score))
-        "☀" * skulls ++ "☉" * (3 - skulls)
+        "☀" * skulls ++ "☆" * (3 - skulls)
     }
   }
 }
