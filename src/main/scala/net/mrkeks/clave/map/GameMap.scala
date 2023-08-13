@@ -187,27 +187,52 @@ class GameMap(val width: Int, val height: Int)
 
   def makeUndergroundEdges(): BufferGeometry = {
     val edgeGeometry = new BufferGeometry()
-    val vertices = new js.typedarray.Float32Array(6 * (2 * width + 2 * height + 1))
-    for (x <- 0 to width) {
-      vertices(x * 6 + 0) = x.toFloat
-      vertices(x * 6 + 1) = 0.toFloat
-      vertices(x * 6 + 2) = (height + Math.random()).toFloat
-      vertices(x * 6 + 3) = x.toFloat
-      vertices(x * 6 + 4) = -5f
-      vertices(x * 6 + 5) = height.toFloat
-    }
-    val triangles = new js.typedarray.Uint16Array(6 * (2 * width + 2 * height))
+    val vertices = new js.typedarray.Float32Array(18 * (width + 1))
+    val normals = new js.typedarray.Float32Array(18 * (width + 1))
+    val topLeft = new Vector3(0,0,height)
+    val bottomLeft = new Vector3(2,-2,height)
+    val topRight = new Vector3()
+    val bottomRight = new Vector3()
+    val normalLeft = new Vector3()
+    val normalRight = new Vector3()
     for (x <- 0 until width) {
-      triangles(x * 6 + 0) = x
-      triangles(x * 6 + 1) = x + 1
-      triangles(x * 6 + 2) = x + 2
-      triangles(x * 6 + 3) = x + 2
-      triangles(x * 6 + 4) = x + 1
-      triangles(x * 6 + 5) = x + 3
+      if (x > 0) {
+        topLeft.copy(topRight)
+        bottomLeft.copy(bottomRight)
+      }
+      topRight.set(x + 1, 0, height)
+      bottomRight.set(
+        (x + 1) + 2.0 - 2.0 * (x + 1) / width,
+        -5.0 + 3.0 * (1.0 - 2.0 * (x + 1) / width) * (1.0 - 2.0 * (x + 1) / width) + Math.random(),
+        height + .1 - .2 * Math.random()
+      )
+      
+      vertices.set(topLeft.toArray().map(_.toFloat), x * 18 + 0)
+      vertices.set(bottomLeft.toArray().map(_.toFloat), x * 18 + 3)
+      vertices.set(topRight.toArray().map(_.toFloat), x * 18 + 6)
+      
+      vertices.set(topRight.toArray().map(_.toFloat), x * 18 + 9)
+      vertices.set(bottomLeft.toArray().map(_.toFloat), x * 18 + 12)
+      vertices.set(bottomRight.toArray().map(_.toFloat), x * 18 + 15)
+
+      normalLeft.subVectors(topRight, bottomLeft)
+      normalRight.subVectors(topLeft, bottomLeft)
+      normalLeft.cross(normalRight).normalize()
+      val normalArray = normalLeft.toArray().map(_.toFloat)
+      normals.set(normalArray, x * 18)
+      normals.set(normalArray, x * 18 + 3)
+      normals.set(normalArray, x * 18 + 6)
+
+      normalLeft.subVectors(bottomRight, bottomLeft)
+      normalRight.subVectors(topRight, bottomLeft)
+      normalLeft.cross(normalRight).normalize()
+      val normalArrayRight = normalLeft.toArray().map(_.toFloat)
+      normals.set(normalArrayRight, x * 18 + 9)
+      normals.set(normalArrayRight, x * 18 + 12)
+      normals.set(normalArrayRight, x * 18 + 15)
     }
     edgeGeometry.setAttribute("position", new threejs.Float32BufferAttribute(vertices, 3))
-    edgeGeometry.setIndex(new threejs.Uint16BufferAttribute(triangles, 1))
-    edgeGeometry.setDrawRange(0, 3 * 2 * width)
+    edgeGeometry.setAttribute("normal", new threejs.Float32BufferAttribute(normals, 3))
     edgeGeometry
   }
 
