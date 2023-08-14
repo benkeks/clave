@@ -334,7 +334,7 @@ class GameMap(val width: Int, val height: Int)
             case _ if isMonsterOn(x1z1) =>
               // stop victory check
               return List()
-            case Tile.Crate | Tile.SolidWall | Tile.GateClosed =>
+            case Tile.Crate | Tile.SolidWall | Tile.GateClosed | Tile.GateClosing =>
               // stop recursion
             case _ =>
               if (victoryCheck(x1)(z1) == Infinity) {
