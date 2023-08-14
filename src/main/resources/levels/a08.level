@@ -4,6 +4,7 @@ width: 16
 height: 16
 score_okay: 220
 score_perfect: 250
+score_perfect_hard: 249
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

@@ -3,6 +3,7 @@ name: "The cross"
 width: 15
 height: 15
 score_perfect: 176
+score_perfect_hard: 174
 score_okay: 83
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

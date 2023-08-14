@@ -3,6 +3,7 @@ name: "In the factory"
 width: 15
 height: 15
 score_perfect: 179
+score_perfect_hard: 177
 score_okay: 135
 tilemap: |
   0, 0, 0, 0, 0, 4, 0, 9, 0, 4, 0, 0, 0, 0, 0

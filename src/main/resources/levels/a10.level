@@ -3,6 +3,7 @@ name: "Meet the army!"
 width: 16
 height: 16
 score_perfect: 224
+score_perfect_hard: 216
 score_okay: 90
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
