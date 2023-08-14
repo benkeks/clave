@@ -3,6 +3,7 @@ name: "There are my boxes!"
 width: 16
 height: 16
 score_perfect: 219
+score_perfect_hard: 217
 score_okay: 200
 tilemap: |
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
