@@ -189,7 +189,8 @@ body {
   width: 130px;
   height: 130px;
   margin: 5px;
-  background-color: rgba(120, 120, 120, 0.9);
+  background-color: rgba(130, 120, 140, 0.8);
+  border-radius: .4rem;
   /*box-shadow: 0 0 5px black;*/
 }
 #level-list .level-sel img {
