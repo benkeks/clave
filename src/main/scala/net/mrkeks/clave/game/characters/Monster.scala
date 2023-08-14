@@ -134,6 +134,14 @@ class Monster(
             viewDirection = Direction.fromVec(tar.clone().sub(position))
             if (currentDanger > 10) context.audio.play("monster-evades")
             setState(MoveTo(tar))
+          } else if (Math.random() > .3) {
+            // sometimes just move anywhere even though there are no good options
+            val newDirection = Direction.randomDirection()
+            val tar = Direction.toVec(newDirection).add(position)
+            if (!map.intersectsLevel(tar, considerObstacles = true)) {
+              viewDirection = newDirection
+              setState(MoveTo(tar))
+            }
           } else if (sizeLevel >= 2 && currentDanger > 10) {
             // big frightened monsters will try to defend
             setState(SelfDefense(initialDirection = Direction.toRadians(viewDirection)))
