@@ -39,7 +39,8 @@ body {
 
 #options {
   position: absolute;
-  width: 150px;
+  width: 155px;
+  padding: 0px;
   right: -160px;
   top: 10px;
   text-align: right;

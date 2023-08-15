@@ -50,6 +50,7 @@ class GUI() extends TimeManagement {
   pauseButton.title = Texts.PauseDescription
   pauseButton.classList.add("btn")
   pauseButton.classList.add("btn-secondary")
+  pauseButton.classList.add("btn-lg")
   pauseButton.appendChild(pauseButtonText)
   pauseButton.addEventListener("click", clickPause _)
   pauseButton.addEventListener("mouseenter", playHoverSound)
@@ -59,6 +60,7 @@ class GUI() extends TimeManagement {
   switchButton.title = Texts.LevelSelectionDescription
   switchButton.classList.add("btn")
   switchButton.classList.add("btn-secondary")
+  switchButton.classList.add("btn-lg")
   switchButton.classList.add("d-none")
   switchButton.appendChild(dom.document.createTextNode(Texts.LevelSelectionSymbol))
   switchButton.addEventListener("click", clickSwitch _)
@@ -96,6 +98,7 @@ class GUI() extends TimeManagement {
 
   private val options = dom.document.createElement("form")
   options.id = "options"
+  options.classList.add("form-control-lg")
   options.innerHTML = s"""
     <div class="form-inline">
       <label title="${Texts.VolumeDescription}" for="options-volume">${Texts.VolumeSymbol}</label>
@@ -105,17 +108,17 @@ class GUI() extends TimeManagement {
       <label title="${Texts.MusicDescription}" for="options-music">${Texts.MusicSymbol}</label>
       <input id="options-music" type="range" max="10" class="form-range-input" title="${Texts.MusicDescription}" />
     </div>
-    <div class="form-check">
-      <input id="options-gfx-detail" type="checkbox" class="form-check-input" title="${Texts.GfxDetailDescription}" />
-      <label class="form-check-label" for="options-gfx-detail" title="${Texts.GfxDetailDescription}">${Texts.GfxDetailSymbol}</label>
+    <div class="custom-control custom-switch">
+      <input id="options-gfx-detail" type="checkbox" class="custom-control-input" title="${Texts.GfxDetailDescription}" />
+      <label class="custom-control-label" for="options-gfx-detail" title="${Texts.GfxDetailDescription}">${Texts.GfxDetailSymbol}</label>
     </div>
-    <div class="form-check">
-      <input id="options-gfx-fullscreen" type="checkbox" class="form-check-input" title="${Texts.GfxFullscreenDescription}" />
-      <label class="form-check-label" for="options-gfx-fullscreen" title="${Texts.GfxFullscreenDescription}">${Texts.GfxFullscreenSymbol}</label>
+    <div class="custom-control custom-switch">
+      <input id="options-gfx-fullscreen" type="checkbox" class="custom-control-input" title="${Texts.GfxFullscreenDescription}" />
+      <label class="custom-control-label" for="options-gfx-fullscreen" title="${Texts.GfxFullscreenDescription}">${Texts.GfxFullscreenSymbol}</label>
     </div>
-    <div class="form-check">
-      <input id="options-hard-mode" type="checkbox" class="form-check-input" title="${Texts.HardModeDescription}" />
-      <label class="form-check-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
+    <div class="custom-control custom-switch">
+      <input id="options-hard-mode" type="checkbox" class="custom-control-input" title="${Texts.HardModeDescription}" />
+      <label class="custom-control-label" for="options-hard-mode" title="${Texts.HardModeDescription}">${Texts.HardModeSymbol}</label>
     </div>
     """
 
