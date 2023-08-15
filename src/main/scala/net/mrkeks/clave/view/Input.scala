@@ -113,7 +113,9 @@ class Input {
         keysDown.remove(PlayerControl.UpCode)
         keysDown.remove(PlayerControl.DownCode)
       }
-      if (!t.changedDirection && e.timeStamp - t.start < 500) {
+      if (!t.changedDirection
+          && e.timeStamp - t.start < 500
+          && e.target.isInstanceOf[dom.HTMLDivElement]) {
         triggerAction()
       }
     }
