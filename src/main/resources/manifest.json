@@ -7,11 +7,14 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "landscape",
+  "theme_color": "#604060",
+  "background_color": "#604060",
   "icons": [
     {
       "src": "ui/icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "maskable"
     },
     {
       "src": "ui/icon-512.png",
