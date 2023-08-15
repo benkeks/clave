@@ -89,18 +89,21 @@ class GameMap(val width: Int, val height: Int)
   
   val groundShadowTexture = new DataTexture(groundShadow, width, height, threejs.THREE.RGBAFormat,
     threejs.THREE.UnsignedShort4444Type.asInstanceOf[TextureDataType], magFilter = threejs.THREE.LinearFilter)
-  
+
   val groundMaterial = new MeshLambertMaterial()
   groundMaterial.color.setHex(0xf0f0f0)
   groundMaterial.map = groundShadowTexture
   groundMaterial.reflectivity = .5
-
   val underground = new Mesh(new PlaneGeometry(1, 1), groundMaterial)
   underground.scale.set(width, height, 1.0)
   underground.rotation.x = -.5 * Math.PI
   underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
 
-  val undergroundEdges = new Mesh(makeUndergroundEdges(), groundMaterial)
+  val earthMaterial = new MeshLambertMaterial()
+  earthMaterial.color.setHex(0xa08030)
+  earthMaterial.reflectivity = .2
+  earthMaterial.vertexColors = true
+  val undergroundEdges = new Mesh(makeUndergroundEdges(), earthMaterial)
   undergroundEdges.position.set(-.5, -.5, -.5)
 
   val wind = new Vector3(.001,0,0)
@@ -189,8 +192,9 @@ class GameMap(val width: Int, val height: Int)
     val edgeGeometry = new BufferGeometry()
     val vertices = new js.typedarray.Float32Array(18 * (width + 1))
     val normals = new js.typedarray.Float32Array(18 * (width + 1))
+    val colors = new js.typedarray.Float32Array(18 * (width + 1))
     val topLeft = new Vector3(0,0,height)
-    val bottomLeft = new Vector3(2,-2,height)
+    val bottomLeft = new Vector3(1,-4,height)
     val topRight = new Vector3()
     val bottomRight = new Vector3()
     val normalLeft = new Vector3()
@@ -202,9 +206,9 @@ class GameMap(val width: Int, val height: Int)
       }
       topRight.set(x + 1, 0, height)
       bottomRight.set(
-        (x + 1) + 2.0 - 2.0 * (x + 1) / width,
-        -5.0 + 3.0 * (1.0 - 2.0 * (x + 1) / width) * (1.0 - 2.0 * (x + 1) / width) + Math.random(),
-        height + .1 - .2 * Math.random()
+        (x + 1) + 1.0 - 2.0 * (x + 1) / width,
+        -7.0 + 2.5 * (1.0 - 2.0 * (x + 1) / width) * (1.0 - 2.0 * (x + 1) / width) + Math.random(),
+        height - .3 - .3 * Math.random()
       )
       
       vertices.set(topLeft.toArray().map(_.toFloat), x * 18 + 0)
@@ -231,8 +235,12 @@ class GameMap(val width: Int, val height: Int)
       normals.set(normalArrayRight, x * 18 + 12)
       normals.set(normalArrayRight, x * 18 + 15)
     }
+    for (i <- 0 until colors.length) {
+      colors(i) = (.75 + .3 * Math.random()).toFloat
+    }
     edgeGeometry.setAttribute("position", new threejs.Float32BufferAttribute(vertices, 3))
     edgeGeometry.setAttribute("normal", new threejs.Float32BufferAttribute(normals, 3))
+    edgeGeometry.setAttribute("color", new threejs.Float32BufferAttribute(colors, 3))
     edgeGeometry
   }
 
@@ -240,6 +248,7 @@ class GameMap(val width: Int, val height: Int)
     walls.geometry.dispose()
     groundShadowTexture.dispose()
     groundMaterial.dispose()
+    earthMaterial.dispose()
     undergroundEdges.geometry.dispose()
     context.scene.remove(walls)
     context.scene.remove(grass)
