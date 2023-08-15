@@ -20,6 +20,8 @@ class GUI() extends TimeManagement {
     val PauseSymbol = "☰"
     val PauseDescription = "Pause game and show menu"
     val LevelSelectionSymbol = "⡿"
+    val RestartSymbol = "↻"
+    val RestartDescription = "Retry the current level"
     val LevelSelectionDescription = "Show level selection"
     val VolumeSymbol = "🔊"
     val VolumeDescription = "Game sound volume"
@@ -362,7 +364,7 @@ class GUI() extends TimeManagement {
 
   def notifyGameState(): Unit = {
     pauseButtonText.textContent = Texts.PauseSymbol
-  pauseButton.title = Texts.PauseDescription
+    pauseButton.title = Texts.PauseDescription
     Game.GameStateIds.foreach(hudContainer.classList.remove(_))
     for (
       g <- game
@@ -374,27 +376,24 @@ class GUI() extends TimeManagement {
           pauseButton.title = Texts.ContinueDescription
           updateLevelListDisplay(game.get)
           showHide(switchButton, show = false)
-          showHide(pauseButton, show = true)
         case Game.Paused() =>
           pauseButtonText.textContent = Texts.ContinueSymbol
           pauseButton.title = Texts.ContinueDescription
           showHide(switchButton, show = true)
-          showHide(pauseButton, show = true)
         case Game.Continuing() =>
           overlay.classList.remove("scene-fadein")
           overlay.classList.add("scene-fadeout")
           showHide(switchButton, show = false)
-          showHide(pauseButton, show = true)
         case Game.Lost(_) | Game.Won(_, _, _) =>
+          pauseButtonText.textContent = Texts.RestartSymbol
+          pauseButton.title = Texts.RestartDescription
           overlay.classList.remove("scene-fadeout")
           overlay.classList.add("scene-fadein")
           showHide(switchButton, show = false)
-          showHide(pauseButton, show = false)
         case _ =>
           overlay.classList.remove("scene-fadeout")
           overlay.classList.add("scene-fadein")
           showHide(switchButton, show = false)
-          showHide(pauseButton, show = true)
       }
     }
   }

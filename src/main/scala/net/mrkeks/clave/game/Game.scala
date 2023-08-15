@@ -182,7 +182,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           updateGameObjectList()
         }
         if (lastStateChangeTime + 2500 < lastFrameTime) {
-          gui.setHint(input.renderInputHint("$DoAction to continue."))
+          gui.setHint(input.renderInputHint("$DoAction to retry."))
         }
       case Continuing() =>
         player.foreach { p => 
@@ -283,7 +283,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
         }
       case Won(_, _, _) | Lost(_) =>
         if (lastFrameTime - lastStateChangeTime > 1500) {
-          continueLevel()
+          continueLevel(restart = !state.isInstanceOf[Won])
         }
       case _ =>
     }
@@ -341,10 +341,10 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
     }
   }
   
-  def continueLevel(): Unit = {
+  def continueLevel(restart: Boolean = false): Unit = {
     if (state.isInstanceOf[Won] || state.isInstanceOf[Lost]) {
       gui.setPopup("")
-      currentLevelNum += (if (state.isInstanceOf[Won]) 1 else 0)
+      if (!restart) currentLevelNum += 1
       val nextLevelId = levelDownloader.getLevelIdByNum(currentLevelNum)
       unlockLevel(nextLevelId)
       player.foreach(_.setState(PlayerData.Spawning(ySpeed = 0.05)))
@@ -384,6 +384,8 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
           switchLevelById(upcomingLevelId.get)
         }
         setState(Running())
+      case Won(_, _, _) | Lost(_) =>
+        continueLevel(restart = true)
       case _ =>
     }
   }
