@@ -171,6 +171,7 @@ class GUI() extends TimeManagement {
       levelButton.classList.add("level-sel")
       val icon = dom.document.createElement("img").asInstanceOf[dom.HTMLImageElement]
       icon.src = levelPreviewer.getBase64(level)
+      icon.alt = levelId
       icon.width = level.width * 3
       icon.height = level.height * 3
       levelButton.appendChild(icon)

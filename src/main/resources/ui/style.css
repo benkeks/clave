@@ -197,6 +197,7 @@ body {
 #level-list .level-sel img {
   display: block;
   margin: auto;
+  image-rendering: pixelated;
 }
 #level-list .level-sel .score {
   opacity: 0.6;
