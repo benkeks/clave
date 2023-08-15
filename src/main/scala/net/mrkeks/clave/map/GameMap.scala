@@ -94,17 +94,17 @@ class GameMap(val width: Int, val height: Int)
   groundMaterial.color.setHex(0xf0f0f0)
   groundMaterial.map = groundShadowTexture
   groundMaterial.reflectivity = .5
-  val underground = new Mesh(new PlaneGeometry(1, 1), groundMaterial)
-  underground.scale.set(width, height, 1.0)
-  underground.rotation.x = -.5 * Math.PI
-  underground.position.set(.5 * width - .5, -.5, .5 * height - .5)
+  val groundGeometry = new BoxGeometry(width + .01, .18, height + .01)
+  applyTopUVMapping(groundGeometry, width + .01, height + .01)
+  val underground = new Mesh(groundGeometry, groundMaterial)
+  underground.position.set(.5 * (width + .01) - .5, -.6, .5 * (height + .01) - .5)
 
   val earthMaterial = new MeshLambertMaterial()
   earthMaterial.color.setHex(0xa08030)
   earthMaterial.reflectivity = .2
   earthMaterial.vertexColors = true
   val undergroundEdges = new Mesh(makeUndergroundEdges(), earthMaterial)
-  undergroundEdges.position.set(-.5, -.5, -.5)
+  undergroundEdges.position.set(-.5, -.7, -.5)
 
   val wind = new Vector3(.001,0,0)
   val grassDrift = new threejs.Vector2(0,0)
@@ -188,7 +188,7 @@ class GameMap(val width: Int, val height: Int)
     grass.instanceMatrix.needsUpdate = true
   }
 
-  def makeUndergroundEdges(): BufferGeometry = {
+  private def makeUndergroundEdges(): BufferGeometry = {
     val edgeGeometry = new BufferGeometry()
     val vertices = new js.typedarray.Float32Array(18 * (width + 1))
     val normals = new js.typedarray.Float32Array(18 * (width + 1))
@@ -210,11 +210,11 @@ class GameMap(val width: Int, val height: Int)
         -7.0 + 2.5 * (1.0 - 2.0 * (x + 1) / width) * (1.0 - 2.0 * (x + 1) / width) + Math.random(),
         height - .3 - .3 * Math.random()
       )
-      
+
       vertices.set(topLeft.toArray().map(_.toFloat), x * 18 + 0)
       vertices.set(bottomLeft.toArray().map(_.toFloat), x * 18 + 3)
       vertices.set(topRight.toArray().map(_.toFloat), x * 18 + 6)
-      
+
       vertices.set(topRight.toArray().map(_.toFloat), x * 18 + 9)
       vertices.set(bottomLeft.toArray().map(_.toFloat), x * 18 + 12)
       vertices.set(bottomRight.toArray().map(_.toFloat), x * 18 + 15)
@@ -244,10 +244,22 @@ class GameMap(val width: Int, val height: Int)
     edgeGeometry
   }
 
+  private def applyTopUVMapping(geometry: BufferGeometry, width: Double, depth: Double) = {
+    val positions = geometry.getAttribute("position")
+    val uvs = geometry.getAttribute("uv")
+    for (i <- 0 until positions.count) {
+      val x: Double = positions.array.get(i * positions.itemSize).asInstanceOf[Float]
+      val z: Double = positions.array.get(i * positions.itemSize + 2).asInstanceOf[Float]
+      uvs.setXY(i, x / width + .5, - z / depth + .5)
+    }
+    uvs.needsUpdate = true
+  }
+
   def clear(context: DrawingContext): Unit = {
     walls.geometry.dispose()
     groundShadowTexture.dispose()
     groundMaterial.dispose()
+    groundGeometry.dispose()
     earthMaterial.dispose()
     undergroundEdges.geometry.dispose()
     context.scene.remove(walls)
