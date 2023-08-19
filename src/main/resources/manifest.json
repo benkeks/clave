@@ -3,9 +3,10 @@
   "short_name": "Clave",
   "name": "Clave",
   "description": "A small game about trapping monsters with boxes.",
-  "start_url": "index.html",
+  "categories": ["games"],
+  "start_url": "https://clave.keks.in/",
   "scope": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "theme_color": "#604060",
   "background_color": "#604060",
@@ -19,7 +20,8 @@
     {
       "src": "ui/icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
