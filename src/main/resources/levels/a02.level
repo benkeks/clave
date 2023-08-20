@@ -26,7 +26,7 @@ objects:
     x: -10
     z: -1
     info: |
-      <p style=""><strong>Clave</strong> is brought to you by:</p>
+      <p style="">By the way, <strong>Clave</strong> is brought to you by:</p>
       <p>&#x1F4E6;&#x1F4E6;&#x1F4E6;</p>
       <p class="credits"><a href="https://mrkeks.net" target="_blank">benkeks</a> &#x1F4E6; Code, Levels, Graphics</p>
       <p class="credits"><a href="https://www.aceluke.com/" target="_blank">Ace Luke</a> &#x1F4E6; Sound effects</p>
