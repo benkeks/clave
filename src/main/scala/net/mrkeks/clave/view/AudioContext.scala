@@ -78,6 +78,20 @@ class AudioContext(context: DrawingContext) {
 
   val atmosphereChannels = HashMap[String, AtmosphereAudio]()
 
+  dom.document.addEventListener("visibilitychange", (_: dom.Event) => {
+    if (dom.document.visibilityState match { case dom.VisibilityState.hidden => true; case _ => false }) {
+      for (a <- atmosphereChannels.valuesIterator) {
+        a.asInstanceOf[dom.HTMLMediaElement].pause()
+      }
+    } else {
+      for {
+        a <- atmosphereChannels.valuesIterator
+      } {
+        a.play()
+      }
+    }
+  })
+
   private val loader = new AudioLoader()
   for ((key, file) <- soundEffectFiles.toList) {
     loader.load(SoundDirectory + file, soundEffects(key) = _)
