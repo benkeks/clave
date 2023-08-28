@@ -144,10 +144,12 @@ class AudioContext(context: DrawingContext) {
   def update(deltaTime: Double) = {
     for {
       a <- atmosphereChannels.valuesIterator
-      if a.isPlaying
     } {
       a.volume = Mathf.approach(a.volume, a.fadeToVolume, a.fadeSpeed * deltaTime)
       a.setVolume(a.volume)
+      if (!a.isPlaying && a.volume > 0.01) {
+        a.play()
+      }
     }
     effectRateLimits.mapValuesInPlace { case (k, usage) =>
       usage - deltaTime * .001
@@ -179,7 +181,6 @@ class AudioContext(context: DrawingContext) {
       channel = atmosphereChannels.getOrElseUpdate(key, {
         val newChannel = new AtmosphereAudio(listener.getOrElse(audioListener))
         newChannel.setBuffer(buffer)
-        newChannel.setLoop(true)
         newChannel.setVolume(0.0)
         newChannel
       })
