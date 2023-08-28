@@ -33,3 +33,10 @@ project/metals.sbt
 ## Blender
 
 *.blend1
+
+## Bubblewrap/gradle
+
+.gradle
+gradle
+build
+bubblewrap/app
