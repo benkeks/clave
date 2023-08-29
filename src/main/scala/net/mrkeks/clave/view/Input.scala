@@ -29,6 +29,7 @@ class Input {
     keysDown.add(toKeyCodeInt(e))
     if (e.key == PlayerControl.ActionCharStr) {
       triggerAction()
+      e.preventDefault()
     } else if (e.key == Input.MenuKeyStr) {
       triggerMenu()
     }

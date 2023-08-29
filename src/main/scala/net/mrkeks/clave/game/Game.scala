@@ -61,6 +61,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
   private var touchInputHintHasBeenDisplayed: Double = 0.0
 
   input.actionKeyListeners.addOne(this)
+  input.actionKeyListeners.addOne(gui)
   input.menuKeyListeners.addOne(this)
   input.arrowKeyListeners.addOne(gui)
 

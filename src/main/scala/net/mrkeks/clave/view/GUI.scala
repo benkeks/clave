@@ -12,7 +12,7 @@ import scala.collection.mutable.Map
 import org.scalajs.dom
 import scala.scalajs.js.URIUtils
 
-class GUI() extends TimeManagement with Input.ArrowKeyListener {
+class GUI() extends TimeManagement with Input.ArrowKeyListener with Input.ActionKeyListener {
 
   object Texts {
     val ContinueSymbol = "▶"
@@ -104,11 +104,11 @@ class GUI() extends TimeManagement with Input.ArrowKeyListener {
   options.innerHTML = s"""
     <div class="form-inline">
       <label title="${Texts.VolumeDescription}" for="options-volume">${Texts.VolumeSymbol}</label>
-      <input id="options-volume" type="range" max="10" class="form-range-input" title="${Texts.VolumeDescription}" />
+      <input id="options-volume" type="range" max="10" class="form-range-input" title="${Texts.VolumeDescription}" onkeydown="event.preventDefault()" />
     </div>
     <div id="options-music-form" class="form-inline">
       <label title="${Texts.MusicDescription}" for="options-music">${Texts.MusicSymbol}</label>
-      <input id="options-music" type="range" max="10" class="form-range-input" title="${Texts.MusicDescription}" />
+      <input id="options-music" type="range" max="10" class="form-range-input" title="${Texts.MusicDescription}" onkeydown="event.preventDefault()" />
     </div>
     <div class="custom-control custom-switch">
       <input id="options-gfx-detail" type="checkbox" class="custom-control-input" title="${Texts.GfxDetailDescription}" />
@@ -143,6 +143,8 @@ class GUI() extends TimeManagement with Input.ArrowKeyListener {
   dom.document.body.firstElementChild.appendChild(hudContainer)
 
   var game: Option[Game] = None
+
+  private var virtualNavGrid: List[List[dom.HTMLElement]] = List()
 
   def registerGame(game: Game): Unit = {
     this.game = Some(game)
@@ -372,29 +374,65 @@ class GUI() extends TimeManagement with Input.ArrowKeyListener {
     ) {
       hudContainer.classList.add(Game.gameStateToId(g.state))
       g.state match {
-        case Game.LevelScreen() | Game.StartUp(_) =>
+        case Game.StartUp(_) =>
           pauseButtonText.textContent = Texts.ContinueSymbol
           pauseButton.title = Texts.ContinueDescription
           updateLevelListDisplay(game.get)
           showHide(switchButton, show = false)
+          virtualNavGrid = List(
+            List(pauseButton),
+            List(optionsVolume),
+            List(optionsMusic),
+            List(optionsGfxDetail),
+            List(optionsGfxFullscreen),
+            List(optionsHardMode),
+            levelList.children.toList.map(_.asInstanceOf[dom.HTMLElement])
+          )
+        case Game.LevelScreen() =>
+          pauseButtonText.textContent = Texts.ContinueSymbol
+          pauseButton.title = Texts.ContinueDescription
+          updateLevelListDisplay(game.get)
+          showHide(switchButton, show = false)
+          virtualNavGrid = List(
+            List(pauseButton),
+            levelList.children.toList.map(_.asInstanceOf[dom.HTMLElement])
+          )
         case Game.Paused() =>
           pauseButtonText.textContent = Texts.ContinueSymbol
           pauseButton.title = Texts.ContinueDescription
           showHide(switchButton, show = true)
+          virtualNavGrid = List(
+            List(pauseButton),
+            List(switchButton),
+            List(optionsVolume),
+            List(optionsMusic),
+            List(optionsGfxDetail),
+            List(optionsGfxFullscreen),
+            List(optionsHardMode)
+          )
         case Game.Continuing() =>
           overlay.classList.remove("scene-fadein")
           overlay.classList.add("scene-fadeout")
           showHide(switchButton, show = false)
+          virtualNavGrid = List(
+            List(pauseButton)
+          )
         case Game.Lost(_) | Game.Won(_, _, _) =>
           pauseButtonText.textContent = Texts.RestartSymbol
           pauseButton.title = Texts.RestartDescription
           overlay.classList.remove("scene-fadeout")
           overlay.classList.add("scene-fadein")
           showHide(switchButton, show = false)
+          virtualNavGrid = List(
+            List(pauseButton)
+          )
         case _ =>
           overlay.classList.remove("scene-fadeout")
           overlay.classList.add("scene-fadein")
           showHide(switchButton, show = false)
+          virtualNavGrid = List(
+            List(pauseButton)
+          )
       }
     }
   }
@@ -410,6 +448,54 @@ class GUI() extends TimeManagement with Input.ArrowKeyListener {
   }
 
   override def handleArrowKey(xDir: Int, yDir: Int): Unit = {
-    println(s"$xDir, $yDir")
+    if (!game.exists(_.state.isInstanceOf[Game.Running])) {
+      var focusX = 0
+      var focusY = 0
+      for (y <- 0 until virtualNavGrid.length) {
+        for (x <- 0 until virtualNavGrid(y).length) {
+          if (dom.document.activeElement == virtualNavGrid(y)(x)) {
+            focusX = x
+            focusY = y
+          }
+        }
+      }
+      val currentFocus = virtualNavGrid(focusY)(focusX)
+      if (xDir != 0) {
+        if (currentFocus.isInstanceOf[dom.HTMLInputElement] && currentFocus.asInstanceOf[dom.HTMLInputElement].`type` == "range") {
+          if (xDir > 0) {
+            currentFocus.asInstanceOf[dom.HTMLInputElement].stepUp()
+          } else {
+            currentFocus.asInstanceOf[dom.HTMLInputElement].stepDown()
+          }
+        } else {
+          focusX += xDir
+          if (focusX >= virtualNavGrid(focusY).length) {
+            focusX = 0
+          }
+          if (focusX < 0) {
+            focusX = virtualNavGrid(focusY).length - 1
+          }
+        }
+      } else if (yDir != 0) {
+        focusY += yDir
+        if (focusY >= virtualNavGrid.length) focusY = 0
+        if (focusY < 0) focusY = virtualNavGrid.length - 1
+        if (yDir < 0) focusX = virtualNavGrid(focusY).length - 1
+        if (yDir > 0) focusX = 0
+      }
+      virtualNavGrid(focusY)(focusX).focus()
+    }
+  }
+
+  override def handleActionKey(): Unit = {
+    game.map(_.state) match {
+      case Some(Game.StartUp(_)) | Some(Game.LevelScreen()) | Some(Game.Paused()) =>
+        dom.document.activeElement match {
+          case btn: dom.HTMLButtonElement => btn.click()
+          case input: dom.HTMLInputElement => input.click()
+          case _ =>
+        }
+      case _ =>
+    }
   }
 }
