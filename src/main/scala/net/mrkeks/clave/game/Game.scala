@@ -62,6 +62,7 @@ class Game(val context: DrawingContext, val input: Input, val gui: GUI, val leve
 
   input.actionKeyListeners.addOne(this)
   input.menuKeyListeners.addOne(this)
+  input.arrowKeyListeners.addOne(gui)
 
   def getPlayerPositions = {
     player.flatMap(_.getPositionOnMap).toList

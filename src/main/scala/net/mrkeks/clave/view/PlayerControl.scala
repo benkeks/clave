@@ -11,12 +11,7 @@ class PlayerControl(var player: Player, val input: Input) extends Input.ActionKe
   input.actionKeyListeners.addOne(this)
 
   def update(deltaTime: Double): Unit = {
-    player.direction.set(0,0,0)
-
-    if (input.keysDown(PlayerControl.LeftCode) || input.gamepad.exists(_.axes(0) <= -.5)) player.direction.x -= 1
-    if (input.keysDown(PlayerControl.RightCode) || input.gamepad.exists(_.axes(0) >= .5)) player.direction.x += 1
-    if (input.keysDown(PlayerControl.UpCode) || input.gamepad.exists(_.axes(1) <= -.5)) player.direction.z -= 1
-    if (input.keysDown(PlayerControl.DownCode) || input.gamepad.exists(_.axes(1) >= .5)) player.direction.z += 1
+    player.direction.set(input.arrowDirectionX, 0, input.arrowDirectionY)
 
     hasEverMoved ||= player.direction.x != 0 || player.direction.z != 0
 

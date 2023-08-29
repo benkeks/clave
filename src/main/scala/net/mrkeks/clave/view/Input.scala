@@ -13,10 +13,14 @@ class Input {
 
   val keysDown = collection.mutable.Set.empty[Int]
 
+  var arrowDirectionX = 0
+  var arrowDirectionY = 0
+
   var mainInputMode: Input.InputMode = Input.UnknownInput
 
   var actionKeyListeners = new Queue[Input.ActionKeyListener]()
   var menuKeyListeners = new Queue[Input.MenuKeyListener]()
+  var arrowKeyListeners = new Queue[Input.ArrowKeyListener]()
 
   var userUsesLongTouches: Boolean = false
 
@@ -185,6 +189,20 @@ class Input {
       keysDown.remove(PlayerControl.DownCode)
     }
     updateGamepads()
+
+    val oldDir = (arrowDirectionX, arrowDirectionY)
+    arrowDirectionX = 0
+    arrowDirectionY = 0
+    if (keysDown(PlayerControl.LeftCode) || gamepad.exists(_.axes(0) <= -.5)) arrowDirectionX -= 1
+    if (keysDown(PlayerControl.RightCode) || gamepad.exists(_.axes(0) >= .5)) arrowDirectionX += 1
+    if (keysDown(PlayerControl.UpCode) || gamepad.exists(_.axes(1) <= -.5)) arrowDirectionY -= 1
+    if (keysDown(PlayerControl.DownCode) || gamepad.exists(_.axes(1) >= .5)) arrowDirectionY += 1
+    if (arrowDirectionX != 0 && arrowDirectionX != oldDir._1) {
+      arrowKeyListeners.foreach(_.handleArrowKey(arrowDirectionX, 0))
+    }
+    if (arrowDirectionY != 0 && arrowDirectionY != oldDir._2) {
+      arrowKeyListeners.foreach(_.handleArrowKey(0, arrowDirectionY))
+    }
   }
 
   def renderInputHint(txt: String): String = {
@@ -226,5 +244,9 @@ object Input {
 
   trait MenuKeyListener {
     def handleMenuKey(): Unit
+  }
+
+  trait ArrowKeyListener {
+    def handleArrowKey(xDir: Int, yDir: Int): Unit
   }
 }

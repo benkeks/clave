@@ -12,7 +12,7 @@ import scala.collection.mutable.Map
 import org.scalajs.dom
 import scala.scalajs.js.URIUtils
 
-class GUI() extends TimeManagement {
+class GUI() extends TimeManagement with Input.ArrowKeyListener {
 
   object Texts {
     val ContinueSymbol = "▶"
@@ -407,5 +407,9 @@ class GUI() extends TimeManagement {
       button.classList.remove("d-block")
       button.classList.add("d-none")
     }
+  }
+
+  override def handleArrowKey(xDir: Int, yDir: Int): Unit = {
+    println(s"$xDir, $yDir")
   }
 }
