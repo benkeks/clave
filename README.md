@@ -1,6 +1,7 @@
 # Clave: Use the boxes, trap the monsters!
 
-Play in Browser: https://benkeks.itch.io/clave
+- Play in Browser: https://benkeks.itch.io/clave
+- Install as PWA from: <https://clave.keks.in/>
 
 [![Screenshot of Clave](src/main/resources-src/meta/screenshots/lvl0.png)](https://benkeks.itch.io/clave)
 
