@@ -6,13 +6,13 @@ name := "Clave"
 
 version := "0.4.2"
 
-scalaVersion := "2.13.11"
+scalaVersion := "2.13.16"
 
 scalacOptions ++= Seq("-deprecation")
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.3.0",
-  "org.scala-js" %%% "scalajs-dom" % "2.6.0",
+  "org.scala-lang.modules" %%% "scala-collection-contrib" % "0.4.0",
+  "org.scala-js" %%% "scalajs-dom" % "2.8.0",
   "io.crashbox" %%% "yamlesque" % "0.3.2"
 )
 

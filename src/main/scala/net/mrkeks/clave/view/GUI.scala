@@ -150,7 +150,7 @@ class GUI() extends TimeManagement with Input.ArrowKeyListener with Input.Action
     this.game = Some(game)
 
     optionsVolume.value = (game.context.audio.loadVolumeConfig() * 10).toInt.toString
-    if (optionsVolume.value == 0) {
+    if (optionsVolume.value == "0") {
       optionsMusic.value = "0"
     } else {
       optionsMusic.value = (game.context.audio.loadMusicConfig() * 10).toInt.toString
