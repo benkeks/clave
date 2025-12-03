@@ -2,6 +2,7 @@
 
 - Play in Browser: https://benkeks.itch.io/clave
 - Install as PWA from: <https://clave.keks.in/>
+- Install on Android via Google Play Store: <https://play.google.com/store/apps/details?id=in.keks.clave.twa>
 
 [![Screenshot of Clave](src/main/resources-src/meta/screenshots/lvl0.png)](https://benkeks.itch.io/clave)
 
