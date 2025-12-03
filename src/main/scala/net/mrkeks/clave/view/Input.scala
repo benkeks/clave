@@ -43,6 +43,8 @@ class Input {
     var lastTime: Double,
     var lastX: Double,
     var lastY: Double,
+    var smoothedDiffX: Double = 0,
+    var smoothedDiffY: Double = 0,
     var changedDirection: Boolean = false
   )
 
@@ -65,33 +67,35 @@ class Input {
     } {
       val diffX = domTouch.clientX - touch.lastX
       val diffY = domTouch.clientY - touch.lastY
+      touch.smoothedDiffX = touch.smoothedDiffX * .98 + diffX * .02
+      touch.smoothedDiffY = touch.smoothedDiffY * .98 + diffY * .02
       val diffTime = e.timeStamp - touch.lastTime
-      val length = scala.math.sqrt(diffX * diffX + diffY * diffY)
+      val length = scala.math.sqrt(touch.smoothedDiffX * touch.smoothedDiffX + touch.smoothedDiffY * touch.smoothedDiffY)
 
       if (diffTime > Input.MovementTouchTime && (touch.changedDirection || length > Input.MovementTouchLengthThreshold)) {
         
-        if (diffX < -Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffX < -Input.MovementTouchDirectionThreshold * length) {
           keysDown.add(PlayerControl.LeftCode)
           touch.changedDirection = true
         } else {
           keysDown.remove(PlayerControl.LeftCode)
         }
 
-        if (diffX > Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffX > Input.MovementTouchDirectionThreshold * length) {
           keysDown.add(PlayerControl.RightCode)
           touch.changedDirection = true
         } else {
           keysDown.remove(PlayerControl.RightCode)
         }
 
-        if (diffY < -Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffY < -Input.MovementTouchDirectionThreshold * length) {
           keysDown.add(PlayerControl.UpCode)
           touch.changedDirection = true
         } else {
           keysDown.remove(PlayerControl.UpCode)
         }
 
-        if (diffY > Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffY > Input.MovementTouchDirectionThreshold * length) {
           keysDown.add(40)
           touch.changedDirection = true
         } else {
