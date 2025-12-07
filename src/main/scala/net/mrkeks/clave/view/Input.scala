@@ -67,8 +67,8 @@ class Input {
     } {
       val diffX = domTouch.clientX - touch.lastX
       val diffY = domTouch.clientY - touch.lastY
-      touch.smoothedDiffX = touch.smoothedDiffX * .98 + diffX * .02
-      touch.smoothedDiffY = touch.smoothedDiffY * .98 + diffY * .02
+      touch.smoothedDiffX = touch.smoothedDiffX * .9 + diffX * .1
+      touch.smoothedDiffY = touch.smoothedDiffY * .9 + diffY * .1
       val diffTime = e.timeStamp - touch.lastTime
       val length = scala.math.sqrt(touch.smoothedDiffX * touch.smoothedDiffX + touch.smoothedDiffY * touch.smoothedDiffY)
 
