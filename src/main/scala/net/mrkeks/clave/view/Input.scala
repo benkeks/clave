@@ -45,7 +45,8 @@ class Input {
     var lastY: Double,
     var smoothedDiffX: Double = 0,
     var smoothedDiffY: Double = 0,
-    var changedDirection: Boolean = false
+    var changedDirection: Boolean = false,
+    var tickBalance: Double = 0
   )
 
   val touches = collection.mutable.HashMap[Double, Touch]()
@@ -65,37 +66,43 @@ class Input {
       domTouch = e.changedTouches(i)
       touch <- touches.get(domTouch.identifier)
     } {
+      val diffTime = e.timeStamp - touch.lastTime
       val diffX = domTouch.clientX - touch.lastX
       val diffY = domTouch.clientY - touch.lastY
-      touch.smoothedDiffX = touch.smoothedDiffX * .9 + diffX * .1
-      touch.smoothedDiffY = touch.smoothedDiffY * .9 + diffY * .1
-      val diffTime = e.timeStamp - touch.lastTime
-      val length = scala.math.sqrt(touch.smoothedDiffX * touch.smoothedDiffX + touch.smoothedDiffY * touch.smoothedDiffY)
+      val length = scala.math.sqrt(diffX * diffX + diffY * diffY)
 
       if (diffTime > Input.MovementTouchTime && (touch.changedDirection || length > Input.MovementTouchLengthThreshold)) {
-        
-        if (touch.smoothedDiffX < -Input.MovementTouchDirectionThreshold * length) {
+
+        touch.tickBalance += diffTime / Input.MovementTouchTime
+        for (i <- 0 to touch.tickBalance.toInt) {
+          touch.smoothedDiffX = touch.smoothedDiffX * .7 + diffX / diffTime * .3
+          touch.smoothedDiffY = touch.smoothedDiffY * .7 + diffY / diffTime * .3
+        }
+        touch.tickBalance -= touch.tickBalance.toInt
+        val smoothedLength = scala.math.sqrt(touch.smoothedDiffX * touch.smoothedDiffX + touch.smoothedDiffY * touch.smoothedDiffY)
+
+        if (touch.smoothedDiffX < -Input.MovementTouchDirectionThreshold * smoothedLength) {
           keysDown.add(PlayerControl.LeftCode)
           touch.changedDirection = true
         } else {
           keysDown.remove(PlayerControl.LeftCode)
         }
 
-        if (touch.smoothedDiffX > Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffX > Input.MovementTouchDirectionThreshold * smoothedLength) {
           keysDown.add(PlayerControl.RightCode)
           touch.changedDirection = true
         } else {
           keysDown.remove(PlayerControl.RightCode)
         }
 
-        if (touch.smoothedDiffY < -Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffY < -Input.MovementTouchDirectionThreshold * smoothedLength) {
           keysDown.add(PlayerControl.UpCode)
           touch.changedDirection = true
         } else {
           keysDown.remove(PlayerControl.UpCode)
         }
 
-        if (touch.smoothedDiffY > Input.MovementTouchDirectionThreshold * length) {
+        if (touch.smoothedDiffY > Input.MovementTouchDirectionThreshold * smoothedLength) {
           keysDown.add(40)
           touch.changedDirection = true
         } else {
