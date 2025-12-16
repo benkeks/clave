@@ -198,9 +198,11 @@ class GUI() extends TimeManagement with Input.ArrowKeyListener with Input.Action
     feedbackButton.setAttribute("href", plainUrl)
     feedbackButton.setAttribute("target", "_blank")
     feedbackButton.innerHTML = s"""
-      ❤ / 🐛<br>If you like Clave or discover bugs, tell @benkeks on <a href="$plainUrl" target="_blank">itch.io</a> or on <a href="https://twitter.com/intent/tweet?text=$encodedTweet&hashtags=clave&url=$encodedUrl&via=benkeks" target="_blank">Twitter</a>!
+      ❤ / 🐛<br>If you like Clave or discover bugs, tell @benkeks on <a href="$plainUrl" target="_blank">itch.io</a>!
     """
     levelList.appendChild(feedbackButton)
+    val loadingText = dom.document.getElementById("main-loading")
+    if (loadingText != null) loadingText.remove()
   }
 
   def setLevelHighScore(level: Level, score: Int): Unit = {
