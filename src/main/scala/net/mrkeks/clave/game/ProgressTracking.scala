@@ -5,7 +5,7 @@ import net.mrkeks.clave.map.LevelDownloader
 
 object ProgressTracking {
   val ClavePrefix = "clave."
-  val ClaveVersion = "0.4.2"
+  val ClaveVersion = "0.4.3"
   val LocalStorageScoreKey = ClavePrefix + "scores"
 }
 
