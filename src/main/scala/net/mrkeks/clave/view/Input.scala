@@ -193,12 +193,13 @@ class Input {
     for {
       (tId, touch) <- touches
       if touch.changedDirection
-      if timeStamp - touch.lastTime > 10 * Input.MovementTouchTime
+      if timeStamp - touch.lastTime > 5 * Input.MovementTouchTime
     } {
       keysDown.remove(PlayerControl.LeftCode)
       keysDown.remove(PlayerControl.RightCode)
       keysDown.remove(PlayerControl.UpCode)
       keysDown.remove(PlayerControl.DownCode)
+      touch.changedDirection = false
     }
     updateGamepads()
 
